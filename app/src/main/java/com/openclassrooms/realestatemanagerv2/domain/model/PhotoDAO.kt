@@ -2,6 +2,7 @@ package com.openclassrooms.realestatemanagerv2.domain.model
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.openclassrooms.realestatemanagerv2.data.entity.PhotoEntity
@@ -9,7 +10,7 @@ import com.openclassrooms.realestatemanagerv2.data.entity.PhotoEntity
 @Dao
 interface PhotoDAO {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPhoto(photoEntities: List<PhotoEntity>)
 
     @Update

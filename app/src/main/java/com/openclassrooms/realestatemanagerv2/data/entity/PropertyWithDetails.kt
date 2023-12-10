@@ -10,7 +10,7 @@ data class PropertyWithDetails(
         parentColumn = "id",
         entityColumn = "propertyLocalId"
     )
-    val nearByPointsOfInterest: List<NearByPointOfInterestEntity>,
+    val nearByPointsOfInterest: List<PointOfInterestEntity>,
 
     @Relation(
         parentColumn = "id",

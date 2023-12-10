@@ -2,6 +2,7 @@ package com.openclassrooms.realestatemanagerv2.domain.model
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -10,15 +11,16 @@ import com.openclassrooms.realestatemanagerv2.data.entity.PropertyWithDetails
 
 @Dao
 interface PropertyLocalDAO {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProperty(property: PropertyLocalEntity)
 
     @Update
     suspend fun updateProperty(property: PropertyLocalEntity)
 
+    // THE 2 NEXT FUNCTIONS QUERY FROM ALL TABLES NEEDED TO MATCH PROPERTY MODEL
     @Transaction
     @Query("SELECT * FROM properties WHERE id = :propertyId")
-    suspend fun getPropertyById(propertyId: Long): PropertyWithDetails?
+    suspend fun getPropertyById(propertyId: String): PropertyWithDetails?
 
     @Transaction
     @Query("SELECT * FROM properties")

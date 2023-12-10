@@ -1,10 +1,7 @@
 package com.openclassrooms.realestatemanagerv2.domain.model
 
-import java.util.Date
-import java.util.UUID
-
 data class Property (
-    val id: Long,
+    val id: String,
     val type: String,
     val price: Double,
     val area: Double,
@@ -26,7 +23,7 @@ data class Photo(
 )
 
 data class Agent(
-    val id: Long,
+    val id: String,
     val name: String,
     val phoneNumber: String,
     val email: String

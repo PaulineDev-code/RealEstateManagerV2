@@ -15,10 +15,9 @@ import androidx.room.PrimaryKey
 
 
 data class PhotoEntity (
-    @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    @PrimaryKey val id: String,
     val description: String,
     val photoUrl: String,
     @ColumnInfo(index = true)
-    val propertyLocalId: Long
+    val propertyLocalId: String
 )
