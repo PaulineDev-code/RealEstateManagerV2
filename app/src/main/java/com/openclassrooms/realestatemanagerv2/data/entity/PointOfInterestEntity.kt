@@ -14,10 +14,9 @@ import androidx.room.PrimaryKey
         )])
 
 
-data class NearByPointOfInterestEntity (
-    @PrimaryKey(autoGenerate = true)
-    val id: Long,
+data class PointOfInterestEntity (
+    @PrimaryKey val id: String,
     val pointOfInterest: String,
     @ColumnInfo(index = true)
-    val propertyLocalId: Long
+    val propertyLocalId: String
 )

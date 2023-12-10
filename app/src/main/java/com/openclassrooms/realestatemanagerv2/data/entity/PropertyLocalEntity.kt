@@ -8,8 +8,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "properties", foreignKeys =
 [ ForeignKey(entity = AgentEntity::class, parentColumns = ["id"], childColumns = ["agentId"])])
 data class PropertyLocalEntity (
-    @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    @PrimaryKey val id: String,
     val type: String,
     val price: Double,
     val area: Double,
@@ -21,5 +20,5 @@ data class PropertyLocalEntity (
     val entryDate: String,
     val saleDate: String?,
     @ColumnInfo(index = true)
-    val agentId: Long
+    val agentId: String
 )
