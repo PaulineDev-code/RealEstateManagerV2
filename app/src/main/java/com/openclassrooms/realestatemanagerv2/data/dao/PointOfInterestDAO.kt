@@ -1,4 +1,4 @@
-package com.openclassrooms.realestatemanagerv2.domain.model
+package com.openclassrooms.realestatemanagerv2.data.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -15,8 +15,5 @@ interface PointOfInterestDAO {
 
     @Update
     suspend fun updatePointsOfInterest(pointsOfInterest: List<PointOfInterestEntity>)
-
-    @Query("SELECT * FROM points_of_interest WHERE propertyLocalId = :propertyLocalId")
-    suspend fun getPointsOfInterest(propertyLocalId: Long): List<PointOfInterestEntity>?
 
 }

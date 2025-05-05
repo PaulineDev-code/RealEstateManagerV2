@@ -1,4 +1,4 @@
-package com.openclassrooms.realestatemanagerv2.domain.model
+package com.openclassrooms.realestatemanagerv2.data.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -20,11 +20,14 @@ interface PropertyLocalDAO {
     // THE 2 NEXT FUNCTIONS QUERY FROM ALL TABLES NEEDED TO MATCH PROPERTY MODEL
     @Transaction
     @Query("SELECT * FROM properties WHERE id = :propertyId")
-    suspend fun getPropertyById(propertyId: String): PropertyWithDetails?
+    suspend fun getPropertyById(propertyId: String): PropertyWithDetails
 
     @Transaction
     @Query("SELECT * FROM properties")
     suspend fun getAllProperties(): List<PropertyWithDetails>
+
+    @Query("SELECT DISTINCT type FROM properties")
+    suspend fun getDistinctTypes(): List<String>
 
     /*@Query("SELECT * FROM properties " +
             "WHERE (:propertyType IS NULL OR type = :propertyType) " +

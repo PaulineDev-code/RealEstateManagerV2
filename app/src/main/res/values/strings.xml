@@ -1,4 +1,47 @@
 <resources>
     <string name="app_name">RealEstateManagerV2</string>
     <string name="title_activity_main">MainActivity</string>
+    //Property infos
+    <string name="description">Description</string>
+    <string name="informations">Informations</string>
+    <string name="media">Media</string>
+    <string name="surface">Surface</string>
+    <string name="type">Type</string>
+    <string name="location">Location</string>
+    <string name="points_of_interest">Nearby points of interest</string>
+    <string name="price">Price</string>
+    <string name="number_of_rooms">Number of rooms</string>
+    <string name="entry_date">Entry Date</string>
+    <string name="sale_date">Sale Date</string>
+    <string name="status">Status</string>
+    <string name="agent">Agent</string>
+    //Point of interest enum
+    <string name="nursery_school">Nursery School</string>
+    <string name="primary_school">Primary School</string>
+    <string name="middle_school">Middle School</string>
+    <string name="high_school">High School</string>
+    <string name="train_station">Train Station</string>
+    <string name="bus_station">Bus Station</string>
+    <string name="airport">Airport</string>
+    <string name="hospital">Hospital</string>
+    <string name="pharmacy">Pharmacy</string>
+    <string name="supermarket">Supermarket</string>
+    <string name="post_office">Post Office</string>
+    <string name="gas_station">Gas Station</string>
+    <string name="park">Park</string>
+    <string name="cinema">Cinema</string>
+    <string name="gym_club">Gym Club</string>
+    <string name="swimming_pool">Swimming Pool</string>
+    <string name="restaurant">Restaurant</string>
+    <string name="bar">Bar</string>
+    <string name="bakery">Bakery</string>
+    <string name="police_station">Police Station</string>
+    <string name="city_hall">City Hall</string>
+    <string name="library">Library</string>
+    <string name="museum">Museum</string>
+    //App utils
+    <string name="add_proprety_validation_error">Fields are missing: </string>
+    <string name="select_points_of_interest">Click here to select nearby points of interest : </string>
+
+
 </resources>

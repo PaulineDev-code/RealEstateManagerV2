@@ -2,10 +2,10 @@ package com.openclassrooms.realestatemanagerv2.di
 
 import android.content.Context
 import com.openclassrooms.realestatemanagerv2.data.database.MyDatabase
-import com.openclassrooms.realestatemanagerv2.domain.model.AgentDAO
-import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterestDAO
-import com.openclassrooms.realestatemanagerv2.domain.model.PhotoDAO
-import com.openclassrooms.realestatemanagerv2.domain.model.PropertyLocalDAO
+import com.openclassrooms.realestatemanagerv2.data.dao.AgentDAO
+import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestDAO
+import com.openclassrooms.realestatemanagerv2.data.dao.MediaDAO
+import com.openclassrooms.realestatemanagerv2.data.dao.PropertyLocalDAO
 import com.openclassrooms.realestatemanagerv2.repositories.PropertyRepository
 import dagger.Module
 import dagger.Provides
@@ -25,25 +25,31 @@ class DatabaseModule {
     }
 
     @Provides
+    @Singleton
     fun providePropertyDao(myDatabase: MyDatabase): PropertyLocalDAO {
         return myDatabase.propertyDao()
     }
     @Provides
+    @Singleton
     fun provideAgentDao(myDatabase: MyDatabase): AgentDAO {
         return myDatabase.agentDAO()
     }@Provides
-    fun providePhotoDao(myDatabase: MyDatabase): PhotoDAO {
-        return myDatabase.photoDao()
+    @Singleton
+    fun providePhotoDao(myDatabase: MyDatabase): MediaDAO {
+        return myDatabase.mediaDao()
     }
     @Provides
+    @Singleton
     fun providePointOfInterestDao(myDatabase: MyDatabase): PointOfInterestDAO {
         return myDatabase.pointOfInterestDao()
     }
 
     @Provides
-    fun providePropertyRepository(propertyLocalDAO: PropertyLocalDAO, agentDAO: AgentDAO,
-                                  photoDAO: PhotoDAO, pointOfInterestDAO: PointOfInterestDAO): PropertyRepository {
-        return PropertyRepository(propertyLocalDAO, agentDAO, photoDAO, pointOfInterestDAO)
+    @Singleton
+    fun providePropertyRepository(database: MyDatabase, propertyLocalDAO: PropertyLocalDAO, agentDAO: AgentDAO,
+                                  mediaDAO: MediaDAO, pointOfInterestDAO: PointOfInterestDAO
+    ): PropertyRepository {
+        return PropertyRepository( database, propertyLocalDAO, agentDAO, mediaDAO, pointOfInterestDAO)
     }
 
 }

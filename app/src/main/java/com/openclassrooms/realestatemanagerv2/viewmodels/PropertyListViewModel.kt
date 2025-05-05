@@ -1,5 +1,6 @@
 package com.openclassrooms.realestatemanagerv2.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
@@ -22,9 +23,11 @@ class PropertyListViewModel @Inject constructor
         viewModelScope.launch {
             try {
                     getAllPropertiesUseCase().collect() { properties ->
+                        Log.d("ViewModel", "Collected properties: $properties")
                         _uiState.value = PropertyUiState.Success(properties)
                     }
-            } catch (exception: Exception) {_uiState.value = PropertyUiState.Error(exception)}
+            } catch (exception: Exception) {Log.e("ViewModel", "Error collecting properties", exception)
+                _uiState.value = PropertyUiState.Error(exception)}
         }
     }
 

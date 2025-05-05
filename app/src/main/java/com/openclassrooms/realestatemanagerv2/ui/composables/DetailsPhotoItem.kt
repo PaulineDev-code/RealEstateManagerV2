@@ -1,4 +1,4 @@
-package com.openclassrooms.realestatemanagerv2.ui
+package com.openclassrooms.realestatemanagerv2.ui.composables
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,11 +20,12 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.openclassrooms.realestatemanagerv2.R
+import com.openclassrooms.realestatemanagerv2.domain.model.Media
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
 
-@Preview
+
 @Composable
-fun PhotoItem(@PreviewParameter(PhotoPreviewParameterProvider::class) photo: Photo) {
+fun PhotoItem(/*@PreviewParameter(PhotoPreviewParameterProvider::class)*/ media: Media) {
     Box(Modifier.padding(8.dp)) {
         Image(
             painter = rememberAsyncImagePainter(
@@ -40,7 +41,7 @@ fun PhotoItem(@PreviewParameter(PhotoPreviewParameterProvider::class) photo: Pho
             contentScale = ContentScale.Fit,
         )
         Text(
-            text = photo.description,
+            text = media.description,
             color = Color.White,
             modifier = Modifier.align(Alignment.BottomCenter).background(Color.Gray, RectangleShape)
 
@@ -49,10 +50,19 @@ fun PhotoItem(@PreviewParameter(PhotoPreviewParameterProvider::class) photo: Pho
 
 }
 
-class PhotoPreviewParameterProvider : PreviewParameterProvider<Photo> {
-    private val photoList: List<Photo> = listOf(Photo("https://www.istockphoto.com/fr/photo/belle-maison-avec-jardin-gm590279802-101488565", "belle maison"))
+@Preview
+@Composable
+fun PhototItemPreview() {
+    var mediaPreview : Media = Photo("", "descriptionTest")
+    PhotoItem(mediaPreview)
+
+}
+
+/*
+class PhotoPreviewParameterProvider : PreviewParameterProvider<Media> {
+    private val mediaLists: List<Media> = listOf(Photo("https://www.istockphoto.com/fr/photo/belle-maison-avec-jardin-gm590279802-101488565", "belle maison"))
     private val nearByPointsList: List<String> = listOf("Ecole","Boulangerie")
     override val values = sequenceOf(
         Photo("https://www.istockphoto.com/fr/photo/belle-maison-avec-jardin-gm590279802-101488565", "Facade")
     )
-}
+}*/

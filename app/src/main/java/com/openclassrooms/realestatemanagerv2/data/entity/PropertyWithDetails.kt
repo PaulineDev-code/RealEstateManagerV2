@@ -1,6 +1,7 @@
 package com.openclassrooms.realestatemanagerv2.data.entity
 
 import androidx.room.Embedded
+import androidx.room.Junction
 import androidx.room.Relation
 
 data class PropertyWithDetails(
@@ -8,15 +9,20 @@ data class PropertyWithDetails(
 
     @Relation(
         parentColumn = "id",
-        entityColumn = "propertyLocalId"
+        entityColumn = "id",
+        associateBy = Junction(
+            value = PointOfInterestCrossRef::class,
+            parentColumn = "propertyId",
+            entityColumn = "pointOfInterestId"
+        )
     )
-    val nearByPointsOfInterest: List<PointOfInterestEntity>,
+    val pointsOfInterest: List<PointOfInterestEntity>,
 
     @Relation(
         parentColumn = "id",
         entityColumn = "propertyLocalId"
     )
-    val photos: List<PhotoEntity>,
+    val media: List<MediaEntity>,
 
     @Relation(
         parentColumn = "agentId",

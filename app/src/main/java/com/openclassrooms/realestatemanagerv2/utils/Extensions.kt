@@ -1,124 +1,129 @@
 package com.openclassrooms.realestatemanagerv2.utils
 
 import com.openclassrooms.realestatemanagerv2.data.entity.AgentEntity
-import com.openclassrooms.realestatemanagerv2.data.entity.PhotoEntity
+import com.openclassrooms.realestatemanagerv2.data.entity.MediaEntity
 import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestEntity
 import com.openclassrooms.realestatemanagerv2.data.entity.PropertyLocalEntity
-import com.openclassrooms.realestatemanagerv2.data.entity.PropertyWithDetails
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
+import com.openclassrooms.realestatemanagerv2.domain.model.Media
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
+import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
+import com.openclassrooms.realestatemanagerv2.domain.model.Video
+import com.openclassrooms.realestatemanagerv2.ui.models.SelectablePointOfInterest
 import java.util.UUID
 
 
-// 1. Extensions to convert entities to 'in-app' model objects
-//For better architecture, Entities should not have access to Model, prefer a mapFrom() function
-    fun List<PropertyWithDetails>.mapToProperties(): List<Property> {
-        return map { it.toProperty() }
-    }
-    fun PropertyWithDetails.toProperty(): Property {
-        return Property(
-            id = property.id,
-            type = property.type,
-            price = property.price,
-            area = property.area,
-            numberOfRooms = property.numberOfRooms,
-            description = property.description,
-            photos = photos.mapToPhotos(),
-            videoUrl = property.videoUrl,
-            address = property.address,
-            nearbyPointsOfInterest = nearByPointsOfInterest.mapToPointsOfInterest(),
-            status = if(property.status == "AVAILABLE") { PropertyStatus.Available }
-            else { PropertyStatus.Sold },
-            entryDate = property.entryDate,
-            saleDate = property.saleDate,
-            agent = agent.toAgent()
-        )
-    }
-     private fun List<PhotoEntity>.mapToPhotos(): List<Photo> {
-        return map { it.toPhoto() }
-    }
-
-    private fun PhotoEntity.toPhoto(): Photo {
-        return Photo(
-            imageUrl = photoUrl,
-            description = description
-        )
-    }
-
-    private fun List<PointOfInterestEntity>.mapToPointsOfInterest(): List<String> {
-        return map { it.toPointOfInterest() }
-    }
-
-    private fun PointOfInterestEntity.toPointOfInterest() : String {
-        return pointOfInterest
-    }
-
-    private fun AgentEntity.toAgent(): Agent {
-        return Agent(
-            id = id,
-            name = name,
-            phoneNumber = phoneNumber,
-            email = email
-        )
-    }
-
-    // 2. All Extensions to convert 'in-app' model objects to entities
-
+//For better architecture, Entities should not have access to Model, so Model has companion objects
+//to convert entities to model
+//Features Model to entity, String to property status and points of interest to selectable conversions
+// + field validations for properties
 fun List<Property>.mapToPropertyLocalEntities(): List<PropertyLocalEntity> {
-        return map { it.toPropertyLocalEntity() }
-    }
-    fun Property.toPropertyLocalEntity(): PropertyLocalEntity {
-        return PropertyLocalEntity(
-            id = id,
-            type = type,
-            price = price,
-            area = area,
-            numberOfRooms = numberOfRooms,
-            description = description,
-            videoUrl = videoUrl,
-            address = address,
-            status =  status.toString(),
-            entryDate = entryDate,
-            saleDate = saleDate,
-            agentId = agent.id
-        )
-    }
-    fun Property.mapToPhotoEntities(): List<PhotoEntity> {
-        return photos.map { it.toPhotoEntity(id) }
-    }
+    return map { it.toPropertyLocalEntity() }
+}
 
-    private fun Photo.toPhotoEntity(propertyLocalId: String): PhotoEntity {
-        return PhotoEntity(
-            id = UUID.randomUUID().toString(),
-            photoUrl = imageUrl,
-            description = description,
-            propertyLocalId = propertyLocalId
-        )
-    }
+fun Property.toPropertyLocalEntity(): PropertyLocalEntity {
+    return PropertyLocalEntity(
+        id = id,
+        type = type,
+        price = price,
+        area = area,
+        numberOfRooms = numberOfRooms,
+        description = description,
+        address = address,
+        status = status.toReadableString(),
+        entryDate = entryDate,
+        saleDate = saleDate,
+        agentId = agent.id
+    )
+}
 
-    fun Property.mapToPointOfInterestEntities(): List<PointOfInterestEntity> {
-        return nearbyPointsOfInterest.map { it.toPointOfInterestEntity(id) }
-    }
+fun Property.mapToMediaEntities(): List<MediaEntity> {
+    return media.map { it.toMediaEntity(id) }
+}
 
-    private fun String.toPointOfInterestEntity(propertyLocalId: String) : PointOfInterestEntity {
-        return PointOfInterestEntity(
-            id = UUID.randomUUID().toString(),
-            pointOfInterest = this,
-            propertyLocalId = propertyLocalId
-
-        )
+private fun Media.toMediaEntity(propertyLocalId: String): MediaEntity {
+    val type = when (this) {
+        is Photo -> "photo"
+        is Video -> "video"
     }
+    return MediaEntity(
+        id = UUID.randomUUID().toString(),
+        type = type,
+        mediaUrl = mediaUrl,
+        description = description,
+        propertyLocalId = propertyLocalId,
+    )
+}
 
-    fun Agent.toAgentEntity(): AgentEntity {
-        return AgentEntity(
-            id = id,
-            name = name,
-            phoneNumber = phoneNumber,
-            email = email
-        )
+fun Property.mapToPointOfInterestEntities(): List<PointOfInterestEntity> {
+    return nearbyPointsOfInterest.map { it.toPointOfInterestEntity() }
+}
+
+private fun PointOfInterest.toPointOfInterestEntity(): PointOfInterestEntity {
+    return PointOfInterestEntity(
+        id = UUID.randomUUID().toString(),
+        name = this.name
+    )
+}
+
+fun Agent.toAgentEntity(): AgentEntity {
+    return AgentEntity(
+        id = id,
+        name = name,
+        phoneNumber = phoneNumber,
+        email = email
+    )
+}
+
+//CONVERT PROPERTY STATUS TO STRING OR STRING TO PROPERTY STATUS
+fun PropertyStatus.toReadableString(): String {
+    return when (this) {
+        is PropertyStatus.Available -> "Available"
+        is PropertyStatus.Sold -> "Sold"
     }
+}
+
+fun String.toPropertyStatus(): PropertyStatus {
+    return when (this) {
+        "Available" -> PropertyStatus.Available
+        "Sold" -> PropertyStatus.Sold
+        else -> throw IllegalArgumentException("Unknown PropertyStatus: $this")
+    }
+}
+
+//
+fun PointOfInterest.toSelectable(): SelectablePointOfInterest {
+    return SelectablePointOfInterest(name = this.name, isSelected = false)
+}
+
+/*fun SelectablePointOfInterest.toPointOfInterest(): PointOfInterest {
+    return SelectablePointOfInterest(name = this.name, isSelected = false)
+}*/
+
+fun List<PointOfInterest>.toSelectableList(): List<SelectablePointOfInterest> {
+    return this.map { it.toSelectable() }
+}
+
+//validation functions
+fun String.validateLength(): String? {
+    return if (this.length < 5) "Le titre est trop court." else ""
+ }
+
+fun String.validateNonEmpty(): String? {
+    return if (this.isBlank()) "Ne peut pas être vide." else ""
+}
+
+fun String.validatePositiveNumber(): String? {
+    val number = this.toDoubleOrNull()
+    return when {
+        number == null -> "Doit être un nombre valide."
+        number <= 0 -> "Doit être supérieur à 0."
+        else -> ""
+    }
+}
+
 
 
 

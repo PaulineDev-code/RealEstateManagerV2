@@ -1,11 +1,16 @@
 package com.openclassrooms.realestatemanagerv2.repositories
 
+import androidx.room.withTransaction
 import com.openclassrooms.realestatemanagerv2.data.entity.PropertyLocalEntity
 import com.openclassrooms.realestatemanagerv2.data.entity.PropertyWithDetails
-import com.openclassrooms.realestatemanagerv2.domain.model.AgentDAO
-import com.openclassrooms.realestatemanagerv2.domain.model.PhotoDAO
-import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterestDAO
-import com.openclassrooms.realestatemanagerv2.domain.model.PropertyLocalDAO
+import com.openclassrooms.realestatemanagerv2.data.dao.AgentDAO
+import com.openclassrooms.realestatemanagerv2.data.dao.MediaDAO
+import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestDAO
+import com.openclassrooms.realestatemanagerv2.data.dao.PropertyLocalDAO
+import com.openclassrooms.realestatemanagerv2.data.database.MyDatabase
+import com.openclassrooms.realestatemanagerv2.data.entity.AgentEntity
+import com.openclassrooms.realestatemanagerv2.data.entity.MediaEntity
+import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -13,12 +18,32 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
-class PropertyRepository @Inject constructor(private val propertyDao : PropertyLocalDAO, private val agentDAO: AgentDAO,
-    private val photoDAO: PhotoDAO, private val pointOfInterestDAO: PointOfInterestDAO) {
+class PropertyRepository @Inject constructor(private val database: MyDatabase, private val propertyDao : PropertyLocalDAO, private val agentDao: AgentDAO,
+                                             private val mediaDao: MediaDAO, private val pointOfInterestDao: PointOfInterestDAO
+) {
 
-    suspend fun insertProperty(property: PropertyLocalEntity) = propertyDao.insertProperty(property)
+    suspend fun insertProperty(agentEntity: AgentEntity,
+                               propertyEntity: PropertyLocalEntity,
+                               photosEntities: List<MediaEntity>,
+                               pointsOfInterestEntities: List<PointOfInterestEntity>) {
+        database.withTransaction {
 
-    suspend fun updateProperty(property: PropertyLocalEntity) = propertyDao.updateProperty(property)
+            agentDao.insertAgent(agentEntity)
+            propertyDao.insertProperty(propertyEntity)
+            mediaDao.insertMedias(photosEntities)
+            pointOfInterestDao.insertPointsOfInterest(pointsOfInterestEntities)
+        }
+
+    }
+
+    suspend fun updateProperty(agentEntity: AgentEntity,
+                               propertyEntity: PropertyLocalEntity,
+                               photosEntities: List<MediaEntity>,
+                               pointsOfInterestEntities: List<PointOfInterestEntity>) {
+
+
+
+    }
 
     suspend fun getAllProperties(): Flow<List<PropertyWithDetails>> {
         return flow {
@@ -28,6 +53,14 @@ class PropertyRepository @Inject constructor(private val propertyDao : PropertyL
         }
     }
 
-    suspend fun getPropertyById(property: PropertyLocalEntity) = propertyDao.getPropertyById(property.id)
+    suspend fun getPropertyById(id: String): Flow<PropertyWithDetails> {
+        return flow {
+            emit(withContext(Dispatchers.IO) {
+                propertyDao.getPropertyById(id)
+            })
+        }
+    }
+
+    suspend fun getPropertyTypes(): List<String> = propertyDao.getDistinctTypes()
 
 }

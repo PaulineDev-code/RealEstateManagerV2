@@ -6,7 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "photos",
+@Entity(tableName = "medias",
         foreignKeys = [
         ForeignKey(entity = PropertyLocalEntity::class,
             parentColumns = ["id"],
@@ -14,10 +14,15 @@ import androidx.room.PrimaryKey
             onDelete = CASCADE)])
 
 
-data class PhotoEntity (
-    @PrimaryKey val id: String,
+data class MediaEntity (
+    @PrimaryKey
+    @ColumnInfo
+    val id: String,
+    val type: String,
+    @ColumnInfo
     val description: String,
-    val photoUrl: String,
+    @ColumnInfo
+    val mediaUrl: String,
     @ColumnInfo(index = true)
     val propertyLocalId: String
 )
