@@ -13,6 +13,10 @@ import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.domain.model.Video
 import com.openclassrooms.realestatemanagerv2.ui.models.SelectablePointOfInterest
 import java.util.UUID
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 
 //For better architecture, Entities should not have access to Model, so Model has companion objects
@@ -123,6 +127,22 @@ fun String.validatePositiveNumber(): String? {
         else -> ""
     }
 }
+
+/**
+ * Formate un [Long] (millis depuis l’Epoch) en date locale lisible.
+ *
+ * @receiver le timestamp à formater (ou null pour « aucune date »)
+ * @param pattern le pattern JavaTime, par défaut "dd MMMM yyyy" (ex. "07 mars 2025")
+ * @param locale la locale à utiliser (défaut : Locale.getDefault())
+ * @return la chaîne formatée, ou chaîne vide si receiver est null
+ */
+fun Long?.formatMillisToLocal(
+    pattern: String = "dd MMMM yyyy",
+    locale: Locale = Locale.getDefault()
+): String = this
+    ?.let { Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate() }
+    ?.format(DateTimeFormatter.ofPattern(pattern, locale))
+    .orEmpty()
 
 
 

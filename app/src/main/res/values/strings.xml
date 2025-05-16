@@ -3,16 +3,24 @@
     <string name="title_activity_main">MainActivity</string>
     //Property infos
     <string name="description">Description</string>
+    <string name="description_for_the_property">Description for the property</string>
     <string name="informations">Informations</string>
     <string name="media">Media</string>
-    <string name="surface">Surface</string>
     <string name="type">Type</string>
-    <string name="location">Location</string>
-    <string name="points_of_interest">Nearby points of interest</string>
+    <string name="type_of_property">Type of property</string>
     <string name="price">Price</string>
+    <string name="price_of_property">Price of property</string>
+    <string name="type_and_price">Type and Price</string>
+    <string name="area">Area</string>
     <string name="number_of_rooms">Number of rooms</string>
+    <string name="area_and_number_of_rooms">Area and Number of rooms</string>
+    <string name="location">Location</string>
+    <string name="address">Address</string>
+    <string name="points_of_interest">Points of interest</string>
+    <string name="nearby_points_of_interest">Nearby points of interest</string>
     <string name="entry_date">Entry Date</string>
     <string name="sale_date">Sale Date</string>
+    <string name="sale_date_optional">Sale Date(optional)</string>
     <string name="status">Status</string>
     <string name="agent">Agent</string>
     //Point of interest enum
@@ -39,6 +47,12 @@
     <string name="city_hall">City Hall</string>
     <string name="library">Library</string>
     <string name="museum">Museum</string>
+    //Media related strings
+    <string name="import_a_photo">Import a photo</string>
+    <string name="import_a_video">Import a video</string>
+    <string name="description_of_the_photo">Description of the photo</string>
+    <string name="add_photo">Add photo</string>
+
     //App utils
     <string name="add_proprety_validation_error">Fields are missing: </string>
     <string name="select_points_of_interest">Click here to select nearby points of interest : </string>

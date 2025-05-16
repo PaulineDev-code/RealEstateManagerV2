@@ -4,17 +4,22 @@ import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.utils.ImageUtils
 
 @Composable
-fun CameraGalleryChooser(onPhotoSelected: (String) -> Unit){
+fun CameraGalleryChooser(onPhotoSelected: (String) -> Unit) {
     val context = LocalContext.current
 
     val imageUtils = ImageUtils(context)
@@ -22,9 +27,6 @@ fun CameraGalleryChooser(onPhotoSelected: (String) -> Unit){
     var currentPhoto: String?
 
     val openDialog = remember { mutableStateOf(false) }
-
-
-
 
 
     val launcher =
@@ -45,44 +47,44 @@ fun CameraGalleryChooser(onPhotoSelected: (String) -> Unit){
     showDescriptionDialog(photoUri = currentPhoto!!, onPhotoAdded = onPhotoAdded)
     }*/
 
-    Column {
-        Button(
-            onClick = { launcher.launch(imageUtils.getIntentChooser())
-            }
-        ) {
-            Text(text = "Choose a photo")
+
+    Button(
+        modifier = Modifier.padding(8.dp),
+        onClick = {
+            launcher.launch(imageUtils.getIntentChooser())
         }
-
+    ) {
+        Text(text = stringResource(id = R.string.import_a_photo))
     }
-
 
 }
 
-    /*DisposableEffect(currentPhoto) {
-        // Code à exécuter lorsque le DisposableEffect est créé
-        onDispose {
-            currentPhoto?.let { uri ->
-                // Code à exécuter lorsque le DisposableEffect est supprimé
-                showDescriptionDialog(
-                    photoUri = uri,
-                    onPhotoAdded = { photo ->
-                        if (photo.description.isNotEmpty()) {
-                            photoList.add(photo)
-                        }
-                    }
-                )
-            }
-        }
-    }*/
 
-    /*currentPhoto?.let {
-        showDescriptionDialog(photoUri = it) { photo ->
-            // Ajouter la photo avec la description à la liste
-            if (photo.description.isNotEmpty()) {
-                photoList.add(photo)
-            }
+/*DisposableEffect(currentPhoto) {
+    // Code à exécuter lorsque le DisposableEffect est créé
+    onDispose {
+        currentPhoto?.let { uri ->
+            // Code à exécuter lorsque le DisposableEffect est supprimé
+            showDescriptionDialog(
+                photoUri = uri,
+                onPhotoAdded = { photo ->
+                    if (photo.description.isNotEmpty()) {
+                        photoList.add(photo)
+                    }
+                }
+            )
         }
-    }*/
+    }
+}*/
+
+/*currentPhoto?.let {
+    showDescriptionDialog(photoUri = it) { photo ->
+        // Ajouter la photo avec la description à la liste
+        if (photo.description.isNotEmpty()) {
+            photoList.add(photo)
+        }
+    }
+}*/
 
 /*if (currentPhoto != null) {
         showDescriptionDialog(
@@ -90,12 +92,6 @@ fun CameraGalleryChooser(onPhotoSelected: (String) -> Unit){
             onPhotoAdded = onPhotoAdded
         )
     }*/
-
-
-
-
-
-
 
 
 // You can also use a normal Image by decoding the currentPhoto to a Bitmap using the BitmapFactory

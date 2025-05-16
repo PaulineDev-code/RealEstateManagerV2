@@ -59,7 +59,7 @@ fun DetailsMediaContent(photoList: List<Photo>,
             text = stringResource(id = R.string.media),
             fontSize = MaterialTheme.typography.titleMedium.fontSize,
             fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.padding(4.dp)
+            modifier = Modifier.padding(8.dp)
         )
         LazyRow(modifier = Modifier.fillMaxWidth()) {
             itemsIndexed(items = photoList) { _, photo ->

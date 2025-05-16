@@ -11,7 +11,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePickerState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
@@ -19,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -26,7 +30,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
+import com.openclassrooms.realestatemanagerv2.utils.formatMillisToLocal
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTextFields(
 //Values
@@ -38,8 +44,20 @@ fun AddTextFields(
     address: String,
     nearbyPointSelectedSet: Set<PointOfInterest>,
     nearbyPointList: List<PointOfInterest>,
-    entryDate: String,
-    saleDate: String,
+    //EntryDatePicker
+    selectedEntryDate: Long?,
+    isEntryDateDialogShown: Boolean,
+    onShowEntryDateDialog: () -> Unit,
+    onDismissEntryDateDialog: () -> Unit,
+    onEntryDateSelected: (Long?) -> Unit,
+    entryDatePickerState: DatePickerState,
+    //SaleDatePicker
+    selectedSaleDate: Long?,
+    isSaleDateDialogShown: Boolean,
+    onShowSaleDateDialog: () -> Unit,
+    onDismissSaleDateDialog: () -> Unit,
+    onSaleDateSelected: (Long?) -> Unit,
+    saleDatePickerState: DatePickerState,
 
     //Error Values
     addressError: String,
@@ -48,8 +66,6 @@ fun AddTextFields(
     priceError: String,
     areaError: String,
     numberOfRoomsError: String,
-    entryDateError: String,
-    saleDateError: String,
 
 
 
@@ -61,10 +77,15 @@ fun AddTextFields(
     onNumberOfRoomsChange: (String) -> Unit,
     onAddressChange: (String) -> Unit,
     onNearbyPointChange: (PointOfInterest, Boolean) -> Unit,
-    onEntryDateChange: (String) -> Unit,
-    onSaleDateChange: (String) -> Unit,
+    onEntryDateChange: (Long) -> Unit,
+    onSaleDateChange: (Long) -> Unit,
 ) {
     Column(modifier = Modifier.padding(4.dp)) {
+
+        Text(text = stringResource(id = R.string.description_for_the_property),
+            fontSize =  androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp))
 
         CustomTextField(label = {
             Text(
@@ -83,6 +104,10 @@ fun AddTextFields(
             supportingText = { Text(text = descriptionError, color = Color.Red) }
         )
 
+        Text(text = stringResource(id = R.string.type_and_price),
+            fontSize =  androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp))
 
         Row {
 
@@ -110,9 +135,14 @@ fun AddTextFields(
             )
         }
 
+        Text(text = stringResource(id = R.string.area_and_number_of_rooms),
+            fontSize =  androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp))
+
         Row {
             CustomTextField(
-                label = { Text(text = stringResource(id = R.string.surface)) },
+                label = { Text(text = stringResource(id = R.string.area)) },
                 placeHolder = {
                     Text(
                         text = "Area of property"
@@ -150,29 +180,41 @@ fun AddTextFields(
             )
         }
 
-        Row {
-            CustomTextField(
-                label = { Text(text = stringResource(id = R.string.entry_date)) },
-                placeHolder = { Text(text = "Date of entry") },
-                text = entryDate,
-                onTextChange = onEntryDateChange,
-                supportingText = { Text(text = entryDateError, color = Color.Red) },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(4.dp)
-            )
-            CustomTextField(
-                label = { Text(text = stringResource(id = R.string.sale_date)) },
-                placeHolder = { Text(text = "Date of sale") },
-                text = saleDate,
-                onTextChange = onSaleDateChange,
-                supportingText = { Text(text = "* Optional field" + saleDateError, color = Color.Red) },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(4.dp)
-            )
+        Text(text = stringResource(id = R.string.entry_date),
+            fontSize =  androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp))
 
-        }
+        CustomDatePicker(
+            selectedDateMillis = selectedEntryDate,
+            isDialogShown = isEntryDateDialogShown,
+            onShowDialog = onShowEntryDateDialog,
+            onDismissDialog = onDismissEntryDateDialog,
+            onDateSelected = onEntryDateSelected,
+            datePickerState = entryDatePickerState,
+            modifier = Modifier.padding(8.dp)
+        )
+
+        Text(text = stringResource(id = R.string.sale_date_optional),
+            fontSize =  androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp))
+
+        CustomDatePicker(
+            selectedDateMillis = selectedSaleDate,
+            isDialogShown = isSaleDateDialogShown,
+            onShowDialog = onShowSaleDateDialog,
+            onDismissDialog = onDismissSaleDateDialog,
+            onDateSelected = onSaleDateSelected,
+            datePickerState = saleDatePickerState,
+            modifier = Modifier.padding(8.dp)
+        )
+
+
+        Text(text = stringResource(id = R.string.address),
+            fontSize =  androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.padding(top = 24.dp, start = 8.dp, end = 8.dp))
 
         CustomTextField(
             label = { Text(text = stringResource(id = R.string.location)) },
@@ -180,7 +222,7 @@ fun AddTextFields(
             text = address,
             onTextChange = onAddressChange,
             supportingText = { Text(text = addressError, color = Color.Red) },
-            modifier = Modifier.padding(4.dp)
+            modifier = Modifier.padding(8.dp)
         )
 
         /*Row(modifier = Modifier
@@ -223,6 +265,11 @@ fun AddTextFields(
         /*
         val nearbyPointList2 :List<PointOfInterest> = emptyList()*/
 
+        Text(text = stringResource(id = R.string.nearby_points_of_interest),
+            fontSize =  androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp))
+
         PointsOfInterestDropdown(
             allPointOfInterestList = nearbyPointList,
             selectedPointOfInterestSet = nearbyPointSelectedSet,
@@ -234,6 +281,7 @@ fun AddTextFields(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true, showSystemUi = false, backgroundColor = -1)
 @Composable
 fun AddTextFieldsPreview() {
@@ -247,8 +295,18 @@ fun AddTextFieldsPreview() {
         address = "address",
         nearbyPointSelectedSet = emptySet(),
         nearbyPointList = emptyList(),
-        entryDate = "entryDate",
-        saleDate = "saleDate",
+        selectedEntryDate = null,
+        onEntryDateSelected = {},
+        isEntryDateDialogShown = false,
+        onShowEntryDateDialog = {},
+        onDismissEntryDateDialog = {},
+        entryDatePickerState = rememberDatePickerState(),
+        selectedSaleDate = null,
+        onSaleDateSelected = {},
+        isSaleDateDialogShown = false,
+        onShowSaleDateDialog = {},
+        onDismissSaleDateDialog = {},
+        saleDatePickerState = rememberDatePickerState(),
 
         //Errors
         descriptionError = "",
@@ -257,8 +315,6 @@ fun AddTextFieldsPreview() {
         addressError = "",
         areaError = "",
         numberOfRoomsError = "",
-        entryDateError = "",
-        saleDateError = "",
 
 // OnChange functions
         onDescriptionChange = {},

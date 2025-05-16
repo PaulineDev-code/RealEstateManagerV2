@@ -39,20 +39,24 @@ fun AgentSpinner(
     onAgentSelected: (Agent) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-Column(modifier = Modifier.padding(8.dp)) {
+
     Text(
         text = stringResource(id = R.string.agent),
-        fontSize =  MaterialTheme.typography.titleMedium.fontSize,
-        fontWeight = FontWeight.ExtraBold
+        fontSize = MaterialTheme.typography.titleMedium.fontSize,
+        fontWeight = FontWeight.ExtraBold,
+        modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp)
     )
-    Spacer(modifier = Modifier.height(4.dp))
+
     Box(
         modifier = Modifier
+            .padding(8.dp)
             .wrapContentSize()
             .background(MaterialTheme.colorScheme.inverseOnSurface)
             .clickable(onClick = { expanded = true })
+
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(8.dp)) {
             Text(
                 text = selectedAgent?.name ?: "Select an agent",
                 modifier = Modifier.wrapContentWidth()
@@ -79,15 +83,18 @@ Column(modifier = Modifier.padding(8.dp)) {
     }
 }
     
-}
+
 
 @Preview(showBackground = true, backgroundColor = -1)
 @Composable
 fun AgentSpinnerPreview() {
-    AgentSpinner(agents = listOf(
-        Agent("1", "AgentTest1", "0111111111", "agent1@gmail.com"),
-        Agent("2", "AgentTest2", "0222222222", "agent2@gmail.com"),
-        Agent("3", "AgentTest3", "0333333333", "agent3@gmail.com")),
-        selectedAgent = null,
-        onAgentSelected = {})
+    Column() {
+        AgentSpinner(agents = listOf(
+            Agent("1", "AgentTest1", "0111111111", "agent1@gmail.com"),
+            Agent("2", "AgentTest2", "0222222222", "agent2@gmail.com"),
+            Agent("3", "AgentTest3", "0333333333", "agent3@gmail.com")
+        ),
+            selectedAgent = null,
+            onAgentSelected = {})
+    }
 }

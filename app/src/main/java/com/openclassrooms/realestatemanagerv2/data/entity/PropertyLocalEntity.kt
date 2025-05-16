@@ -26,9 +26,9 @@ data class PropertyLocalEntity (
     @ColumnInfo
     val status: String,
     @ColumnInfo
-    val entryDate: String,
+    val entryDate: Long,
     @ColumnInfo
-    val saleDate: String?,
+    val saleDate: Long?,
     @ColumnInfo(index = true)
     val agentId: String
 )

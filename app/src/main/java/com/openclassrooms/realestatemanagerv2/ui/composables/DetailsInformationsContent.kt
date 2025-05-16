@@ -19,11 +19,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
-import com.openclassrooms.realestatemanagerv2.domain.model.Media
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
+import com.openclassrooms.realestatemanagerv2.utils.formatMillisToLocal
 import com.openclassrooms.realestatemanagerv2.utils.toReadableString
 
 @Composable
@@ -43,7 +43,7 @@ fun DetailsInformationsContent(property: Property) {
         Spacer(Modifier.height(8.dp))
 
         IndividualDetailsContent(
-            title = stringResource(id = R.string.surface),
+            title = stringResource(id = R.string.area),
             icon = R.drawable.ic_area, data = property.area
         )
         IndividualDetailsContent(
@@ -71,7 +71,7 @@ fun DetailsInformationsContent(property: Property) {
         IndividualDetailsContent(
             title = stringResource(id = R.string.entry_date),
             icon = R.drawable.ic_entry_date,
-            data = property.entryDate
+            data = property.entryDate.formatMillisToLocal()
         )
         //TODO : saleDate
         IndividualDetailsContent(
@@ -147,7 +147,7 @@ private fun MyInfoContentPreview() {
         "4 rue Poulletier, 75004 Paris, France",
         listOf(PointOfInterest.PHARMACY, PointOfInterest.RESTAURANT),
         PropertyStatus.Available,
-        "20/11/2023",
+        338210283777,
         null,
         Agent("1", "Will", "911", "willagent@brooklyn.com")
     )

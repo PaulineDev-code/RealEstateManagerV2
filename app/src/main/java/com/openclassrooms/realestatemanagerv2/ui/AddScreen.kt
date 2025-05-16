@@ -14,7 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePickerState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -47,6 +50,7 @@ import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsMediaContent
 import com.openclassrooms.realestatemanagerv2.ui.composables.VideoPlayer
 import com.openclassrooms.realestatemanagerv2.viewmodels.AddPropertyViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddScreen(
     navController: NavController,
@@ -112,11 +116,22 @@ fun AddScreen(
         address = editingState?.address?.value ?: "",
         nearbyPointList = addViewModel.allPointOfInterestList,
         nearbyPointSelectedSet = editingState?.nearbyPointSet ?: emptySet(),
-        entryDate = editingState?.entryDate?.value ?: "",
-        saleDate = editingState?.saleDate?.value ?: "",
         agent = editingState?.agent,
         agentList = editingState?.agentList ?: emptyList(),
         showSaveButton = editingState?.isFormValid,
+        //DatePickers
+        selectedEntryDate = editingState?.entryDate,
+        onEntryDateSelected = { newEntryDate -> addViewModel.updateEntryDate(newEntryDate)},
+        isEntryDateDialogShown = editingState?.isEntryDatePickerShown ?: false,
+        onShowEntryDateDialog = { addViewModel.updateEntryDateDialogShown(true) },
+        onDismissEntryDateDialog = { addViewModel.updateEntryDateDialogShown(false) },
+        entryDatePickerState = rememberDatePickerState(),
+        selectedSaleDate = editingState?.saleDate,
+        onSaleDateSelected = { newSaleDate -> addViewModel.updateSaleDate(newSaleDate)},
+        isSaleDateDialogShown = editingState?.isSaleDatePickerShown ?: false,
+        onShowSaleDateDialog = { addViewModel.updateSaleDateDialogShown(true) },
+        onDismissSaleDateDialog = { addViewModel.updateSaleDateDialogShown(false) },
+        saleDatePickerState = rememberDatePickerState(),
 
         // Error Values
         descriptionError = editingState?.description?.error ?: "",
@@ -125,8 +140,6 @@ fun AddScreen(
         addressError = editingState?.address?.error ?: "",
         areaError = editingState?.area?.error ?: "",
         numberOfRoomsError = editingState?.numberOfRooms?.error ?: "",
-        entryDateError = editingState?.entryDate?.error ?: "",
-        saleDateError = editingState?.saleDate?.error ?: "",
 
         //On change callback functions
         onDescriptionChange = { newDescription -> addViewModel.updateDescription(newDescription) },
@@ -149,6 +162,7 @@ fun AddScreen(
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddContent(
     navController: NavController,
@@ -179,11 +193,24 @@ private fun AddContent(
     address: String,
     nearbyPointSelectedSet: Set<PointOfInterest>,
     nearbyPointList: List<PointOfInterest>,
-    entryDate: String,
-    saleDate: String,
     agent: Agent?,
     agentList: List<Agent>,
     showSaveButton: Boolean?,
+    //DatePickers
+    selectedEntryDate: Long?,
+    isEntryDateDialogShown: Boolean,
+    onShowEntryDateDialog: () -> Unit,
+    onDismissEntryDateDialog: () -> Unit,
+    onEntryDateSelected: (Long?) -> Unit,
+    entryDatePickerState: DatePickerState,
+
+    //SaleDatePicker
+    selectedSaleDate: Long?,
+    isSaleDateDialogShown: Boolean,
+    onShowSaleDateDialog: () -> Unit,
+    onDismissSaleDateDialog: () -> Unit,
+    onSaleDateSelected: (Long?) -> Unit,
+    saleDatePickerState: DatePickerState,
 
     // Error Values
     descriptionError: String,
@@ -192,8 +219,6 @@ private fun AddContent(
     addressError: String,
     areaError : String,
     numberOfRoomsError: String,
-    entryDateError: String,
-    saleDateError: String,
 
 // OnChange functions
     onDescriptionChange: (String) -> Unit,
@@ -203,8 +228,8 @@ private fun AddContent(
     onNumberOfRoomsChange: (String) -> Unit,
     onAddressChange: (String) -> Unit,
     onNearbyPointChange: (PointOfInterest, Boolean) -> Unit,
-    onEntryDateChange: (String) -> Unit,
-    onSaleDateChange: (String) -> Unit,
+    onEntryDateChange: (Long) -> Unit,
+    onSaleDateChange: (Long) -> Unit,
     onAgentSelected: (Agent) -> Unit
 
 ) {
@@ -263,13 +288,14 @@ private fun AddContent(
                 CameraGalleryChooser(onPhotoSelected = onPhotoUriChange)
 
                 Button(
+                    modifier = Modifier.padding(8.dp),
                     onClick = {
                         singleVideoPicker.launch(
                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)
                         )
                     }
                 ) {
-                    Text(text = "Import a video")
+                    Text(text = stringResource(id = R.string.import_a_video))
                 }
             }
 
@@ -294,8 +320,22 @@ private fun AddContent(
                 address = address,
                 nearbyPointSelectedSet = nearbyPointSelectedSet,
                 nearbyPointList = nearbyPointList,
-                entryDate = entryDate,
-                saleDate = saleDate,
+                //DatePickers
+                selectedEntryDate = selectedEntryDate,
+                isEntryDateDialogShown = isEntryDateDialogShown,
+                onShowEntryDateDialog = onShowEntryDateDialog,
+                onDismissEntryDateDialog = onDismissEntryDateDialog,
+                onEntryDateSelected = onEntryDateSelected,
+                entryDatePickerState = entryDatePickerState,
+
+                //SaleDatePicker
+                selectedSaleDate = selectedSaleDate,
+                isSaleDateDialogShown = isSaleDateDialogShown,
+                onShowSaleDateDialog = onShowSaleDateDialog,
+                onDismissSaleDateDialog = onDismissSaleDateDialog,
+                onSaleDateSelected = onSaleDateSelected,
+                saleDatePickerState = saleDatePickerState,
+
                 // Error Values
                 descriptionError = descriptionError,
                 typeError = typeError,
@@ -303,8 +343,6 @@ private fun AddContent(
                 addressError = addressError,
                 areaError = areaError,
                 numberOfRoomsError = numberOfRoomsError,
-                entryDateError = entryDateError,
-                saleDateError = saleDateError,
 // OnChange functions
                 onDescriptionChange = onDescriptionChange,
                 onTypeChange = onTypeChange,
@@ -352,6 +390,7 @@ private fun AddContent(
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun AddScreenPreview() {
@@ -368,8 +407,18 @@ fun AddScreenPreview() {
         videoList = emptyList(),
         nearbyPointSelectedSet = setOf(PointOfInterest.PHARMACY, PointOfInterest.RESTAURANT),
         nearbyPointList = emptyList(),
-        entryDate = "entryDate",
-        saleDate = "SaleDate",
+        selectedEntryDate = null,
+        onEntryDateSelected = {},
+        isEntryDateDialogShown = false,
+        onShowEntryDateDialog = {},
+        onDismissEntryDateDialog = {},
+        entryDatePickerState = rememberDatePickerState(),
+        selectedSaleDate = null,
+        onSaleDateSelected = {},
+        isSaleDateDialogShown = false,
+        onShowSaleDateDialog = {},
+        onDismissSaleDateDialog = {},
+        saleDatePickerState = rememberDatePickerState(),
         showSaveButton = true,
         // Error Values
         descriptionError = "descriptionError",
@@ -378,8 +427,6 @@ fun AddScreenPreview() {
         addressError = "addressError",
         areaError = "areaError",
         numberOfRoomsError = "numberOfRoomsError",
-        entryDateError = "entryDateError",
-        saleDateError = "saleDateError",
 
         // OnChange functions
 

@@ -84,7 +84,7 @@ class DatabaseUtil(propertyDAO: PropertyLocalDAO, agentDAO: AgentDAO,
                 "152 rue Lamarck, 75018 Paris, France",
                 listOf(PointOfInterest.PHARMACY, PointOfInterest.RESTAURANT),
                 PropertyStatus.Available,
-                "20/11/2023",
+                4477894998,
                 null,
                 Agent("1", "Will", "911", "willagent@brooklyn.com")
             ), Property(
@@ -129,7 +129,7 @@ class DatabaseUtil(propertyDAO: PropertyLocalDAO, agentDAO: AgentDAO,
                 "4 rue Poulletier, 75004 Paris, France",
                 listOf(PointOfInterest.PHARMACY, PointOfInterest.RESTAURANT),
                 PropertyStatus.Available,
-                "20/11/2023",
+                4477894645,
                 null,
                 Agent("1", "Will", "911", "willagent@brooklyn.com")
             )

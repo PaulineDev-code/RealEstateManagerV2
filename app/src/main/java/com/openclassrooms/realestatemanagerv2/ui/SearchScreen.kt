@@ -115,6 +115,12 @@ fun SearchScreen(
         agent = editingState?.agent,
         agentList = editingState?.agentList ?: emptyList(),
         onAgentSelected = {  },
+
+        onSearchClicked = { val criterias = searchPropertiesViewModel.getCurrentCriteria()
+            navController.currentBackStackEntry
+                ?.savedStateHandle
+                ?.set("criterias", criterias)
+            navController.navigate("home_screen")},
         modifier = Modifier
     )
 
@@ -148,7 +154,7 @@ fun SearchContent(
     agentList: List<Agent>,
     onAgentSelected: (Agent) -> Unit,
 
-    //EntryDatePicker variables
+    //EntryDatePicker
     selectedEntryDate: Long?,
     isEntryDateDialogShown: Boolean,
     onShowEntryDateDialog: () -> Unit,
@@ -156,13 +162,15 @@ fun SearchContent(
     onEntryDateSelected: (Long?) -> Unit,
     entryDatePickerState: DatePickerState,
 
-    //SaleDatePicker variables
+    //SaleDatePicker
     selectedSaleDate: Long?,
     isSaleDateDialogShown: Boolean,
     onShowSaleDateDialog: () -> Unit,
     onDismissSaleDateDialog: () -> Unit,
     onSaleDateSelected: (Long?) -> Unit,
     saleDatePickerState: DatePickerState,
+
+    onSearchClicked: () -> Unit,
 
     modifier: Modifier
 ) {
@@ -436,7 +444,7 @@ fun SearchContent(
             Spacer(Modifier.height(16.dp))
 
             Button(
-                onClick = { },
+                onClick = { onSearchClicked },
                 modifier = Modifier.align(CenterHorizontally),
                 enabled = true
             ) {
@@ -459,7 +467,7 @@ fun SearchScreenPreview() {
         navController = rememberNavController(),
         isHeaderAnimated = true,
         onHeaderAnimationChange = {},
-        selectedEntryDate = null,
+        selectedEntryDate = 44738399,
         onEntryDateSelected = {},
         isEntryDateDialogShown = false,
         onShowEntryDateDialog = {},
@@ -491,7 +499,8 @@ fun SearchScreenPreview() {
         onMinVideoChange = {}, modifier = Modifier,
         agentList = listOf(Agent("1", "John", "Doe", "test@gmail.com")),
         agent = Agent("1", "John", "Doe", "test@gmail.com"),
-        onAgentSelected = {}
+        onAgentSelected = {},
+        onSearchClicked = {}
     ) }
     //DatePicker variables
 

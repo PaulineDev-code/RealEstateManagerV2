@@ -23,48 +23,13 @@ import javax.inject.Singleton
 
 @Database(entities = [PropertyLocalEntity::class, PointOfInterestEntity::class,
     MediaEntity::class, AgentEntity::class, PointOfInterestCrossRef::class],
-    version = 3, exportSchema = false)
+    version = 1, exportSchema = false)
 @Singleton
 abstract class MyDatabase : RoomDatabase() {
 
-    abstract fun propertyDao(): PropertyLocalDAO
-    abstract fun mediaDao(): MediaDAO
-    abstract fun pointOfInterestDao(): PointOfInterestDAO
+    abstract fun propertyDAO(): PropertyLocalDAO
+    abstract fun mediaDAO(): MediaDAO
+    abstract fun pointOfInterestDAO(): PointOfInterestDAO
     abstract fun agentDAO(): AgentDAO
-
-    companion object {
-        @Volatile
-        private var INSTANCE: MyDatabase? = null
-
-        //Database instance not necessarily needed
-
-        fun getInstance(context: Context): MyDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instanceDB = Room.databaseBuilder(
-                    context.applicationContext,
-                    MyDatabase::class.java,
-                    "database"
-                ).addCallback(object : Callback() {
-                    override fun onCreate(db: SupportSQLiteDatabase) {
-                        super.onCreate(db)
-                        Log.d("MyDatabase", "Callback onCreate: DAOs are not null - ${getInstance(context).propertyDao() != null}")
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val propertyDAO = getInstance(context).propertyDao()
-                            val agentDAO = getInstance(context).agentDAO()
-                            val mediaDAO = getInstance(context).mediaDao()
-                            val pointOfInterestDAO = getInstance(context).pointOfInterestDao()
-
-                            DatabaseUtil(propertyDAO, agentDAO, pointOfInterestDAO, mediaDAO).prepopulateDatabase()
-                            //Prefer static method using DAO's than instanciating object for it
-                        }
-                    }
-                })
-                    .build()
-
-                INSTANCE = instanceDB
-                instanceDB
-            }
-        }
-    }
 
 }

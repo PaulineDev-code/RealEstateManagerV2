@@ -54,7 +54,7 @@ class EditPropertyViewModel @Inject constructor
             currentState.mediaLists.isEmpty() ||
             currentState.address.isBlank() ||
             currentState.nearbyPointList.isEmpty() ||
-            currentState.entryDate.isBlank() ||
+            currentState.entryDate == null ||
             currentState.agent == null
         ) {
             return ValidationResult.Error(
@@ -72,9 +72,11 @@ class EditPropertyViewModel @Inject constructor
             media = currentState.mediaLists,
             address = currentState.address,
             nearbyPointsOfInterest = currentState.nearbyPointList,
-            status = if (currentState.saleDate.isNotBlank()) PropertyStatus.Sold else PropertyStatus.Available,
-            entryDate = currentState.entryDate,
-            saleDate = if (currentState.saleDate.isNotBlank()) currentState.saleDate else null,
+            status = if (currentState.saleDate != null) PropertyStatus.Sold
+            else PropertyStatus.Available,
+            entryDate = requireNotNull(currentState.entryDate) { "Entry date cannot be null" },
+            saleDate = if (currentState.saleDate != null) currentState.saleDate
+            else null,
             agent = currentState.agent
         )
 
@@ -208,15 +210,35 @@ class EditPropertyViewModel @Inject constructor
         }
     }
 
-    fun updateEntryDate(newEntryDate: String) {
+    fun updateEntryDate(newEntryDate: Long?)  {
         updateState {
-            copy(entryDate = newEntryDate)
+            copy(
+                entryDate = newEntryDate
+            )
         }
     }
 
-    fun updateSaleDate(newSaleDate: String) {
+    fun updateEntryDateDialogShown(newIsDialogShown: Boolean)  {
         updateState {
-            copy(saleDate = newSaleDate)
+            copy(
+                isEntryDatePickerShown = newIsDialogShown
+            )
+        }
+    }
+
+    fun updateSaleDate(newSaleDate: Long?)  {
+        updateState {
+            copy(
+                saleDate = newSaleDate
+            )
+        }
+    }
+
+    fun updateSaleDateDialogShown(newIsDialogShown: Boolean)  {
+        updateState {
+            copy(
+                isSaleDatePickerShown = newIsDialogShown
+            )
         }
     }
 
@@ -266,8 +288,10 @@ class EditPropertyViewModel @Inject constructor
             val address: String = "",
             val nearbyPoint: String = "",
             val nearbyPointList: List<PointOfInterest> = emptyList(),
-            val entryDate: String = "",
-            val saleDate: String = "",
+            val entryDate: Long? = null,
+            val isEntryDatePickerShown: Boolean = false,
+            val saleDate: Long? = null,
+            val isSaleDatePickerShown: Boolean = false,
             val agent: Agent? = null,
             val agentList: List<Agent> = emptyList()
 

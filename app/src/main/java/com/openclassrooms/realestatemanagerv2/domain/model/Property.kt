@@ -22,8 +22,8 @@ data class Property (
     val address: String,
     val nearbyPointsOfInterest: List<PointOfInterest>,
     val status: PropertyStatus,
-    val entryDate: String,
-    val saleDate: String?,
+    val entryDate: Long,
+    val saleDate: Long?,
     val agent: Agent
 ) {
     companion object {

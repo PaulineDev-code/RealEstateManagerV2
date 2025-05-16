@@ -11,6 +11,7 @@ import com.openclassrooms.realestatemanagerv2.data.database.MyDatabase
 import com.openclassrooms.realestatemanagerv2.data.entity.AgentEntity
 import com.openclassrooms.realestatemanagerv2.data.entity.MediaEntity
 import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestEntity
+import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -63,4 +64,7 @@ class PropertyRepository @Inject constructor(private val database: MyDatabase, p
 
     suspend fun getPropertyTypes(): List<String> = propertyDao.getDistinctTypes()
 
+    /*suspend fun searchByCriterias(searchCriterias: PropertySearchCriteria): List<PropertyWithDetails> =
+        propertyDao.searchByCriterias(searchCriterias)
+*/
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
+import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllAgentsUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetPropertyTypesUseCase
 import com.openclassrooms.realestatemanagerv2.utils.validateNonEmpty
@@ -199,6 +200,24 @@ class SearchPropertiesViewModel @Inject constructor(
             state.entryDate.error,*/
         ).all { it.isNullOrBlank() && state.agent != null
                 && state.nearbyPointSet.isNotEmpty()}
+    }
+
+    fun getCurrentCriteria(): PropertySearchCriteria {
+        val state = (_uiState.value as SearchPropertiesUiState.Editing)
+        return PropertySearchCriteria(
+            propertyType = state.typeSet.toList(),
+            minPrice = state.minPrice.value.toDoubleOrNull(),
+            maxPrice = state.maxPrice.value.toDoubleOrNull(),
+            minArea = state.areaRange.start.toDouble(),
+            maxArea = state.areaRange.endInclusive.toDouble(),
+            minNumberOfRooms = state.numberOfRooms.toInt(),
+            minPhotos = state.minPhotos.value.toIntOrNull(),
+            minVideos = state.minVideos.value.toIntOrNull(),
+            nearbyPointsOfInterest = state.nearbyPointSet.toList(),
+            minEntryDate = state.entryDate,
+            minSaleDate = state.saleDate,
+            agentId = state.agent?.id
+        )
     }
 
     sealed class SearchPropertiesError {

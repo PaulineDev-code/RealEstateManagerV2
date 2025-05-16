@@ -70,7 +70,7 @@ class AddPropertyViewModel @Inject constructor
         }
 
         if (currentState.area.value.toDoubleOrNull() == null) {
-            invalidFields.add(R.string.surface)
+            invalidFields.add(R.string.area)
         }
 
         if (currentState.numberOfRooms.value.toIntOrNull() == null) {
@@ -90,10 +90,10 @@ class AddPropertyViewModel @Inject constructor
         }
 
         if (currentState.nearbyPointSet.isEmpty()) {
-            invalidFields.add(R.string.points_of_interest)
+            invalidFields.add(R.string.nearby_points_of_interest)
         }
 
-        if (currentState.entryDate.value.isBlank()) {
+        if (currentState.entryDate == null) {
             invalidFields.add(R.string.entry_date)
         }
 
@@ -113,10 +113,10 @@ class AddPropertyViewModel @Inject constructor
             media = currentState.mediaLists,
             address = currentState.address.value,
             nearbyPointsOfInterest = currentState.nearbyPointSet.toList(),
-            status = if (currentState.saleDate.value.isNotBlank()) PropertyStatus.Sold
+            status = if (currentState.saleDate != null) PropertyStatus.Sold
                         else PropertyStatus.Available,
-            entryDate = currentState.entryDate.value,
-            saleDate = if (currentState.saleDate.value.isNotBlank()) currentState.saleDate.value
+            entryDate = requireNotNull(currentState.entryDate) { "Entry date cannot be null" },
+            saleDate = if (currentState.saleDate != null) currentState.saleDate
                         else null,
             agent = currentState.agent!!
         )
@@ -312,20 +312,34 @@ class AddPropertyViewModel @Inject constructor
         }
     }*/
 
-    fun updateEntryDate(newEntryDate: String) {
-        val error = newEntryDate.validateNonEmpty()
+    fun updateEntryDate(newEntryDate: Long?)  {
         updateState {
             copy(
-                entryDate = entryDate.copy(value = newEntryDate, error = error)
+                entryDate = newEntryDate
             )
         }
     }
 
-    fun updateSaleDate(newSaleDate: String) {
-        val error = newSaleDate.validateNonEmpty()
+    fun updateEntryDateDialogShown(newIsDialogShown: Boolean)  {
         updateState {
             copy(
-                saleDate = saleDate.copy(value = newSaleDate, error = error)
+                isEntryDatePickerShown = newIsDialogShown
+            )
+        }
+    }
+
+    fun updateSaleDate(newSaleDate: Long?)  {
+        updateState {
+            copy(
+                saleDate = newSaleDate
+            )
+        }
+    }
+
+    fun updateSaleDateDialogShown(newIsDialogShown: Boolean)  {
+        updateState {
+            copy(
+                isSaleDatePickerShown = newIsDialogShown
             )
         }
     }
@@ -375,10 +389,8 @@ class AddPropertyViewModel @Inject constructor
             state.address.error,
             state.area.error,
             state.numberOfRooms.error,
-            state.entryDate.error,
-            state.saleDate.error
         ).all { it.isNullOrBlank() && state.agent != null && state.mediaLists.isNotEmpty()
-                && state.nearbyPointSet.isNotEmpty()}
+                && state.nearbyPointSet.isNotEmpty() && state.entryDate != null}
     }
 
 
@@ -408,8 +420,10 @@ class AddPropertyViewModel @Inject constructor
             val mediaLists: List<Media> = emptyList<Media>(),
             val address: FormField = FormField(),
             val nearbyPointSet: Set<PointOfInterest> = emptySet(),
-            val entryDate: FormField = FormField(),
-            val saleDate: FormField = FormField(),
+            val entryDate: Long? = null,
+            val isEntryDatePickerShown: Boolean = false,
+            val saleDate: Long? = null,
+            val isSaleDatePickerShown: Boolean = false,
             val agent: Agent? = null,
             val agentList: List<Agent> = emptyList(),
             val isFormValid: Boolean = false

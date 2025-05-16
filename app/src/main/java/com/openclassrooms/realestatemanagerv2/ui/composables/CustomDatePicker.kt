@@ -38,8 +38,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.openclassrooms.realestatemanagerv2.utils.DateUtils
 import com.openclassrooms.realestatemanagerv2.R
+import com.openclassrooms.realestatemanagerv2.utils.formatMillisToLocal
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -72,12 +72,7 @@ fun CustomDatePicker(selectedDateMillis: Long?,
         }
     )*/
     // Conversion du timestamp en date lisible pour l'affichage
-    val displayText = selectedDateMillis?.let { millis ->
-        val localDate = Instant.ofEpochMilli(millis)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-        localDate.format(DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault()))
-    } ?: "Click to select"
+    val displayText = selectedDateMillis?.formatMillisToLocal() ?: "Click to select"
 
     OutlinedTextField(
         value = displayText,

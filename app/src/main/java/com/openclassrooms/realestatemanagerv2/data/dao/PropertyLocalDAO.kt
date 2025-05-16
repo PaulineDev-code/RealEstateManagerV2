@@ -8,6 +8,7 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.openclassrooms.realestatemanagerv2.data.entity.PropertyLocalEntity
 import com.openclassrooms.realestatemanagerv2.data.entity.PropertyWithDetails
+import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 
 @Dao
 interface PropertyLocalDAO {
@@ -29,7 +30,9 @@ interface PropertyLocalDAO {
     @Query("SELECT DISTINCT type FROM properties")
     suspend fun getDistinctTypes(): List<String>
 
-    /*@Query("SELECT * FROM properties " +
+
+
+   /* @Query("SELECT * FROM properties " +
             "WHERE (:propertyType IS NULL OR type = :propertyType) " +
             "AND (:minPrice IS NULL OR price >= :minPrice) " +
             "AND (:maxPrice IS NULL OR price <= :maxPrice) " +
@@ -37,14 +40,12 @@ interface PropertyLocalDAO {
             "AND (:maxArea IS NULL OR area <= :maxArea) " +
             "AND (:minNumberOfRooms IS NULL OR numberOfRooms >= :minNumberOfRooms) " +
             "AND (:minPhotos IS NULL OR (SELECT COUNT(*) FROM property_photo WHERE propertyId = id) >= :minPhotos) " +
-            "AND (:videoUrl IS NULL OR videoUrl IS NOT NULL) " +
+            "AND (:minVideos IS NULL OR (SELECT COUNT(*) FROM property_video WHERE propertyId = id) >= :minVideos) " +
             "AND (:nearbyPointsOfInterest IS NULL OR nearbyPointsOfInterest = :nearbyPointsOfInterest) " +
             "AND (:status IS NULL OR status = :status) " +
             "AND (:minEntryDate IS NULL OR entryDate >= :minEntryDate) " +
-            "AND (:maxEntryDate IS NULL OR entryDate <= :maxEntryDate) " +
             "AND (:minSaleDate IS NULL OR saleDate >= :minSaleDate) " +
-            "AND (:maxSaleDate IS NULL OR saleDate <= :maxSaleDate) " +
             "AND (:agentId IS NULL OR agentId = :agentId)")
-    suspend fun searchProperties(criteria: PropertySearchCriteria): List<PropertyLocal>*/
+    suspend fun searchByCriterias(criteria: PropertySearchCriteria): List<PropertyWithDetails>*/
 
 }

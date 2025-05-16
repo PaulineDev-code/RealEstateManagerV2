@@ -23,10 +23,10 @@ class PropertyListViewModel @Inject constructor
         viewModelScope.launch {
             try {
                     getAllPropertiesUseCase().collect() { properties ->
-                        Log.d("ViewModel", "Collected properties: $properties")
+                        Log.d("ListViewModel", "Collected properties: $properties")
                         _uiState.value = PropertyUiState.Success(properties)
                     }
-            } catch (exception: Exception) {Log.e("ViewModel", "Error collecting properties", exception)
+            } catch (exception: Exception) {Log.e("ListViewModel", "Error collecting properties", exception)
                 _uiState.value = PropertyUiState.Error(exception)}
         }
     }

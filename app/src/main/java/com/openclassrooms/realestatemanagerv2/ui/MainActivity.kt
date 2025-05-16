@@ -6,14 +6,9 @@ import android.util.DisplayMetrics
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.instance
 import androidx.navigation.compose.rememberNavController
-import com.openclassrooms.realestatemanagerv2.data.database.MyDatabase
-import com.openclassrooms.realestatemanagerv2.di.DatabaseModule
-import com.openclassrooms.realestatemanagerv2.di.DatabaseModule_ProvideMyDatabaseFactory.provideMyDatabase
 import com.openclassrooms.realestatemanagerv2.ui.theme.RealEstateManagerV2Theme
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.internal.DaggerCollections
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
