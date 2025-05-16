@@ -4,36 +4,63 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
+import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllPropertiesUseCase
+import com.openclassrooms.realestatemanagerv2.domain.usecases.SearchPropertiesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PropertyListViewModel @Inject constructor
-    (private val getAllPropertiesUseCase: GetAllPropertiesUseCase) : ViewModel() {
+    (private val getAllPropertiesUseCase: GetAllPropertiesUseCase,
+     private val searchPropertiesUseCase: SearchPropertiesUseCase) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<PropertyUiState>(PropertyUiState.Success(emptyList()))
+    private val _uiState = MutableStateFlow<PropertyUiState>(PropertyUiState.Loading)
 
     val uiState: StateFlow<PropertyUiState> = _uiState
 
     init {
+        loadAllProperties()
+    }
+
+    private fun loadAllProperties() {
         viewModelScope.launch {
             try {
-                    getAllPropertiesUseCase().collect() { properties ->
+                getAllPropertiesUseCase().catch { error -> _uiState.value = PropertyUiState.Error(error) }
+                    .collect() { properties ->
                         Log.d("ListViewModel", "Collected properties: $properties")
-                        _uiState.value = PropertyUiState.Success(properties)
+                        _uiState.value = PropertyUiState.Success(properties, isFiltered = false)
                     }
             } catch (exception: Exception) {Log.e("ListViewModel", "Error collecting properties", exception)
                 _uiState.value = PropertyUiState.Error(exception)}
         }
     }
 
+    fun searchProperties(searchCriterias: PropertySearchCriteria) {
+        viewModelScope.launch {
+            _uiState.value = PropertyUiState.Loading
+            try {
+                val filtered = searchPropertiesUseCase(searchCriterias)
+                _uiState.value = PropertyUiState.Success(filtered, isFiltered = true)
+            } catch (e: Exception) {
+                _uiState.value = PropertyUiState.Error(e)
+            }
+        }
+    }
+
+    fun resetProperties() {
+        loadAllProperties()
+    }
+
     sealed class PropertyUiState {
-        data class Success(val properties: List<Property>): PropertyUiState()
-        data class Error(val exception: Exception): PropertyUiState()
+        object Loading : PropertyUiState()
+        data class Success(val properties: List<Property>,
+                           val isFiltered: Boolean = false): PropertyUiState()
+        data class Error(val exception: Throwable): PropertyUiState()
     }
 
 }

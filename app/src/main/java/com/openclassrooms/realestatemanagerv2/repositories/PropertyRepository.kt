@@ -64,7 +64,26 @@ class PropertyRepository @Inject constructor(private val database: MyDatabase, p
 
     suspend fun getPropertyTypes(): List<String> = propertyDao.getDistinctTypes()
 
-    /*suspend fun searchByCriterias(searchCriterias: PropertySearchCriteria): List<PropertyWithDetails> =
-        propertyDao.searchByCriterias(searchCriterias)
-*/
+    suspend fun searchByCriteria(
+        criteria: PropertySearchCriteria
+    ): List<PropertyWithDetails> {
+        return propertyDao.searchByCriteria(
+            propertyTypes       = criteria.propertyType
+                ?.takeIf { it.isNotEmpty() },
+            minPrice            = criteria.minPrice,
+            maxPrice            = criteria.maxPrice,
+            minArea             = criteria.minArea,
+            maxArea             = criteria.maxArea,
+            minRooms            = criteria.minNumberOfRooms,
+            minPhotos           = criteria.minPhotos,
+            minVideos           = criteria.minVideos,
+            pointOfInterestIds  = criteria.nearbyPointsOfInterest
+                ?.map { it.serialName }
+                ?.takeIf { it.isNotEmpty() },
+            pointOfInterestCount= criteria.nearbyPointsOfInterest?.size,
+            minEntryDate        = criteria.minEntryDate,
+            minSaleDate         = criteria.minSaleDate,
+            agentId             = criteria.agentId
+        )
+    }
 }

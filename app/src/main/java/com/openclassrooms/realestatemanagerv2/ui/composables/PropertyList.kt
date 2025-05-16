@@ -23,7 +23,7 @@ import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyListViewModel
 fun PropertyList(navController: NavController, modifier:Modifier, viewModel: PropertyListViewModel = hiltViewModel()) {
 
 
-    val viewState by viewModel.uiState.collectAsState()
+    /*val viewState by viewModel.uiState.collectAsState()
     when (viewState) {
         is PropertyListViewModel.PropertyUiState.Success ->
             LazyColumn(modifier = modifier.fillMaxSize()) {
@@ -35,7 +35,7 @@ fun PropertyList(navController: NavController, modifier:Modifier, viewModel: Pro
         }
 
         is PropertyListViewModel.PropertyUiState.Error -> Log.e("UI ERROR", "PropertyUiState.Error")
-    }
+    }*/
 }
 
 

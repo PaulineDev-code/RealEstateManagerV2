@@ -1,5 +1,6 @@
 package com.openclassrooms.realestatemanagerv2.utils
 
+import android.content.Context
 import com.openclassrooms.realestatemanagerv2.data.entity.AgentEntity
 import com.openclassrooms.realestatemanagerv2.data.entity.MediaEntity
 import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestEntity
@@ -67,8 +68,8 @@ fun Property.mapToPointOfInterestEntities(): List<PointOfInterestEntity> {
 
 private fun PointOfInterest.toPointOfInterestEntity(): PointOfInterestEntity {
     return PointOfInterestEntity(
-        id = UUID.randomUUID().toString(),
-        name = this.name
+        id = this.serialName,
+        displayNameResId = this.displayNameResId
     )
 }
 

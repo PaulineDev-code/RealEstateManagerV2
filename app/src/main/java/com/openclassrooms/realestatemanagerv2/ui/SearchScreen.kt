@@ -444,7 +444,7 @@ fun SearchContent(
             Spacer(Modifier.height(16.dp))
 
             Button(
-                onClick = { onSearchClicked },
+                onClick = onSearchClicked,
                 modifier = Modifier.align(CenterHorizontally),
                 enabled = true
             ) {

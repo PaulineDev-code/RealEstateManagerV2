@@ -8,7 +8,6 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.openclassrooms.realestatemanagerv2.data.entity.PropertyLocalEntity
 import com.openclassrooms.realestatemanagerv2.data.entity.PropertyWithDetails
-import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 
 @Dao
 interface PropertyLocalDAO {
@@ -32,20 +31,55 @@ interface PropertyLocalDAO {
 
 
 
-   /* @Query("SELECT * FROM properties " +
-            "WHERE (:propertyType IS NULL OR type = :propertyType) " +
-            "AND (:minPrice IS NULL OR price >= :minPrice) " +
-            "AND (:maxPrice IS NULL OR price <= :maxPrice) " +
-            "AND (:minArea IS NULL OR area >= :minArea) " +
-            "AND (:maxArea IS NULL OR area <= :maxArea) " +
-            "AND (:minNumberOfRooms IS NULL OR numberOfRooms >= :minNumberOfRooms) " +
-            "AND (:minPhotos IS NULL OR (SELECT COUNT(*) FROM property_photo WHERE propertyId = id) >= :minPhotos) " +
-            "AND (:minVideos IS NULL OR (SELECT COUNT(*) FROM property_video WHERE propertyId = id) >= :minVideos) " +
-            "AND (:nearbyPointsOfInterest IS NULL OR nearbyPointsOfInterest = :nearbyPointsOfInterest) " +
-            "AND (:status IS NULL OR status = :status) " +
-            "AND (:minEntryDate IS NULL OR entryDate >= :minEntryDate) " +
-            "AND (:minSaleDate IS NULL OR saleDate >= :minSaleDate) " +
-            "AND (:agentId IS NULL OR agentId = :agentId)")
-    suspend fun searchByCriterias(criteria: PropertySearchCriteria): List<PropertyWithDetails>*/
+    @Query(
+        """
+    SELECT properties.*
+      FROM properties
+     WHERE (:propertyTypes IS NULL OR properties.type             IN (:propertyTypes))
+       AND (:minPrice       IS NULL OR properties.price            >= :minPrice)
+       AND (:maxPrice       IS NULL OR properties.price            <= :maxPrice)
+       AND (:minArea        IS NULL OR properties.area             >= :minArea)
+       AND (:maxArea        IS NULL OR properties.area             <= :maxArea)
+       AND (:minRooms       IS NULL OR properties.numberOfRooms    >= :minRooms)
+       AND (:minPhotos      IS NULL
+            OR (SELECT COUNT(*) 
+                  FROM medias
+                 WHERE medias.propertyLocalId = properties.id
+                   AND medias.type              = 'photo'
+               ) >= :minPhotos)
+       AND (:minVideos      IS NULL
+            OR (SELECT COUNT(*) 
+                  FROM medias
+                 WHERE medias.propertyLocalId = properties.id
+                   AND medias.type              = 'video'
+               ) >= :minVideos)
+       AND (:pointOfInterestIds         IS NULL
+            OR (
+                 SELECT COUNT(DISTINCT poiCrossRef.pointOfInterestId)
+                   FROM point_of_interest_cross_ref AS poiCrossRef
+                  WHERE poiCrossRef.propertyId         = properties.id
+                    AND poiCrossRef.pointOfInterestId IN (:pointOfInterestIds)
+               ) >= :pointOfInterestCount)
+       AND (:minEntryDate   IS NULL OR properties.entryDate        >= :minEntryDate)
+       AND (:minSaleDate    IS NULL OR properties.saleDate         >= :minSaleDate)
+       AND (:agentId        IS NULL OR properties.agentId          = :agentId)
+       ORDER BY properties.entryDate DESC
+  """
+    )
+    suspend fun searchByCriteria(
+        propertyTypes: List<String>?,
+        minPrice: Double?,
+        maxPrice: Double?,
+        minArea: Double?,
+        maxArea: Double?,
+        minRooms: Int?,
+        minPhotos: Int?,
+        minVideos: Int?,
+        pointOfInterestIds: List<String>?,  // ids de PointOfInterestEntity
+        pointOfInterestCount: Int?,
+        minEntryDate: Long?,
+        minSaleDate: Long?,
+        agentId: String?
+    ): List<PropertyWithDetails>
 
 }

@@ -8,7 +8,6 @@ import com.openclassrooms.realestatemanagerv2.data.entity.PropertyWithDetails
 import com.openclassrooms.realestatemanagerv2.utils.toPropertyStatus
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import com.openclassrooms.realestatemanagerv2.R.string
 
 
 data class Property (
@@ -172,8 +171,8 @@ enum class PointOfInterest(val serialName: String, val displayNameResId: Int) {
         }
 
         fun fromPointOfInterestEntity(entity: PointOfInterestEntity): PointOfInterest {
-            return PointOfInterest.values().find { it.name == entity.name } ?:
-            throw IllegalArgumentException("PointOfInterest from entity unknown : ${entity.name}")
+            return PointOfInterest.values().find { it.displayNameResId == entity.displayNameResId } ?:
+            throw IllegalArgumentException("PointOfInterest from entity unknown : ${entity.displayNameResId}")
         }
 
         }

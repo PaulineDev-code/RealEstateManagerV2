@@ -18,8 +18,6 @@ class AddPropertyUseCase @Inject constructor(private val propertyRepository: Pro
         val photosEntities = property.mapToMediaEntities()
         val pointsOfInterestEntities = property.mapToPointOfInterestEntities()
 
-
-
         propertyRepository.insertProperty(
             agentEntity = agentEntity,
             propertyEntity = propertyEntity,

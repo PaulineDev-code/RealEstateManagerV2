@@ -23,8 +23,8 @@ class DatabaseUtil(propertyDAO: PropertyLocalDAO, agentDAO: AgentDAO,
     ) {
         val pointsOfInterest = PointOfInterest.values().map { poiEnum ->
             PointOfInterestEntity(
-                id = UUID.randomUUID().toString(),
-                name = poiEnum.name
+                id = poiEnum.serialName,
+                displayNameResId = poiEnum.displayNameResId
             )
         }
 
