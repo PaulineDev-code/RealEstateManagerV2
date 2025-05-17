@@ -1,5 +1,6 @@
 package com.openclassrooms.realestatemanagerv2.ui
 
+import android.content.res.Resources.Theme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -179,6 +181,7 @@ fun SearchContent(
         onNavigationClick = { /*TODO*/ },
         onModifyClick = { /*TODO*/ },
         showModifyButton = false,
+        navBarsColor = MaterialTheme.colorScheme.surfaceVariant,
         showBottomBar = true
     ) { paddingValues ->
 

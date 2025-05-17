@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,12 +43,24 @@ import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyListViewModel
 @Composable
 fun HomeScreen(navController: NavController, viewModel: PropertyListViewModel = hiltViewModel()) {
 
+    val viewState by viewModel.uiState.collectAsState()
+
+    val navBarsColor = if (
+        viewState is PropertyListViewModel.PropertyUiState.Success
+        && (viewState as PropertyListViewModel.PropertyUiState.Success).isFiltered
+    ) {
+        MaterialTheme.colorScheme.surfaceVariant
+    } else {
+        MaterialTheme.colorScheme.primaryContainer
+    }
+
     //TODO: Create a new composable for scaffold+topbar
     AppTopBar(
         navController = navController,
         onNavigationClick = { /*TODO*/ },
         onModifyClick = { /*TODO*/ },
         showModifyButton = false,
+        navBarsColor = navBarsColor,
         showBottomBar = true
     ) { paddingValues ->
         val backStackEntry = navController.previousBackStackEntry
@@ -62,8 +75,6 @@ fun HomeScreen(navController: NavController, viewModel: PropertyListViewModel = 
                 savedState?.remove<PropertySearchCriteria>("criterias")
             }
         }
-
-        val viewState by viewModel.uiState.collectAsState()
 
         when (viewState) {
             is PropertyListViewModel.PropertyUiState.Loading -> {

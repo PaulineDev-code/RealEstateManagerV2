@@ -20,6 +20,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,6 +41,7 @@ fun AppTopBar(
     onAddClick: () -> Unit = {navController.navigate("add_screen")},
     onModifyClick: () -> Unit,
     showModifyButton: Boolean,
+    navBarsColor: Color = MaterialTheme.colorScheme.primaryContainer,
     showBottomBar: Boolean = true,
     content: @Composable (PaddingValues) -> Unit
 ) {
@@ -50,8 +52,9 @@ fun AppTopBar(
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    containerColor = navBarsColor,
                     titleContentColor = MaterialTheme.colorScheme.primary,
+                    scrolledContainerColor = navBarsColor
                 ),
                 title = {
                     Text(
@@ -95,7 +98,7 @@ fun AppTopBar(
         },
         bottomBar = {
             if (showBottomBar) {
-                BottomNavigation(backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                BottomNavigation(backgroundColor = navBarsColor,
                     contentColor = MaterialTheme.colorScheme.primary) {
                     val items = listOf(
                         BottomNavItem.List,
