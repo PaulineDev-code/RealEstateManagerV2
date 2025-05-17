@@ -54,6 +54,7 @@
     <string name="add_photo">Add photo</string>
 
     //App utils
+    <string name="search_screen_introduction">Search for properties using at least one of the following criteria</string>
     <string name="erase_filters">Erase Filters</string>
     <string name="add_proprety_validation_error">Fields are missing: </string>
     <string name="select_points_of_interest">Click here to select nearby points of interest : </string>

@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.ui.composables.AgentSpinner
@@ -44,6 +46,7 @@ import com.openclassrooms.realestatemanagerv2.ui.composables.CustomRangeSlider
 import com.openclassrooms.realestatemanagerv2.ui.composables.CustomTextField
 import com.openclassrooms.realestatemanagerv2.ui.composables.PointsOfInterestDropdown
 import com.openclassrooms.realestatemanagerv2.ui.composables.PropertyTypeCheckBox
+import com.openclassrooms.realestatemanagerv2.ui.composables.SearchHeaderAnimation
 import com.openclassrooms.realestatemanagerv2.ui.composables.TypewriterText
 import com.openclassrooms.realestatemanagerv2.viewmodels.SearchPropertiesViewModel
 
@@ -73,8 +76,6 @@ fun SearchScreen(
     }
 
     SearchContent(navController = navController,
-        isHeaderAnimated = editingState?.animateHeader ?: false,
-        onHeaderAnimationChange = { newIsAnimated -> searchPropertiesViewModel.updateAnimateText(newIsAnimated) },
         minPrice = editingState?.minPrice?.value ?: "",
         onMinPriceChange = { newMinPrice -> searchPropertiesViewModel.updateMinPrice(newMinPrice) },
         maxPrice = editingState?.maxPrice?.value ?: "",
@@ -132,8 +133,6 @@ fun SearchScreen(
 @Composable
 fun SearchContent(
     navController: NavController,
-    isHeaderAnimated: Boolean,
-    onHeaderAnimationChange: (Boolean) -> Unit,
     minPrice: String,
     onMinPriceChange: (String) -> Unit,
     maxPrice: String,
@@ -192,28 +191,11 @@ fun SearchContent(
                 .verticalScroll(rememberScrollState())
         ) {
 
+            SearchHeaderAnimation()
 
-            Text(text = "Search",
-                fontSize = MaterialTheme.typography.headlineLarge.fontSize,
-                fontStyle = MaterialTheme.typography.headlineLarge.fontStyle ,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.headlineLarge
-
-                )
-
-            val fullText: String = "for properties using at least one of the following criterias"
-
-            TypewriterText(
+            Text(
                 modifier = Modifier.padding(8.dp),
-                text = fullText,
-                animate = isHeaderAnimated,
-                charDelay = 20,
-                onAnimationChange = onHeaderAnimationChange
+                text = stringResource(id = R.string.search_screen_introduction)
             )
 
 
@@ -468,8 +450,6 @@ fun SearchContent(
 fun SearchScreenPreview() {
     SearchContent(
         navController = rememberNavController(),
-        isHeaderAnimated = true,
-        onHeaderAnimationChange = {},
         selectedEntryDate = 44738399,
         onEntryDateSelected = {},
         isEntryDateDialogShown = false,

@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,6 +54,9 @@ fun HomeScreen(navController: NavController, viewModel: PropertyListViewModel = 
     } else {
         MaterialTheme.colorScheme.primaryContainer
     }
+
+    val pc = MaterialTheme.colorScheme.background
+    Log.d("HomeScreen", "navBarsColor:" + String.format("#%06X", 0xFFFFFF and pc.toArgb()))
 
     //TODO: Create a new composable for scaffold+topbar
     AppTopBar(

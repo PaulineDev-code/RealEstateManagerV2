@@ -41,6 +41,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Photo
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.domain.model.Video
 import com.openclassrooms.realestatemanagerv2.ui.composables.AddPhotoDescriptionDialog
+import com.openclassrooms.realestatemanagerv2.ui.composables.AddPropertyAnimation
 import com.openclassrooms.realestatemanagerv2.ui.composables.AddTextFields
 import com.openclassrooms.realestatemanagerv2.ui.composables.AgentSpinner
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
@@ -269,6 +270,8 @@ private fun AddContent(
                 .padding(8.dp)
                 .verticalScroll(rememberScrollState())
         ) {
+
+            AddPropertyAnimation(modifier = Modifier, iterations = 1)
 
             DetailsMediaContent(
                 photoList = photoList,

@@ -58,14 +58,6 @@ class SearchPropertiesViewModel @Inject constructor(
         }
     }
 
-    fun updateAnimateText(newIsAnimated: Boolean)  {
-        updateState {
-            copy(
-                animateHeader = newIsAnimated
-            )
-        }
-    }
-
     fun updateMinPrice(newMinPrice: String) {
         val error = newMinPrice.validatePositiveNumber() + newMinPrice.validateNonEmpty()
         updateState {
@@ -229,7 +221,6 @@ class SearchPropertiesViewModel @Inject constructor(
         data class Success(val properties: List<Property>): SearchPropertiesUiState
         data class Error(val error: SearchPropertiesViewModel.SearchPropertiesError): SearchPropertiesUiState
         data class Editing(
-            val animateHeader: Boolean = true,
             val typeSet: Set<String> = emptySet(),
             val allTypes: List<String> = emptyList(),
             val minPrice: FormField = FormField(),

@@ -112,6 +112,8 @@ dependencies {
     //Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
+    //Lottie
+    implementation "com.airbnb.android:lottie-compose:6.6.6"
 }
 
 kapt {
