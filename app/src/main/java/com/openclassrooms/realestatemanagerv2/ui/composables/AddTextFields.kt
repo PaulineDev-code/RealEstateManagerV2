@@ -68,7 +68,6 @@ fun AddTextFields(
     numberOfRoomsError: String,
 
 
-
 // OnChange functions
     onDescriptionChange: (String) -> Unit,
     onTypeChange: (String) -> Unit,
@@ -77,206 +76,217 @@ fun AddTextFields(
     onNumberOfRoomsChange: (String) -> Unit,
     onAddressChange: (String) -> Unit,
     onNearbyPointChange: (PointOfInterest, Boolean) -> Unit,
-    onEntryDateChange: (Long) -> Unit,
-    onSaleDateChange: (Long) -> Unit,
 ) {
-    Column(modifier = Modifier.padding(4.dp)) {
 
-        Text(text = stringResource(id = R.string.description_for_the_property),
-            fontSize =  androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
-            fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp))
+    Text(
+        text = stringResource(id = R.string.description_for_the_property),
+        fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
+        fontWeight = FontWeight.ExtraBold,
+        modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp)
+    )
 
-        CustomTextField(label = {
-            Text(
-                text = stringResource(id = R.string.description)
-            )
-        }, placeHolder = {
-            Text(
-                text = "Your description"
-            )
-        }, modifier = Modifier
-            .fillMaxWidth()
-            .height(128.dp)
-            .padding(4.dp),
-            text = description,
-            onTextChange = onDescriptionChange,
-            supportingText = { Text(text = descriptionError, color = Color.Red) }
+    CustomTextField(label = {
+        Text(
+            text = stringResource(id = R.string.description)
         )
-
-        Text(text = stringResource(id = R.string.type_and_price),
-            fontSize =  androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
-            fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp))
-
-        Row {
-
-            CustomTextField(
-                label = { Text(text = stringResource(id = R.string.type)) },
-                placeHolder = { Text(text = "Type of property") },
-                text = type,
-                onTextChange = onTypeChange,
-                supportingText = { Text(text = typeError) },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(4.dp)
-            )
-            CustomTextField(
-                label = { Text(text = stringResource(id = R.string.price)) },
-                placeHolder = { Text(text = "Price of property") },
-                suffix = { Text(text = "$") },
-                keyboardType = KeyboardType.Decimal,
-                text = price,
-                onTextChange = onPriceChange,
-                supportingText = { Text(text = priceError, color = Color.Red) },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(4.dp)
-            )
-        }
-
-        Text(text = stringResource(id = R.string.area_and_number_of_rooms),
-            fontSize =  androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
-            fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp))
-
-        Row {
-            CustomTextField(
-                label = { Text(text = stringResource(id = R.string.area)) },
-                placeHolder = {
-                    Text(
-                        text = "Area of property"
-                    )
-                },
-                suffix = { Text(text = "m²") },
-                keyboardType = KeyboardType.Decimal,
-                text = area,
-                onTextChange = onAreaChange,
-                supportingText = { Text(text = areaError, color = Color.Red) },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(4.dp)
-            )
-            CustomTextField(
-                label = {
-                    Text(
-                        text = stringResource(id = R.string.number_of_rooms),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                placeHolder = {
-                    Text(
-                        text = "Rooms of property"
-                    )
-                },
-                keyboardType = KeyboardType.Number,
-                text = numberOfRooms,
-                onTextChange = onNumberOfRoomsChange,
-                supportingText = { Text(text = numberOfRoomsError, color = Color.Red) },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(4.dp)
-            )
-        }
-
-        Text(text = stringResource(id = R.string.entry_date),
-            fontSize =  androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
-            fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp))
-
-        CustomDatePicker(
-            selectedDateMillis = selectedEntryDate,
-            isDialogShown = isEntryDateDialogShown,
-            onShowDialog = onShowEntryDateDialog,
-            onDismissDialog = onDismissEntryDateDialog,
-            onDateSelected = onEntryDateSelected,
-            datePickerState = entryDatePickerState,
-            modifier = Modifier.padding(8.dp)
+    }, placeHolder = {
+        Text(
+            text = "Your description"
         )
+    }, modifier = Modifier
+        .fillMaxWidth()
+        .height(128.dp)
+        .padding(8.dp),
+        text = description,
+        onTextChange = onDescriptionChange,
+        supportingText = { Text(text = descriptionError, color = Color.Red) }
+    )
 
-        Text(text = stringResource(id = R.string.sale_date_optional),
-            fontSize =  androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
-            fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp))
+    Text(
+        text = stringResource(id = R.string.type_and_price),
+        fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
+        fontWeight = FontWeight.ExtraBold,
+        modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp)
+    )
 
-        CustomDatePicker(
-            selectedDateMillis = selectedSaleDate,
-            isDialogShown = isSaleDateDialogShown,
-            onShowDialog = onShowSaleDateDialog,
-            onDismissDialog = onDismissSaleDateDialog,
-            onDateSelected = onSaleDateSelected,
-            datePickerState = saleDatePickerState,
-            modifier = Modifier.padding(8.dp)
-        )
-
-
-        Text(text = stringResource(id = R.string.address),
-            fontSize =  androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
-            fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.padding(top = 24.dp, start = 8.dp, end = 8.dp))
+    Row {
 
         CustomTextField(
-            label = { Text(text = stringResource(id = R.string.location)) },
-            placeHolder = { Text(text = "Address of property") },
-            text = address,
-            onTextChange = onAddressChange,
-            supportingText = { Text(text = addressError, color = Color.Red) },
-            modifier = Modifier.padding(8.dp)
+            label = { Text(text = stringResource(id = R.string.type)) },
+            placeHolder = { Text(text = stringResource(id = R.string.type)) },
+            text = type,
+            onTextChange = onTypeChange,
+            supportingText = { Text(text = typeError) },
+            modifier = Modifier
+                .weight(1f)
+                .padding(8.dp)
         )
-
-        /*Row(modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min),
-            verticalAlignment = Alignment.CenterVertically) {
-            CustomTextField(
-                label = { Text(text = "Point of interest") },
-                placeHolder = { Text(text = "Add a nearby point of interest") },
-                text = nearbyPoint,
-                onTextChange = onNearbyPointChange,
-                modifier = Modifier
-                    .padding(4.dp)
-                    .weight(2f)
-            )*/
-
-        /*  Button( modifier = Modifier
-              .padding(4.dp)
-              .weight(1f),
-              onClick =  onAddNearbyPoint ) {
-              Text(text = "Add")
-          }
-      }*/
-
-        /*LazyRow(modifier = Modifier.wrapContentWidth()) {
-            itemsIndexed(items = nearbyPointList) { _, nearbyPoint ->
-                RemovableCard(
-                    content = { Text(
-                        text = nearbyPoint,
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .padding(start = 8.dp),
-                        textAlign = TextAlign.Center
-                    )},
-                    onDelete = { onDeleteNearbyPoint(nearbyPoint) }
-                    ) 
-
-            }
-        }*/
-        /*
-        val nearbyPointList2 :List<PointOfInterest> = emptyList()*/
-
-        Text(text = stringResource(id = R.string.nearby_points_of_interest),
-            fontSize =  androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
-            fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp))
-
-        PointsOfInterestDropdown(
-            allPointOfInterestList = nearbyPointList,
-            selectedPointOfInterestSet = nearbyPointSelectedSet,
-            onSelectionChanged = onNearbyPointChange
+        CustomTextField(
+            label = { Text(text = stringResource(id = R.string.price)) },
+            placeHolder = { Text(text = stringResource(R.string.price)) },
+            suffix = { Text(text = "$") },
+            keyboardType = KeyboardType.Decimal,
+            text = price,
+            onTextChange = onPriceChange,
+            supportingText = { Text(text = priceError, color = Color.Red) },
+            modifier = Modifier
+                .weight(1f)
+                .padding(8.dp)
         )
-
     }
+
+    Text(
+        text = stringResource(id = R.string.area_and_number_of_rooms),
+        fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
+        fontWeight = FontWeight.ExtraBold,
+        modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp)
+    )
+
+    Row {
+        CustomTextField(
+            label = { Text(text = stringResource(id = R.string.area)) },
+            placeHolder = {
+                Text(
+                    text = stringResource(id = R.string.area)
+                )
+            },
+            suffix = { Text(text = "m²") },
+            keyboardType = KeyboardType.Decimal,
+            text = area,
+            onTextChange = onAreaChange,
+            supportingText = { Text(text = areaError, color = Color.Red) },
+            modifier = Modifier
+                .weight(1f)
+                .padding(8.dp)
+        )
+        CustomTextField(
+            label = {
+                Text(
+                    text = stringResource(id = R.string.number_of_rooms),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            },
+            placeHolder = {
+                Text(
+                    text = stringResource(id = R.string.number_of_rooms)
+                )
+            },
+            keyboardType = KeyboardType.Number,
+            text = numberOfRooms,
+            onTextChange = onNumberOfRoomsChange,
+            supportingText = { Text(text = numberOfRoomsError, color = Color.Red) },
+            modifier = Modifier
+                .weight(1f)
+                .padding(8.dp)
+        )
+    }
+
+    Text(
+        text = stringResource(id = R.string.entry_date),
+        fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
+        fontWeight = FontWeight.ExtraBold,
+        modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp)
+    )
+
+    CustomDatePicker(
+        selectedDateMillis = selectedEntryDate,
+        isDialogShown = isEntryDateDialogShown,
+        onShowDialog = onShowEntryDateDialog,
+        onDismissDialog = onDismissEntryDateDialog,
+        onDateSelected = onEntryDateSelected,
+        datePickerState = entryDatePickerState,
+        modifier = Modifier.padding(8.dp)
+    )
+
+    Text(
+        text = stringResource(id = R.string.sale_date_optional),
+        fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
+        fontWeight = FontWeight.ExtraBold,
+        modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp)
+    )
+
+    CustomDatePicker(
+        selectedDateMillis = selectedSaleDate,
+        isDialogShown = isSaleDateDialogShown,
+        onShowDialog = onShowSaleDateDialog,
+        onDismissDialog = onDismissSaleDateDialog,
+        onDateSelected = onSaleDateSelected,
+        datePickerState = saleDatePickerState,
+        modifier = Modifier.padding(8.dp)
+    )
+
+
+    Text(
+        text = stringResource(id = R.string.address),
+        fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
+        fontWeight = FontWeight.ExtraBold,
+        modifier = Modifier.padding(top = 24.dp, start = 8.dp, end = 8.dp)
+    )
+
+    CustomTextField(
+        label = { Text(text = stringResource(id = R.string.location)) },
+        placeHolder = { Text(text = stringResource(id = R.string.address)) },
+        text = address,
+        onTextChange = onAddressChange,
+        supportingText = { Text(text = addressError, color = Color.Red) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    )
+
+    /*Row(modifier = Modifier
+        .fillMaxWidth()
+        .height(IntrinsicSize.Min),
+        verticalAlignment = Alignment.CenterVertically) {
+        CustomTextField(
+            label = { Text(text = "Point of interest") },
+            placeHolder = { Text(text = "Add a nearby point of interest") },
+            text = nearbyPoint,
+            onTextChange = onNearbyPointChange,
+            modifier = Modifier
+                .padding(4.dp)
+                .weight(2f)
+        )*/
+
+    /*  Button( modifier = Modifier
+          .padding(4.dp)
+          .weight(1f),
+          onClick =  onAddNearbyPoint ) {
+          Text(text = "Add")
+      }
+  }*/
+
+    /*LazyRow(modifier = Modifier.wrapContentWidth()) {
+        itemsIndexed(items = nearbyPointList) { _, nearbyPoint ->
+            RemovableCard(
+                content = { Text(
+                    text = nearbyPoint,
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .padding(start = 8.dp),
+                    textAlign = TextAlign.Center
+                )},
+                onDelete = { onDeleteNearbyPoint(nearbyPoint) }
+                )
+
+        }
+    }*/
+    /*
+    val nearbyPointList2 :List<PointOfInterest> = emptyList()*/
+
+    Text(
+        text = stringResource(id = R.string.nearby_points_of_interest),
+        fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
+        fontWeight = FontWeight.ExtraBold,
+        modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp)
+    )
+
+    PointsOfInterestDropdown(
+        allPointOfInterestList = nearbyPointList,
+        selectedPointOfInterestSet = nearbyPointSelectedSet,
+        onSelectionChanged = onNearbyPointChange
+    )
 
 }
 
@@ -285,47 +295,47 @@ fun AddTextFields(
 @Preview(showBackground = true, showSystemUi = false, backgroundColor = -1)
 @Composable
 fun AddTextFieldsPreview() {
-    AddTextFields(
-        //Values
-        description = "description",
-        type = "type",
-        price = "price",
-        area = "area",
-        numberOfRooms = "numberOfRooms",
-        address = "address",
-        nearbyPointSelectedSet = emptySet(),
-        nearbyPointList = emptyList(),
-        selectedEntryDate = null,
-        onEntryDateSelected = {},
-        isEntryDateDialogShown = false,
-        onShowEntryDateDialog = {},
-        onDismissEntryDateDialog = {},
-        entryDatePickerState = rememberDatePickerState(),
-        selectedSaleDate = null,
-        onSaleDateSelected = {},
-        isSaleDateDialogShown = false,
-        onShowSaleDateDialog = {},
-        onDismissSaleDateDialog = {},
-        saleDatePickerState = rememberDatePickerState(),
+    Column(modifier = Modifier.padding(4.dp)) {
+        AddTextFields(
+            //Values
+            description = "description",
+            type = "type",
+            price = "price",
+            area = "area",
+            numberOfRooms = "numberOfRooms",
+            address = "address",
+            nearbyPointSelectedSet = emptySet(),
+            nearbyPointList = emptyList(),
+            selectedEntryDate = null,
+            onEntryDateSelected = {},
+            isEntryDateDialogShown = false,
+            onShowEntryDateDialog = {},
+            onDismissEntryDateDialog = {},
+            entryDatePickerState = rememberDatePickerState(),
+            selectedSaleDate = null,
+            onSaleDateSelected = {},
+            isSaleDateDialogShown = false,
+            onShowSaleDateDialog = {},
+            onDismissSaleDateDialog = {},
+            saleDatePickerState = rememberDatePickerState(),
 
-        //Errors
-        descriptionError = "",
-        typeError = "",
-        priceError = "",
-        addressError = "",
-        areaError = "",
-        numberOfRoomsError = "",
+            //Errors
+            descriptionError = "",
+            typeError = "",
+            priceError = "",
+            addressError = "",
+            areaError = "",
+            numberOfRoomsError = "",
 
 // OnChange functions
-        onDescriptionChange = {},
-        onTypeChange = {},
-        onPriceChange = {},
-        onAreaChange = {},
-        onNumberOfRoomsChange = {},
-        onAddressChange = {},
-        onNearbyPointChange = { poi, bool -> },
-        onEntryDateChange = {},
-        onSaleDateChange = {},
+            onDescriptionChange = {},
+            onTypeChange = {},
+            onPriceChange = {},
+            onAreaChange = {},
+            onNumberOfRoomsChange = {},
+            onAddressChange = {},
+            onNearbyPointChange = { poi, bool -> },
 
-        )
+            )
+    }
 }

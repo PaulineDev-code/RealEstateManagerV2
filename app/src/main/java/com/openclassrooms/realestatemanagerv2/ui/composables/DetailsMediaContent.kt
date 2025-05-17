@@ -44,138 +44,138 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Photo
 import com.openclassrooms.realestatemanagerv2.domain.model.Video
 
 @Composable
-fun DetailsMediaContent(photoList: List<Photo>,
-                        videoList: List<Video>,
-                        isInEditMode: Boolean = false,
-                        onPhotoDeleted: (Media) -> Unit,
-                        onVideoDeleted: (Media) -> Unit,
-                        onVideoClicked:(String) -> Unit,
-                        context: Context
-                        ) {
+fun DetailsMediaContent(
+    modifier: Modifier = Modifier,
+    photoList: List<Photo>,
+    videoList: List<Video>,
+    isInEditMode: Boolean = false,
+    onPhotoDeleted: (Media) -> Unit,
+    onVideoDeleted: (Media) -> Unit,
+    onVideoClicked: (String) -> Unit,
+    context: Context
+) {
 
-
-    Column {
-        Text(
-            text = stringResource(id = R.string.media),
-            fontSize = MaterialTheme.typography.titleMedium.fontSize,
-            fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.padding(8.dp)
-        )
-        LazyRow(modifier = Modifier.fillMaxWidth()) {
-            itemsIndexed(items = photoList) { _, photo ->
-                Box(
+    Text(
+        text = stringResource(id = R.string.media),
+        fontSize = MaterialTheme.typography.titleMedium.fontSize,
+        fontWeight = FontWeight.ExtraBold,
+        modifier = modifier.padding(8.dp)
+    )
+    LazyRow(modifier = Modifier.fillMaxWidth()) {
+        itemsIndexed(items = photoList) { _, photo ->
+            Box(
+                modifier = Modifier
+                    .height(128.dp)
+                    .width(96.dp)
+                    .padding(8.dp)
+            ) {
+                // Photo
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(photo.mediaUrl)
+                        .build(),
+                    contentDescription = photo.description,
                     modifier = Modifier
-                        .height(128.dp)
-                        .width(80.dp)
-                        .padding(8.dp)
-                ) {
-                    // Photo
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(photo.mediaUrl)
-                            .build(),
-                        contentDescription = photo.description,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Gray),
-                        contentScale = ContentScale.Crop,
-                        onError = { error ->
-                            Log.e(
-                                "PhotoListCoilError",
-                                error.result.throwable.localizedMessage ?: "Unknown error"
-                            )
-                        }
-                    )
-                    Log.d("Property photo url", photo.mediaUrl)
-
-                    if (isInEditMode) {
-
-                        IconButton(
-                            onClick = { onPhotoDeleted(photo) },
-                            modifier = Modifier
-                                .size(16.dp)
-                                .align(Alignment.TopEnd)
-
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Delete photo",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .padding(2.dp)
-                                    .align(Alignment.TopEnd)
-                                    .background(Color.White, CircleShape)
-
-                            )
-                        }
+                        .fillMaxSize()
+                        .background(Color.Gray),
+                    contentScale = ContentScale.Crop,
+                    onError = { error ->
+                        Log.e(
+                            "PhotoListCoilError",
+                            error.result.throwable.localizedMessage ?: "Unknown error"
+                        )
                     }
+                )
+                Log.d("Property photo url", photo.mediaUrl)
 
-                    // Surface avec texte
-                    Surface(
-                        color = Color(0, 0, 0, 150),
+                if (isInEditMode) {
+
+                    IconButton(
+                        onClick = { onPhotoDeleted(photo) },
                         modifier = Modifier
-                            .fillMaxHeight(0.34F)
-                            .fillMaxWidth()
-                            .align(Alignment.BottomCenter),
+                            .padding(2.dp)
+                            .size(16.dp)
+                            .align(Alignment.TopEnd)
+
                     ) {
-                        Text(
-                            photo.description,
-                            fontSize = 10.sp,
-                            color = Color.White,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(4.dp)
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Delete photo",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .background(Color.White, CircleShape)
+
                         )
                     }
                 }
+
+                // Surface avec texte
+                Surface(
+                    color = Color(0, 0, 0, 150),
+                    modifier = Modifier
+                        .fillMaxHeight(0.34F)
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter),
+                ) {
+                    Text(
+                        photo.description,
+                        fontSize = 10.sp,
+                        color = Color.White,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(4.dp)
+                    )
+                }
             }
         }
-        //TODO: Add isInEditMode to hide delete button
-        if (videoList.isNotEmpty()) {
-            LazyRow(modifier = Modifier.fillMaxWidth()) {
-                itemsIndexed(items = videoList) { _, video ->
-                    Box(
+    }
+    //TODO: Add isInEditMode to hide delete button
+    if (videoList.isNotEmpty()) {
+        LazyRow(modifier = Modifier.fillMaxWidth()) {
+            itemsIndexed(items = videoList) { _, video ->
+                Box(
+                    modifier = Modifier
+                        .height(128.dp)
+                        .width(96.dp)
+                        .padding(8.dp)
+                        .background(Color.Black)
+                        .clickable { onVideoClicked(video.mediaUrl) }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "Play video",
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
-                            .height(128.dp)
-                            .width(80.dp)
-                            .padding(8.dp)
-                            .background(Color.Black)
-                            .clickable { onVideoClicked(video.mediaUrl) }
+                            .background(Color.White, CircleShape)
+                            .align(Alignment.Center)
+
+                    )
+
+                    IconButton(
+                        onClick = { onVideoDeleted(video) },
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .size(16.dp)
+                            .align(Alignment.TopEnd)
+
+
                     ) {
                         Icon(
-                            imageVector = Icons.Default.PlayArrow,
-                            contentDescription = "Play video",
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Delete video",
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
+                                .align(Alignment.TopEnd)
                                 .background(Color.White, CircleShape)
-                                .align(Alignment.Center)
 
                         )
-
-                        IconButton(
-                            onClick = { onVideoDeleted(video) },
-                            modifier = Modifier
-                                .padding(2.dp)
-                                .size(16.dp)
-                                .align(Alignment.TopEnd)
-
-
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Delete video",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .background(Color.White, CircleShape)
-
-                            )
-                        }
                     }
                 }
             }
         }
     }
 }
+
 
 @Preview(showBackground = true, backgroundColor = -1)
 @Composable
@@ -188,13 +188,15 @@ fun DetailsMediaContentPreview() {
     val videoList: List<Video> = listOf(
         Video("", "etst1")
     )
+    Column(modifier = Modifier.padding(8.dp)) {
 
-    DetailsMediaContent(
-        photoList = pictureList,
-        videoList = videoList,
-        onPhotoDeleted = {},
-        onVideoDeleted = { /*TODO*/ },
-        onVideoClicked = { /*TODO*/ },
-        context = LocalContext.current
-    )
+        DetailsMediaContent(
+            photoList = pictureList,
+            videoList = videoList,
+            onPhotoDeleted = {},
+            onVideoDeleted = {},
+            onVideoClicked = {},
+            context = LocalContext.current
+        )
+    }
 }

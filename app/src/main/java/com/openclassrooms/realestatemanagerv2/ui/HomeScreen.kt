@@ -55,9 +55,6 @@ fun HomeScreen(navController: NavController, viewModel: PropertyListViewModel = 
         MaterialTheme.colorScheme.primaryContainer
     }
 
-    val pc = MaterialTheme.colorScheme.background
-    Log.d("HomeScreen", "navBarsColor:" + String.format("#%06X", 0xFFFFFF and pc.toArgb()))
-
     //TODO: Create a new composable for scaffold+topbar
     AppTopBar(
         navController = navController,
