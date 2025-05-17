@@ -70,6 +70,7 @@ class PropertyRepository @Inject constructor(private val database: MyDatabase, p
         return propertyDao.searchByCriteria(
             propertyTypes       = criteria.propertyType
                 ?.takeIf { it.isNotEmpty() },
+            propertyTypesCount = criteria.propertyType?.size,
             minPrice            = criteria.minPrice,
             maxPrice            = criteria.maxPrice,
             minArea             = criteria.minArea,

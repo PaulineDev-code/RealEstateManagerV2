@@ -29,13 +29,12 @@ interface PropertyLocalDAO {
     @Query("SELECT DISTINCT type FROM properties")
     suspend fun getDistinctTypes(): List<String>
 
-
-
+    @Transaction
     @Query(
         """
     SELECT properties.*
       FROM properties
-     WHERE (:propertyTypes IS NULL OR properties.type             IN (:propertyTypes))
+     WHERE (:propertyTypesCount IS NULL OR :propertyTypesCount = 0 OR properties.type IN (:propertyTypes))
        AND (:minPrice       IS NULL OR properties.price            >= :minPrice)
        AND (:maxPrice       IS NULL OR properties.price            <= :maxPrice)
        AND (:minArea        IS NULL OR properties.area             >= :minArea)
@@ -68,6 +67,7 @@ interface PropertyLocalDAO {
     )
     suspend fun searchByCriteria(
         propertyTypes: List<String>?,
+        propertyTypesCount: Int?,
         minPrice: Double?,
         maxPrice: Double?,
         minArea: Double?,
