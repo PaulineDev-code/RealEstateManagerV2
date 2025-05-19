@@ -52,13 +52,27 @@
     <string name="import_a_video">Import a video</string>
     <string name="description_of_the_photo">Description of the photo</string>
     <string name="add_photo">Add photo</string>
+    //SearchScreen
+    <string name="min_date_of_entry">Min date of entry</string>
+    <string name="min_date_of_sale">Min date of sale</string>
+    <string name="min_number_of_rooms">Min number of rooms</string>
+    <string name="min_number_of_medias">Min number of medias</string>
+    <string name="min_and_max_price">Min and/or Max price</string>
+    <string name="select_types_of_property">Select types of property</string>
+    <string name="select_points_of_interest">Select one/many points of interest</string>
+    <string name="click_to_select_points_of_interest">Click here to select nearby points of interest : </string>
+    <string name="min_and_max_area">Min and/or Max area</string>
+    <string name="search_for_properties">Search for properties</string>
+
+
+
 
     //App utils
     <string name="add_a_new_property">Add a new Property</string>
     <string name="search_screen_introduction">Search for properties using at least one of the following criteria</string>
     <string name="erase_filters">Erase Filters</string>
     <string name="add_proprety_validation_error">Fields are missing: </string>
-    <string name="select_points_of_interest">Click here to select nearby points of interest : </string>
+    <string name="select_an_agent">Select an agent</string>
 
 
 </resources>

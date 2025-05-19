@@ -20,62 +20,64 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun PropertyTypeCheckBox(types: List<String>,
-                         selectedType: Set<String>,
-                         onTypeSelected: (String, Boolean) -> Unit,
-                         modifier: Modifier = Modifier) {
+fun PropertyTypeCheckBox(
+    types: List<String>,
+    selectedType: Set<String>,
+    onTypeSelected: (String, Boolean) -> Unit,
+    modifier: Modifier
+) {
 
-    Column(modifier = modifier) {
 
-        Text(
-            text = "Select types of property :",
-            modifier = Modifier.padding(8.dp)
-        )
+    FlowRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        types.forEach { type ->
+            Card(
+                modifier = Modifier
+                    .wrapContentSize(),
+                shape = MaterialTheme.shapes.medium,
+                colors = CardColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onBackground,
+                    disabledContentColor = MaterialTheme.colorScheme.primary,
+                    disabledContainerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                elevation = CardDefaults.cardElevation(2.dp)
+            ) {
 
-        FlowRow(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            types.forEach { type ->
-                Card(
-                    modifier = Modifier
-                        .wrapContentSize(),
-                    shape = MaterialTheme.shapes.medium,
-                    colors = CardColors(containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.onBackground,
-                        disabledContentColor = MaterialTheme.colorScheme.primary,
-                        disabledContainerColor = MaterialTheme.colorScheme.primaryContainer),
-                    elevation = CardDefaults.cardElevation(2.dp)
+                Row(
+                    modifier = Modifier,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    // Ici, par exemple, on pourrait ajouter une Checkbox.
+                    // Pour simplifier, on l'affiche sans gestion locale du checked.
 
-                    Row(
-                        modifier = Modifier,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        // Ici, par exemple, on pourrait ajouter une Checkbox.
-                        // Pour simplifier, on l'affiche sans gestion locale du checked.
-
-                        val isChecked = selectedType.contains(type)
-                        Checkbox(
-                            checked = isChecked, // À adapter selon ton besoin (par exemple en utilisant un map de sélection)
-                            onCheckedChange = { onTypeSelected(type, !isChecked) }
-                        )
-                        Text(
-                            text = type,
-                            modifier = Modifier.padding(end = 8.dp),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
+                    val isChecked = selectedType.contains(type)
+                    Checkbox(
+                        checked = isChecked, // À adapter selon ton besoin (par exemple en utilisant un map de sélection)
+                        onCheckedChange = { onTypeSelected(type, !isChecked) }
+                    )
+                    Text(
+                        text = type,
+                        modifier = Modifier.padding(end = 8.dp),
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
         }
     }
 }
+
 
 @Preview(showBackground = true, backgroundColor = -1, showSystemUi = true)
 @Composable
@@ -84,7 +86,9 @@ fun PropertyTypeCheckBoxPreview() {
     val (selectedTypes, setSelectedTypes) = remember {
         mutableStateOf(setOf("House", "Loft"))
     }
-    PropertyTypeCheckBox(types = typesList,
+    PropertyTypeCheckBox(
+        modifier = Modifier.fillMaxWidth(),
+        types = typesList,
         selectedType = selectedTypes,
         onTypeSelected = { type, isSelected ->
             val newSelectedTypes = if (isSelected) {
@@ -94,4 +98,5 @@ fun PropertyTypeCheckBoxPreview() {
             }
             setSelectedTypes(newSelectedTypes)
         })
+
 }

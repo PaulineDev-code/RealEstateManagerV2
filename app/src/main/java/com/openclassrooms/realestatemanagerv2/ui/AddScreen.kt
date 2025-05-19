@@ -52,6 +52,7 @@ import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
 import com.openclassrooms.realestatemanagerv2.ui.composables.CameraGalleryChooser
 import com.openclassrooms.realestatemanagerv2.ui.composables.DebugRecompositions
 import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsMediaContent
+import com.openclassrooms.realestatemanagerv2.ui.composables.TitleText
 import com.openclassrooms.realestatemanagerv2.ui.composables.VideoPlayer
 import com.openclassrooms.realestatemanagerv2.viewmodels.AddPropertyViewModel
 
@@ -295,7 +296,7 @@ private fun AddContent(
             )
 
             Row(horizontalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier.align(CenterHorizontally)) {
+                modifier = Modifier.padding(bottom = 8.dp).align(CenterHorizontally)) {
                 CameraGalleryChooser(onPhotoSelected = onPhotoUriChange)
 
                 Button(
@@ -319,8 +320,6 @@ private fun AddContent(
                     onPhotoDescriptionChange = onPhotoDescriptionChange
                 )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             AddTextFields( // Values
                 description = description,
@@ -366,7 +365,13 @@ private fun AddContent(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            TitleText(
+                text = stringResource(id = R.string.agent),
+                modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp)
+            )
+
             AgentSpinner(
+                modifier = Modifier.padding(8.dp),
                 agents = agentList,
                 selectedAgent = agent,
                 onAgentSelected = onAgentSelected

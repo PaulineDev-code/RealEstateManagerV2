@@ -34,22 +34,15 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 
 @Composable
 fun AgentSpinner(
+    modifier: Modifier,
     agents: List<Agent>,
     selectedAgent: Agent?,
     onAgentSelected: (Agent) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Text(
-        text = stringResource(id = R.string.agent),
-        fontSize = MaterialTheme.typography.titleMedium.fontSize,
-        fontWeight = FontWeight.ExtraBold,
-        modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp)
-    )
-
     Box(
-        modifier = Modifier
-            .padding(8.dp)
+        modifier = modifier
             .wrapContentSize()
             .background(MaterialTheme.colorScheme.inverseOnSurface)
             .clickable(onClick = { expanded = true })
@@ -58,7 +51,7 @@ fun AgentSpinner(
         Row(verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(8.dp)) {
             Text(
-                text = selectedAgent?.name ?: "Select an agent",
+                text = selectedAgent?.name ?: stringResource(R.string.select_an_agent),
                 modifier = Modifier.wrapContentWidth()
             )
             Icon(
@@ -95,6 +88,7 @@ fun AgentSpinnerPreview() {
             Agent("3", "AgentTest3", "0333333333", "agent3@gmail.com")
         ),
             selectedAgent = null,
-            onAgentSelected = {})
+            onAgentSelected = {},
+            modifier = Modifier.padding(8.dp))
     }
 }

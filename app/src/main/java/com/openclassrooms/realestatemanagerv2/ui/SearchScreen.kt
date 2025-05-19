@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -47,6 +48,7 @@ import com.openclassrooms.realestatemanagerv2.ui.composables.CustomTextField
 import com.openclassrooms.realestatemanagerv2.ui.composables.PointsOfInterestDropdown
 import com.openclassrooms.realestatemanagerv2.ui.composables.PropertyTypeCheckBox
 import com.openclassrooms.realestatemanagerv2.ui.composables.SearchHeaderAnimation
+import com.openclassrooms.realestatemanagerv2.ui.composables.TitleText
 import com.openclassrooms.realestatemanagerv2.ui.composables.TypewriterText
 import com.openclassrooms.realestatemanagerv2.viewmodels.SearchPropertiesViewModel
 
@@ -75,18 +77,25 @@ fun SearchScreen(
         }
     }
 
-    SearchContent(navController = navController,
+    SearchContent(
+        navController = navController,
         minPrice = editingState?.minPrice?.value ?: "",
         onMinPriceChange = { newMinPrice -> searchPropertiesViewModel.updateMinPrice(newMinPrice) },
         maxPrice = editingState?.maxPrice?.value ?: "",
         onMaxPriceChange = { newMaxPrice -> searchPropertiesViewModel.updateMaxPrice(newMaxPrice) },
         types = editingState?.allTypes ?: emptyList(),
         selectedTypes = editingState?.typeSet ?: emptySet(),
-        onTypeSelected = { type, isSelected -> searchPropertiesViewModel.updateTypeSelection(type, isSelected) },
+        onTypeSelected = { type, isSelected ->
+            searchPropertiesViewModel.updateTypeSelection(
+                type,
+                isSelected
+            )
+        },
         nearbyPointSelectedSet = editingState?.nearbyPointSet ?: emptySet(),
         nearbyPointList = searchPropertiesViewModel.allPointOfInterestList,
         onNearbyPointChange = { pointOfInterest, isSelected ->
-            searchPropertiesViewModel.updatePointOfInterestSelection(pointOfInterest, isSelected) },
+            searchPropertiesViewModel.updatePointOfInterestSelection(pointOfInterest, isSelected)
+        },
         areaSelectedRange = editingState?.areaRange ?: 30f..1000f,
         onAreaRangeChanged = { newAreaSelectedRange ->
             searchPropertiesViewModel.updateAreaRange(
@@ -100,16 +109,20 @@ fun SearchScreen(
         minPhoto = editingState?.minPhotos?.value ?: "",
         onMinPhotoChange = { newMinPhoto -> searchPropertiesViewModel.updateMinPhotos(newMinPhoto) },
         minVideo = editingState?.minVideos?.value ?: "",
-        onMinVideoChange = { newMinVideo -> searchPropertiesViewModel.updateMinVideos(newMinVideo)},
+        onMinVideoChange = { newMinVideo -> searchPropertiesViewModel.updateMinVideos(newMinVideo) },
         //date Picker for entry and sale
         selectedEntryDate = editingState?.entryDate,
-        onEntryDateSelected = { newEntryDate -> searchPropertiesViewModel.updateEntryDate(newEntryDate)},
+        onEntryDateSelected = { newEntryDate ->
+            searchPropertiesViewModel.updateEntryDate(
+                newEntryDate
+            )
+        },
         isEntryDateDialogShown = editingState?.isEntryDatePickerShown ?: false,
         onShowEntryDateDialog = { searchPropertiesViewModel.updateEntryDateDialogShown(true) },
         onDismissEntryDateDialog = { searchPropertiesViewModel.updateEntryDateDialogShown(false) },
         entryDatePickerState = rememberDatePickerState(),
         selectedSaleDate = editingState?.saleDate,
-        onSaleDateSelected = { newSaleDate -> searchPropertiesViewModel.updateSaleDate(newSaleDate)},
+        onSaleDateSelected = { newSaleDate -> searchPropertiesViewModel.updateSaleDate(newSaleDate) },
         isSaleDateDialogShown = editingState?.isSaleDatePickerShown ?: false,
         onShowSaleDateDialog = { searchPropertiesViewModel.updateSaleDateDialogShown(true) },
         onDismissSaleDateDialog = { searchPropertiesViewModel.updateSaleDateDialogShown(false) },
@@ -117,13 +130,15 @@ fun SearchScreen(
 
         agent = editingState?.agent,
         agentList = editingState?.agentList ?: emptyList(),
-        onAgentSelected = {  },
+        onAgentSelected = { },
 
-        onSearchClicked = { val criterias = searchPropertiesViewModel.getCurrentCriteria()
+        onSearchClicked = {
+            val criterias = searchPropertiesViewModel.getCurrentCriteria()
             navController.currentBackStackEntry
                 ?.savedStateHandle
                 ?.set("criterias", criterias)
-            navController.navigate("home_screen")},
+            navController.navigate("home_screen")
+        },
         modifier = Modifier
     )
 
@@ -195,53 +210,16 @@ fun SearchContent(
 
             Text(
                 modifier = Modifier.padding(8.dp),
-                text = stringResource(id = R.string.search_screen_introduction)
+                text = stringResource(id = R.string.search_screen_introduction),
+                fontStyle = FontStyle.Italic
             )
 
+            TitleText(
+                text = stringResource(R.string.min_and_max_price),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 16.dp)
+            )
 
-            /*if (!isHeaderAnimated) {
-                TypewriterText(
-                    text = fullText,
-                    animate = true,
-                    charDelay = 20L, // Ajustez en fonction du rythme souhaité
-                    modifier = Modifier.fillMaxWidth()
-                )
-                // Une fois l'animation terminée, on met à jour le flag dans le ViewModel.
-                LaunchedEffect(key1 = fullText) {
-                    delay(fullText.length * 50L)
-                    onHeaderAnimationChange(true)
-                }
-            } else {
-                // Pour un utilisateur régulier, afficher directement le texte complet
-                Text(
-                    text = fullText,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }*/
-
-/*
-            TypewriterText( text = "for properties using at least one of the following criterias")
-*/
-
-
-
-            /*Text(
-                "Search for properties using at least one of the following criterias:",
-                fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                modifier = Modifier.padding(8.dp)
-            )*/
-            Spacer(Modifier.height(8.dp))
-            Text("Price :", modifier = Modifier.padding(start = 8.dp))
-
-            //TODO: Type Dropdown or checkbox
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth()
-            ) {
+            Row(modifier = Modifier.fillMaxWidth()) {
 
                 CustomTextField(
                     label = {
@@ -254,7 +232,9 @@ fun SearchContent(
                     keyboardType = KeyboardType.Number,
                     text = minPrice,
                     onTextChange = onMinPriceChange,
-                    modifier = Modifier.width(148.dp)
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .weight(1f)
                 )
 
                 CustomTextField(
@@ -268,21 +248,19 @@ fun SearchContent(
                     keyboardType = KeyboardType.Number,
                     text = maxPrice,
                     onTextChange = onMaxPriceChange,
-                    modifier = Modifier.width(148.dp)
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .weight(1f)
                 )
 
             }
 
-            Spacer(Modifier.height(8.dp))
+            TitleText(
+                text = stringResource(R.string.min_number_of_medias),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp)
+            )
 
-            Text("Min number of medias :", modifier = Modifier.padding(start = 8.dp))
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth()
-            ) {
+            Row(modifier = Modifier.fillMaxWidth()) {
 
                 CustomTextField(
                     label = {
@@ -292,9 +270,12 @@ fun SearchContent(
                         )
                     },
                     placeHolder = { Text(text = "Min Photo") },
+                    keyboardType = KeyboardType.Number,
                     text = minPhoto,
                     onTextChange = onMinPhotoChange,
-                    modifier = Modifier.width(148.dp)
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .weight(1f)
                 )
 
                 CustomTextField(
@@ -306,84 +287,77 @@ fun SearchContent(
                     },
                     placeHolder = { Text(text = "Min Video") },
                     text = minVideo,
+                    keyboardType = KeyboardType.Number,
                     onTextChange = onMinVideoChange,
-                    modifier = Modifier.width(148.dp)
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .weight(1f)
                 )
 
             }
+
+            TitleText(
+                text = stringResource(id = R.string.select_types_of_property),
+                modifier = Modifier.padding(8.dp)
+            )
 
             PropertyTypeCheckBox(
                 types = types,
                 selectedType = selectedTypes,
                 onTypeSelected = onTypeSelected,
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
             )
 
+            TitleText(
+                text = stringResource(id = R.string.select_points_of_interest),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 24.dp)
+            )
 
             PointsOfInterestDropdown(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth(),
                 allPointOfInterestList = nearbyPointList,
                 selectedPointOfInterestSet = nearbyPointSelectedSet,
                 onSelectionChanged = onNearbyPointChange
             )
 
+            TitleText(
+                text = stringResource(R.string.min_and_max_area),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 24.dp, bottom = 8.dp)
+            )
+
             CustomRangeSlider(
-                label = "Area(m²) :",
                 valueRange = 30f.rangeTo(1000f),
                 selectedRange = areaSelectedRange,
                 onRangeChanged = onAreaRangeChanged,
-                modifier = Modifier.padding(8.dp)
-                //TODO bind to viewmodel, example values
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp)
             )
 
-            Spacer(Modifier.height(16.dp))
-
-            Text("Number of rooms :", modifier = Modifier.padding( 8.dp))
+            TitleText(
+                text = stringResource(id = R.string.min_number_of_rooms),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 24.dp)
+            )
 
             Slider(
                 value = numberOfRooms,
                 onValueChange = onNumberOfRoomsChange,
                 valueRange = 0f.rangeTo(50f),
                 modifier = Modifier
-                    .width(300.dp)
-                    .padding(start = 16.dp)
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, top = 8.dp)
             )
-            Text(numberOfRooms.toInt().toString(), modifier = Modifier.padding( 8.dp))
-
-            /*Text("Min number of photos", modifier = Modifier.padding(8.dp))
-
-            Slider(
-                value = 20f,
-                onValueChange = {  },
-                valueRange = 0f..100f,
-                modifier = Modifier
-                    .width(300.dp)
-                    .padding(8.dp)
-
+            Text(
+                text = numberOfRooms.toInt().toString(),
+                modifier = Modifier.padding(start = 16.dp)
             )
 
-            Spacer(Modifier.height(8.dp))
-
-            Text("Min number of videos", modifier = Modifier.padding(8.dp))
-
-            Slider(
-                value = 20f,
-                onValueChange = {  },
-                valueRange = 0f..100f,
-                modifier = Modifier
-                    .width(300.dp)
-                    .padding(8.dp)
-
-            )*/
-
-            //TODO: address by region
-
-            Spacer(Modifier.height(8.dp))
-
-            /*PointsOfInterestDropdown() { }*/
-
-            Spacer(Modifier.height(8.dp))
-
-            Text("Min date of entry :", modifier = Modifier.padding(8.dp))
+            TitleText(
+                stringResource(id = R.string.min_date_of_entry),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 24.dp)
+            )
 
             CustomDatePicker(
                 selectedDateMillis = selectedEntryDate,
@@ -395,8 +369,10 @@ fun SearchContent(
                 modifier = modifier.padding(8.dp)
             )
 
-
-            Text("Min date of sale :", modifier = Modifier.padding(8.dp))
+            TitleText(
+                stringResource(R.string.min_date_of_sale),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 24.dp)
+            )
 
             CustomDatePicker(
                 selectedDateMillis = selectedSaleDate,
@@ -408,39 +384,29 @@ fun SearchContent(
                 modifier = modifier.padding(8.dp)
             )
 
-            /*Slider(
-                value = 100f,
-                onValueChange = {  },
-                valueRange = 0f..100f,
-                modifier = Modifier
-                    .width(300.dp)
-                    .padding(8.dp)
-
-            )*/
-
-            Spacer(Modifier.height(8.dp))
+            TitleText(
+                text = stringResource(id = R.string.agent),
+                modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp)
+            )
 
             AgentSpinner(
+                modifier = Modifier.padding(8.dp),
                 agents = agentList,
                 selectedAgent = agent,
                 onAgentSelected = onAgentSelected
             )
 
-            Spacer(Modifier.height(16.dp))
-
             Button(
+                modifier = Modifier
+                    .padding(top = 16.dp, bottom = 16.dp)
+                    .align(CenterHorizontally),
                 onClick = onSearchClicked,
-                modifier = Modifier.align(CenterHorizontally),
                 enabled = true
             ) {
-                Text("Search for properties")
+                Text(stringResource(id = R.string.search_for_properties))
             }
-
-
         }
-
     }
-
 }
 
 
@@ -471,7 +437,7 @@ fun SearchScreenPreview() {
         onTypeSelected = { type, bool -> },
         nearbyPointSelectedSet = setOf(PointOfInterest.PHARMACY, PointOfInterest.RESTAURANT),
         nearbyPointList = emptyList(),
-        onNearbyPointChange = { poi,bool -> },
+        onNearbyPointChange = { poi, bool -> },
         areaSelectedRange = 30f.rangeTo(1000f),
         onAreaRangeChanged = {},
         numberOfRooms = 0f,
@@ -484,7 +450,5 @@ fun SearchScreenPreview() {
         agent = Agent("1", "John", "Doe", "test@gmail.com"),
         onAgentSelected = {},
         onSearchClicked = {}
-    ) }
-    //DatePicker variables
-
-/*}*/
+    )
+}

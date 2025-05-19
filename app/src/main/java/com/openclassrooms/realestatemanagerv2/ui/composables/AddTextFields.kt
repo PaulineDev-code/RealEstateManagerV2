@@ -78,11 +78,9 @@ fun AddTextFields(
     onNearbyPointChange: (PointOfInterest, Boolean) -> Unit,
 ) {
 
-    Text(
+    TitleText(
         text = stringResource(id = R.string.description_for_the_property),
-        fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
-        fontWeight = FontWeight.ExtraBold,
-        modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp)
+        modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp)
     )
 
     CustomTextField(label = {
@@ -102,10 +100,8 @@ fun AddTextFields(
         supportingText = { Text(text = descriptionError, color = Color.Red) }
     )
 
-    Text(
+    TitleText(
         text = stringResource(id = R.string.type_and_price),
-        fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
-        fontWeight = FontWeight.ExtraBold,
         modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp)
     )
 
@@ -135,10 +131,8 @@ fun AddTextFields(
         )
     }
 
-    Text(
+    TitleText(
         text = stringResource(id = R.string.area_and_number_of_rooms),
-        fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
-        fontWeight = FontWeight.ExtraBold,
         modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp)
     )
 
@@ -182,10 +176,8 @@ fun AddTextFields(
         )
     }
 
-    Text(
+    TitleText(
         text = stringResource(id = R.string.entry_date),
-        fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
-        fontWeight = FontWeight.ExtraBold,
         modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp)
     )
 
@@ -199,11 +191,9 @@ fun AddTextFields(
         modifier = Modifier.padding(8.dp)
     )
 
-    Text(
+    TitleText(
         text = stringResource(id = R.string.sale_date_optional),
-        fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
-        fontWeight = FontWeight.ExtraBold,
-        modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp)
+        modifier = Modifier.padding(top = 24.dp, start = 8.dp, end = 8.dp)
     )
 
     CustomDatePicker(
@@ -217,10 +207,8 @@ fun AddTextFields(
     )
 
 
-    Text(
+    TitleText(
         text = stringResource(id = R.string.address),
-        fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
-        fontWeight = FontWeight.ExtraBold,
         modifier = Modifier.padding(top = 24.dp, start = 8.dp, end = 8.dp)
     )
 
@@ -275,14 +263,13 @@ fun AddTextFields(
     /*
     val nearbyPointList2 :List<PointOfInterest> = emptyList()*/
 
-    Text(
+    TitleText(
         text = stringResource(id = R.string.nearby_points_of_interest),
-        fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
-        fontWeight = FontWeight.ExtraBold,
         modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp)
     )
 
     PointsOfInterestDropdown(
+        modifier = Modifier.padding(8.dp),
         allPointOfInterestList = nearbyPointList,
         selectedPointOfInterestSet = nearbyPointSelectedSet,
         onSelectionChanged = onNearbyPointChange

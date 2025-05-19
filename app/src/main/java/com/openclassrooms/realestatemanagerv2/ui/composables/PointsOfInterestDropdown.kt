@@ -1,17 +1,14 @@
 package com.openclassrooms.realestatemanagerv2.ui.composables
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,11 +23,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
-import com.openclassrooms.realestatemanagerv2.ui.models.SelectablePointOfInterest
-import com.openclassrooms.realestatemanagerv2.utils.toSelectable
 
 @Composable
 fun PointsOfInterestDropdown(
+    modifier: Modifier,
     allPointOfInterestList: List<PointOfInterest>,
     selectedPointOfInterestSet: Set<PointOfInterest>,
     onSelectionChanged: (PointOfInterest, Boolean) -> Unit
@@ -48,16 +44,15 @@ fun PointsOfInterestDropdown(
         selectedNames.joinToString(", ")
     }*/
 
-    val selectedText = stringResource(R.string.select_points_of_interest) + " " +
+    val selectedText = stringResource(R.string.click_to_select_points_of_interest) + " " +
             selectedNames.joinToString(", ")
 
 
     // Spinner button
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .clickable { expanded = !expanded }
-            .padding(8.dp)
+
     ) {
 
         OutlinedTextField(
@@ -128,6 +123,7 @@ fun PointsOfInterestDropdownPreview() {
     }
 
     PointsOfInterestDropdown(
+        modifier = Modifier,
         allPointOfInterestList = allPoints,
         selectedPointOfInterestSet = selectedPoints,
         onSelectionChanged = { pointOfInterest, isSelected ->
