@@ -36,6 +36,7 @@ class PropertyDetailsViewModel @Inject constructor
     }
 
     sealed class PropertyDetailsUiState {
+        object Loading: PropertyDetailsUiState()
         data class Success(val property: Property?): PropertyDetailsUiState()
         data class Error(val exception: Exception): PropertyDetailsUiState()
     }

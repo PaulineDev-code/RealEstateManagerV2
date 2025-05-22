@@ -79,7 +79,6 @@ fun HomeScreen(navController: NavController, viewModel: PropertyListViewModel = 
 
         when (viewState) {
             is PropertyListViewModel.PropertyUiState.Loading -> {
-                /* Un loader centré, p.ex. */
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }

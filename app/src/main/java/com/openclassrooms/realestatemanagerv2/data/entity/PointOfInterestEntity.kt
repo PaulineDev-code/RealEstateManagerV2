@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "points_of_interest")
 
 data class PointOfInterestEntity (
-    @PrimaryKey /*(autoGenerate = true)*/
+    @PrimaryKey
     @ColumnInfo
     val id: String = "",
     @ColumnInfo

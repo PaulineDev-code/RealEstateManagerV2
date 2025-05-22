@@ -69,10 +69,12 @@ fun SearchScreen(
 
             is SearchPropertiesViewModel.SearchPropertiesError.GeneralError -> {
                 // Vous pouvez afficher un message générique ou utiliser le message de l'exception
-                errorMessage = error.exception.message ?: "unknown error"
+                errorMessage = error.exception.message ?: "unknown general error"
             }
 
-            is SearchPropertiesViewModel.SearchPropertiesError.FieldError -> TODO()
+            is SearchPropertiesViewModel.SearchPropertiesError.FieldError -> {
+                TODO()
+            }
             null -> TODO()
         }
     }
@@ -347,7 +349,7 @@ fun SearchContent(
                 valueRange = 0f.rangeTo(50f),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, top = 8.dp)
+                    .padding(start = 16.dp, end = 64.dp, top = 8.dp)
             )
             Text(
                 text = numberOfRooms.toInt().toString(),

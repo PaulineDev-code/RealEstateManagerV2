@@ -19,8 +19,11 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
-class PropertyRepository @Inject constructor(private val database: MyDatabase, private val propertyDao : PropertyLocalDAO, private val agentDao: AgentDAO,
-                                             private val mediaDao: MediaDAO, private val pointOfInterestDao: PointOfInterestDAO
+class PropertyRepository @Inject constructor(private val database: MyDatabase,
+                                             private val propertyDao : PropertyLocalDAO,
+                                             private val agentDao: AgentDAO,
+                                             private val mediaDao: MediaDAO,
+                                             private val pointOfInterestDao: PointOfInterestDAO
 ) {
 
     suspend fun insertProperty(agentEntity: AgentEntity,

@@ -17,7 +17,10 @@ interface PropertyLocalDAO {
     @Update
     suspend fun updateProperty(property: PropertyLocalEntity)
 
-    // THE 2 NEXT FUNCTIONS QUERY FROM ALL TABLES NEEDED TO MATCH PROPERTY MODEL
+    @Query("SELECT DISTINCT type FROM properties")
+    suspend fun getDistinctTypes(): List<String>
+
+    // THE 3 NEXT FUNCTIONS QUERY FROM ALL TABLES, NEEDED TO MATCH PROPERTY MODEL
     @Transaction
     @Query("SELECT * FROM properties WHERE id = :propertyId")
     suspend fun getPropertyById(propertyId: String): PropertyWithDetails
@@ -25,9 +28,6 @@ interface PropertyLocalDAO {
     @Transaction
     @Query("SELECT * FROM properties")
     suspend fun getAllProperties(): List<PropertyWithDetails>
-
-    @Query("SELECT DISTINCT type FROM properties")
-    suspend fun getDistinctTypes(): List<String>
 
     @Transaction
     @Query(

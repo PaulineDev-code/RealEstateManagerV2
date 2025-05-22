@@ -3,15 +3,19 @@ package com.openclassrooms.realestatemanagerv2.ui
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,6 +31,7 @@ import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsInformations
 import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsMediaContent
 import com.openclassrooms.realestatemanagerv2.ui.composables.VideoPlayer
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
+import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyListViewModel
 
 
 @Composable
@@ -51,6 +56,11 @@ fun DetailsScreen(navController: NavController, propertyId: String,
             val uiState by viewModel.uiState.collectAsState()
 
             when (uiState) {
+                is PropertyDetailsViewModel.PropertyDetailsUiState.Loading -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
                 is PropertyDetailsViewModel.PropertyDetailsUiState.Success -> {
                     var isVideoDisplayed = false
                     val context = LocalContext.current
@@ -88,7 +98,7 @@ fun DetailsScreen(navController: NavController, propertyId: String,
                 }
 
                 is PropertyDetailsViewModel.PropertyDetailsUiState.Error -> Log.e(
-                    "UI ERROR",
+                    "Details Screen:",
                     "PropertyDetailsUiState.Error"
                 )
             }
