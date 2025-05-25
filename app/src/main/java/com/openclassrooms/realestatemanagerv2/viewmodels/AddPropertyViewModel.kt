@@ -14,6 +14,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Video
 import com.openclassrooms.realestatemanagerv2.domain.usecases.AddPropertyUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllAgentsUseCase
 import com.openclassrooms.realestatemanagerv2.ui.AddScreenUiAction
+import com.openclassrooms.realestatemanagerv2.ui.models.FormField
 import com.openclassrooms.realestatemanagerv2.utils.validateLength
 import com.openclassrooms.realestatemanagerv2.utils.validateNonEmpty
 import com.openclassrooms.realestatemanagerv2.utils.validatePositiveNumber
@@ -306,12 +307,6 @@ class AddPropertyViewModel @Inject constructor
         }
     }
 
-    /*fun updateNearbyPoint(newPoint: String) {
-        updateState {
-            copy(nearbyPoint = newPoint)
-        }
-    }*/
-
     fun updateEntryDate(newEntryDate: Long?)  {
         updateState {
             copy(
@@ -377,10 +372,6 @@ class AddPropertyViewModel @Inject constructor
         data class Error(val error: Exception) : ValidationResult()
     }
 
-    data class FormField(
-        val value: String = "",
-        val error: String? = ""
-    )
     private fun isFormValid(state: AddPropertyUiState.Editing): Boolean {
         return listOf(
             state.description.error,
@@ -427,9 +418,9 @@ class AddPropertyViewModel @Inject constructor
             val agent: Agent? = null,
             val agentList: List<Agent> = emptyList(),
             val isFormValid: Boolean = false
-/*
-            val errors: List<AddPropertyError>? = null,
-*/
+            /*
+                        val errors: List<AddPropertyError>? = null,
+            */
 
 
         ) : AddPropertyUiState {

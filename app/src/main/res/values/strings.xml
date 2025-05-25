@@ -55,8 +55,16 @@
     //SearchScreen
     <string name="min_date_of_entry">Min date of entry</string>
     <string name="min_date_of_sale">Min date of sale</string>
-    <string name="min_number_of_rooms">Min number of rooms</string>
+    <string name="min_number_of_rooms">Min Number of rooms</string>
+    <string name="max_number_of_rooms">Max Number of rooms</string>
+    <string name="min_and_max_number_of_rooms">Min and/or Max number of rooms</string>
     <string name="min_number_of_medias">Min number of medias</string>
+    <string name="min_price">Min Price</string>
+    <string name="max_price">Max Price</string>
+    <string name="min_photo">Min Photo</string>
+    <string name="min_video">Max Video</string>
+    <string name="min_area">Min Area</string>
+    <string name="max_area">Max Area</string>
     <string name="min_and_max_price">Min and/or Max price</string>
     <string name="select_types_of_property">Select types of property</string>
     <string name="select_points_of_interest">Select one/many points of interest</string>

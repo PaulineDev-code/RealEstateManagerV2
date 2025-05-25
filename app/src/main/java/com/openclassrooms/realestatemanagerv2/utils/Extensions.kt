@@ -113,18 +113,19 @@ fun List<PointOfInterest>.toSelectableList(): List<SelectablePointOfInterest> {
 
 //validation functions
 fun String.validateLength(): String? {
-    return if (this.length < 5) "Le titre est trop court." else ""
+    return if (this.length < 5) "Title is too short." else ""
  }
 
 fun String.validateNonEmpty(): String? {
-    return if (this.isBlank()) "Ne peut pas être vide." else ""
+    return if (this.isBlank()) "Can't be empty." else ""
 }
 
 fun String.validatePositiveNumber(): String? {
+    if (this.isBlank()) return ""
     val number = this.toDoubleOrNull()
     return when {
-        number == null -> "Doit être un nombre valide."
-        number <= 0 -> "Doit être supérieur à 0."
+        number == null -> "Must be a valid number."
+        number <= 0 -> "Must be a positive number."
         else -> ""
     }
 }

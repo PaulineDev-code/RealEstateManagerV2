@@ -112,7 +112,7 @@ fun AddTextFields(
             placeHolder = { Text(text = stringResource(id = R.string.type)) },
             text = type,
             onTextChange = onTypeChange,
-            supportingText = { Text(text = typeError) },
+            supportingText = { Text(text = typeError, color = Color.Red) },
             modifier = Modifier
                 .weight(1f)
                 .padding(8.dp)

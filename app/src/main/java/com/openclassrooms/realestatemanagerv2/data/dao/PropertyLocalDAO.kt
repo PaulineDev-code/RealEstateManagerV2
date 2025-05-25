@@ -40,6 +40,7 @@ interface PropertyLocalDAO {
        AND (:minArea        IS NULL OR properties.area             >= :minArea)
        AND (:maxArea        IS NULL OR properties.area             <= :maxArea)
        AND (:minRooms       IS NULL OR properties.numberOfRooms    >= :minRooms)
+       AND (:maxRooms       IS NULL OR properties.numberOfRooms    <= :maxRooms)
        AND (:minPhotos      IS NULL
             OR (SELECT COUNT(*) 
                   FROM medias
@@ -73,6 +74,7 @@ interface PropertyLocalDAO {
         minArea: Double?,
         maxArea: Double?,
         minRooms: Int?,
+        maxRooms: Int?,
         minPhotos: Int?,
         minVideos: Int?,
         pointOfInterestIds: List<String>?,  // ids de PointOfInterestEntity

@@ -12,6 +12,7 @@ data class PropertySearchCriteria (
     val minArea: Double? = null,
     val maxArea: Double? = null,
     val minNumberOfRooms: Int? = null,
+    val maxNumberOfRooms: Int? = null,
     val minPhotos: Int? = null,
     val minVideos: Int? = null,
     val nearbyPointsOfInterest: List<PointOfInterest>? = null,

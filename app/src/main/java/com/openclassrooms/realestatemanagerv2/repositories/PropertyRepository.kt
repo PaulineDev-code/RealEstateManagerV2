@@ -79,6 +79,7 @@ class PropertyRepository @Inject constructor(private val database: MyDatabase,
             minArea             = criteria.minArea,
             maxArea             = criteria.maxArea,
             minRooms            = criteria.minNumberOfRooms,
+            maxRooms            = criteria.maxNumberOfRooms,
             minPhotos           = criteria.minPhotos,
             minVideos           = criteria.minVideos,
             pointOfInterestIds  = criteria.nearbyPointsOfInterest

@@ -9,9 +9,9 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllAgentsUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetPropertyTypesUseCase
+import com.openclassrooms.realestatemanagerv2.ui.models.FormField
 import com.openclassrooms.realestatemanagerv2.utils.validateNonEmpty
 import com.openclassrooms.realestatemanagerv2.utils.validatePositiveNumber
-import com.openclassrooms.realestatemanagerv2.viewmodels.AddPropertyViewModel.FormField
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -59,57 +59,73 @@ class SearchPropertiesViewModel @Inject constructor(
     }
 
     fun updateMinPrice(newMinPrice: String) {
-        val error = newMinPrice.validatePositiveNumber() + newMinPrice.validateNonEmpty()
+        val error = newMinPrice.validatePositiveNumber()
         updateState {
             copy(
-                minPrice = minPrice.copy(value = newMinPrice/*, error = error*/)
+                minPrice = minPrice.copy(value = newMinPrice, error = error)
             )
         }
     }
 
     fun updateMaxPrice(newMaxPrice: String) {
-        val error = newMaxPrice.validatePositiveNumber() + newMaxPrice.validateNonEmpty()
+        val error = newMaxPrice.validatePositiveNumber()
         updateState {
             copy(
-                maxPrice = maxPrice.copy(value = newMaxPrice/*, error = error*/)
+                maxPrice = maxPrice.copy(value = newMaxPrice, error = error)
             )
         }
     }
 
-    fun updateAreaRange(newAreaRange: ClosedFloatingPointRange<Float>) {
-/*
-    val error = newAreaRange.validatePositiveNumber() + newAreaRange.validateNonEmpty()
-*/
+    fun updateMinArea(newMinArea: String) {
+    val error = newMinArea.validatePositiveNumber()
         updateState {
             copy(
-                areaRange =  newAreaRange/*, error = error*/)
+                minArea = minArea.copy(value = newMinArea, error = error)
+            )
         }
     }
 
-    fun updateNumberOfRooms(newNumberOfRoms: Float) {
-        /*
-            val error = newAreaRange.validatePositiveNumber() + newAreaRange.validateNonEmpty()
-        */
+    fun updateMaxArea(newMaxArea: String) {
+        val error = newMaxArea.validatePositiveNumber()
         updateState {
             copy(
-                numberOfRooms =  newNumberOfRoms/*, error = error*/)
+                maxArea = maxArea.copy(value = newMaxArea, error = error)
+            )
+        }
+    }
+
+    fun updateMinNumberOfRooms(newMinNumberOfRooms: String) {
+            val error = newMinNumberOfRooms.validatePositiveNumber()
+        updateState {
+            copy(
+                minNumberOfRooms =  minNumberOfRooms.copy(value = newMinNumberOfRooms, error = error)
+            )
+        }
+    }
+
+    fun updateMaxNumberOfRooms(newMaxNumberOfRooms: String) {
+            val error = newMaxNumberOfRooms.validatePositiveNumber()
+        updateState {
+            copy(
+                maxNumberOfRooms =  maxNumberOfRooms.copy(value = newMaxNumberOfRooms, error = error)
+            )
         }
     }
 
     fun updateMinPhotos(newMinPhotos: String) {
-        val error = newMinPhotos.validatePositiveNumber() + newMinPhotos.validateNonEmpty()
+        val error = newMinPhotos.validatePositiveNumber()
         updateState {
             copy(
-                minPhotos = minPhotos.copy(value = newMinPhotos/*, error = error*/)
+                minPhotos = minPhotos.copy(value = newMinPhotos, error = error)
             )
         }
     }
 
     fun updateMinVideos(newMinVideos: String) {
-        val error = newMinVideos.validatePositiveNumber() + newMinVideos.validateNonEmpty()
+        val error = newMinVideos.validatePositiveNumber()
         updateState {
             copy(
-                minVideos = minVideos.copy(value = newMinVideos/*, error = error*/)
+                minVideos = minVideos.copy(value = newMinVideos, error = error)
             )
         }
     }
@@ -184,14 +200,34 @@ class SearchPropertiesViewModel @Inject constructor(
     }
 
     private fun isFormValid(state: SearchPropertiesUiState.Editing): Boolean {
-        return listOf(
-            /*state.type.validateNonEmpty(),*/
-            state.address.error,
-            /*state.area.error,
-            state.numberOfRooms.error,
-            state.entryDate.error,*/
-        ).all { it.isNullOrBlank() && state.agent != null
-                && state.nearbyPointSet.isNotEmpty()}
+        val isNoError = listOf(
+            state.minPrice.error,
+            state.maxPrice.error,
+            state.minPhotos.error,
+            state.minVideos.error,
+            state.minArea.error,
+            state.maxArea.error,
+            state.minNumberOfRooms.error,
+            state.maxNumberOfRooms.error
+        ).all { it.isNullOrBlank() }
+
+        val isAnyFieldFilled = listOf(
+                    state.minPrice.value,
+                    state.maxPrice.value,
+                    state.minArea.value,
+                    state.maxArea.value,
+                    state.minNumberOfRooms.value,
+                    state.maxNumberOfRooms.value,
+                    state.minPhotos.value,
+                    state.minVideos.value,
+                    state.entryDate,
+                    state.saleDate,
+                    state.agent
+        ).any { it != null && it.toString().isNotBlank() }
+
+        val isAnySetFilled = state.typeSet.isNotEmpty() || state.nearbyPointSet.isNotEmpty()
+
+        return isNoError && (isAnyFieldFilled || isAnySetFilled)
     }
 
     fun getCurrentCriteria(): PropertySearchCriteria {
@@ -200,9 +236,10 @@ class SearchPropertiesViewModel @Inject constructor(
             propertyType = state.typeSet.toList(),
             minPrice = state.minPrice.value.toDoubleOrNull(),
             maxPrice = state.maxPrice.value.toDoubleOrNull(),
-            minArea = state.areaRange.start.toDouble(),
-            maxArea = state.areaRange.endInclusive.toDouble(),
-            minNumberOfRooms = state.numberOfRooms.toInt(),
+            minArea = state.minArea.value.toDoubleOrNull(),
+            maxArea = state.maxArea.value.toDoubleOrNull(),
+            minNumberOfRooms = state.minNumberOfRooms.value.toIntOrNull(),
+            maxNumberOfRooms = state.maxNumberOfRooms.value.toIntOrNull(),
             minPhotos = state.minPhotos.value.toIntOrNull(),
             minVideos = state.minVideos.value.toIntOrNull(),
             nearbyPointsOfInterest = state.nearbyPointSet.toList(),
@@ -225,11 +262,12 @@ class SearchPropertiesViewModel @Inject constructor(
             val allTypes: List<String> = emptyList(),
             val minPrice: FormField = FormField(),
             val maxPrice: FormField = FormField(),
-            val areaRange: ClosedFloatingPointRange<Float> = 30f.rangeTo(1000f),
-            val numberOfRooms: Float = 0f,
+            val minArea: FormField = FormField(),
+            val maxArea: FormField = FormField(),
+            val minNumberOfRooms: FormField = FormField(),
+            val maxNumberOfRooms: FormField = FormField(),
             val minPhotos: FormField = FormField(),
             val minVideos: FormField = FormField(),
-            val address: FormField = FormField(),
             val nearbyPointSet: Set<PointOfInterest> = emptySet(),
             val entryDate: Long? = null,
             val isEntryDatePickerShown: Boolean = false,

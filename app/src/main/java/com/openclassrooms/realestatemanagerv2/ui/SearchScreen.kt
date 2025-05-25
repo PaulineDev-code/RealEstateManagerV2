@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -82,8 +83,10 @@ fun SearchScreen(
     SearchContent(
         navController = navController,
         minPrice = editingState?.minPrice?.value ?: "",
+        minPriceError = editingState?.minPrice?.error ?: "",
         onMinPriceChange = { newMinPrice -> searchPropertiesViewModel.updateMinPrice(newMinPrice) },
         maxPrice = editingState?.maxPrice?.value ?: "",
+        maxPriceError = editingState?.maxPrice?.error ?: "",
         onMaxPriceChange = { newMaxPrice -> searchPropertiesViewModel.updateMaxPrice(newMaxPrice) },
         types = editingState?.allTypes ?: emptyList(),
         selectedTypes = editingState?.typeSet ?: emptySet(),
@@ -98,19 +101,25 @@ fun SearchScreen(
         onNearbyPointChange = { pointOfInterest, isSelected ->
             searchPropertiesViewModel.updatePointOfInterestSelection(pointOfInterest, isSelected)
         },
-        areaSelectedRange = editingState?.areaRange ?: 30f..1000f,
-        onAreaRangeChanged = { newAreaSelectedRange ->
-            searchPropertiesViewModel.updateAreaRange(
-                newAreaSelectedRange
-            )
-        },
-        numberOfRooms = editingState?.numberOfRooms ?: 0f,
-        onNumberOfRoomsChange = { newNumberOfRooms ->
-            searchPropertiesViewModel.updateNumberOfRooms(newNumberOfRooms)
-        },
+        minArea = editingState?.minArea?.value ?: "",
+        minAreaError = editingState?.minArea?.error ?: "",
+        onMinAreaChange = { newMinArea -> searchPropertiesViewModel.updateMinArea(newMinArea) },
+        maxArea = editingState?.maxArea?.value ?: "",
+        maxAreaError = editingState?.maxArea?.error ?: "",
+        onMaxAreaChange = { newMaxArea -> searchPropertiesViewModel.updateMaxArea(newMaxArea) },
+        minNumberOfRooms = editingState?.minNumberOfRooms?.value ?: "",
+        minNumberOfRoomsError = editingState?.minNumberOfRooms?.error ?: "",
+        onMinNumberOfRoomsChange = { newMinNumberOfRooms ->
+            searchPropertiesViewModel.updateMinNumberOfRooms(newMinNumberOfRooms) },
+        maxNumberOfRooms = editingState?.maxNumberOfRooms?.value ?: "",
+        maxNumberOfRoomsError = editingState?.maxNumberOfRooms?.error ?: "",
+        onMaxNumberOfRoomsChange = { newMaxNumberOfRooms ->
+            searchPropertiesViewModel.updateMaxNumberOfRooms(newMaxNumberOfRooms) },
         minPhoto = editingState?.minPhotos?.value ?: "",
+        minPhotoError = editingState?.minPhotos?.error ?: "",
         onMinPhotoChange = { newMinPhoto -> searchPropertiesViewModel.updateMinPhotos(newMinPhoto) },
         minVideo = editingState?.minVideos?.value ?: "",
+        minVideoError = editingState?.minVideos?.error ?: "",
         onMinVideoChange = { newMinVideo -> searchPropertiesViewModel.updateMinVideos(newMinVideo) },
         //date Picker for entry and sale
         selectedEntryDate = editingState?.entryDate,
@@ -134,6 +143,7 @@ fun SearchScreen(
         agentList = editingState?.agentList ?: emptyList(),
         onAgentSelected = { },
 
+        isSearchClickEnabled = editingState?.isFormValid ?: false,
         onSearchClicked = {
             val criterias = searchPropertiesViewModel.getCurrentCriteria()
             navController.currentBackStackEntry
@@ -151,8 +161,10 @@ fun SearchScreen(
 fun SearchContent(
     navController: NavController,
     minPrice: String,
+    minPriceError: String,
     onMinPriceChange: (String) -> Unit,
     maxPrice: String,
+    maxPriceError: String,
     onMaxPriceChange: (String) -> Unit,
     types: List<String>,
     selectedTypes: Set<String>,
@@ -160,13 +172,23 @@ fun SearchContent(
     nearbyPointSelectedSet: Set<PointOfInterest>,
     nearbyPointList: List<PointOfInterest>,
     onNearbyPointChange: (PointOfInterest, Boolean) -> Unit,
-    areaSelectedRange: ClosedFloatingPointRange<Float>,
-    onAreaRangeChanged: (ClosedFloatingPointRange<Float>) -> Unit,
-    numberOfRooms: Float,
-    onNumberOfRoomsChange: (Float) -> Unit,
+    minArea: String,
+    minAreaError: String,
+    onMinAreaChange: (String) -> Unit,
+    maxArea: String,
+    maxAreaError: String,
+    onMaxAreaChange: (String) -> Unit,
+    minNumberOfRooms: String,
+    minNumberOfRoomsError: String,
+    onMinNumberOfRoomsChange: (String) -> Unit,
+    maxNumberOfRooms: String,
+    maxNumberOfRoomsError: String,
+    onMaxNumberOfRoomsChange: (String) -> Unit,
     minPhoto: String,
+    minPhotoError: String,
     onMinPhotoChange: (String) -> Unit,
     minVideo: String,
+    minVideoError: String,
     onMinVideoChange: (String) -> Unit,
     agent: Agent?,
     agentList: List<Agent>,
@@ -188,6 +210,7 @@ fun SearchContent(
     onSaleDateSelected: (Long?) -> Unit,
     saleDatePickerState: DatePickerState,
 
+    isSearchClickEnabled: Boolean,
     onSearchClicked: () -> Unit,
 
     modifier: Modifier
@@ -231,6 +254,7 @@ fun SearchContent(
                         )
                     },
                     placeHolder = { Text(text = "Min Price") },
+                    supportingText = { Text(text = minPriceError, color = Color.Red) },
                     keyboardType = KeyboardType.Number,
                     text = minPrice,
                     onTextChange = onMinPriceChange,
@@ -247,6 +271,7 @@ fun SearchContent(
                         )
                     },
                     placeHolder = { Text(text = "Max Price") },
+                    supportingText = { Text(text = maxPriceError, color = Color.Red) },
                     keyboardType = KeyboardType.Number,
                     text = maxPrice,
                     onTextChange = onMaxPriceChange,
@@ -267,11 +292,12 @@ fun SearchContent(
                 CustomTextField(
                     label = {
                         Text(
-                            text = "Min Photo",
+                            text = stringResource(R.string.min_photo),
                             fontSize = MaterialTheme.typography.bodySmall.fontSize
                         )
                     },
-                    placeHolder = { Text(text = "Min Photo") },
+                    placeHolder = { Text(text = stringResource(R.string.min_photo)) },
+                    supportingText = { Text(text = minPhotoError, color = Color.Red) },
                     keyboardType = KeyboardType.Number,
                     text = minPhoto,
                     onTextChange = onMinPhotoChange,
@@ -283,11 +309,12 @@ fun SearchContent(
                 CustomTextField(
                     label = {
                         Text(
-                            text = "Min Video",
+                            text = stringResource(R.string.min_video),
                             fontSize = MaterialTheme.typography.bodySmall.fontSize
                         )
                     },
-                    placeHolder = { Text(text = "Min Video") },
+                    placeHolder = { Text(text = stringResource(R.string.min_video)) },
+                    supportingText = { Text(text = minVideoError, color = Color.Red) },
                     text = minVideo,
                     keyboardType = KeyboardType.Number,
                     onTextChange = onMinVideoChange,
@@ -296,6 +323,94 @@ fun SearchContent(
                         .weight(1f)
                 )
 
+            }
+
+            TitleText(
+                text = stringResource(R.string.min_and_max_area),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp)
+            )
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+
+                CustomTextField(
+                    label = {
+                        Text(
+                            text = stringResource(R.string.min_area),
+                            fontSize = MaterialTheme.typography.bodySmall.fontSize
+                        )
+                    },
+                    placeHolder = { Text(text = stringResource(R.string.min_area)) },
+                    supportingText = { Text(text = minAreaError, color = Color.Red) },
+                    text = minArea,
+                    keyboardType = KeyboardType.Number,
+                    onTextChange = onMinAreaChange,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .weight(1f)
+                )
+
+                CustomTextField(
+                    label = {
+                        Text(
+                            text = stringResource(R.string.max_area),
+                            fontSize = MaterialTheme.typography.bodySmall.fontSize
+                        )
+                    },
+                    placeHolder = { Text(text = stringResource(R.string.max_area)) },
+                    supportingText = { Text(text = maxAreaError, color = Color.Red) },
+                    text = maxArea,
+                    keyboardType = KeyboardType.Number,
+                    onTextChange = onMaxAreaChange,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .weight(1f)
+                )
+            }
+
+            TitleText(
+                text = stringResource(id = R.string.min_and_max_number_of_rooms),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp)
+            )
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+
+                CustomTextField(
+                    label = {
+                        Text(
+                            text = stringResource(R.string.min_number_of_rooms),
+                            fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    placeHolder = { Text(text = stringResource(R.string.min_number_of_rooms)) },
+                    supportingText = { Text(text = minNumberOfRoomsError, color = Color.Red) },
+                    text = minNumberOfRooms,
+                    keyboardType = KeyboardType.Number,
+                    onTextChange = onMinNumberOfRoomsChange,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .weight(1f)
+                )
+
+                CustomTextField(
+                    label = {
+                        Text(
+                            text = stringResource(R.string.max_number_of_rooms),
+                            fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    placeHolder = { Text(text = stringResource(R.string.max_number_of_rooms)) },
+                    supportingText = { Text(text = maxNumberOfRoomsError, color = Color.Red) },
+                    text = maxNumberOfRooms,
+                    keyboardType = KeyboardType.Number,
+                    onTextChange = onMaxNumberOfRoomsChange,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .weight(1f)
+                )
             }
 
             TitleText(
@@ -324,36 +439,6 @@ fun SearchContent(
                 allPointOfInterestList = nearbyPointList,
                 selectedPointOfInterestSet = nearbyPointSelectedSet,
                 onSelectionChanged = onNearbyPointChange
-            )
-
-            TitleText(
-                text = stringResource(R.string.min_and_max_area),
-                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 24.dp, bottom = 8.dp)
-            )
-
-            CustomRangeSlider(
-                valueRange = 30f.rangeTo(1000f),
-                selectedRange = areaSelectedRange,
-                onRangeChanged = onAreaRangeChanged,
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp)
-            )
-
-            TitleText(
-                text = stringResource(id = R.string.min_number_of_rooms),
-                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 24.dp)
-            )
-
-            Slider(
-                value = numberOfRooms,
-                onValueChange = onNumberOfRoomsChange,
-                valueRange = 0f.rangeTo(50f),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 64.dp, top = 8.dp)
-            )
-            Text(
-                text = numberOfRooms.toInt().toString(),
-                modifier = Modifier.padding(start = 16.dp)
             )
 
             TitleText(
@@ -403,7 +488,7 @@ fun SearchContent(
                     .padding(top = 16.dp, bottom = 16.dp)
                     .align(CenterHorizontally),
                 onClick = onSearchClicked,
-                enabled = true
+                enabled = isSearchClickEnabled
             ) {
                 Text(stringResource(id = R.string.search_for_properties))
             }
@@ -431,8 +516,10 @@ fun SearchScreenPreview() {
         onDismissSaleDateDialog = {},
         saleDatePickerState = rememberDatePickerState(),
         minPrice = "min price",
+        minPriceError = "",
         onMinPriceChange = {},
         maxPrice = "maxPrice",
+        maxPriceError = "",
         onMaxPriceChange = {},
         types = listOf("type1", "type2"),
         selectedTypes = setOf("type1"),
@@ -440,17 +527,28 @@ fun SearchScreenPreview() {
         nearbyPointSelectedSet = setOf(PointOfInterest.PHARMACY, PointOfInterest.RESTAURANT),
         nearbyPointList = emptyList(),
         onNearbyPointChange = { poi, bool -> },
-        areaSelectedRange = 30f.rangeTo(1000f),
-        onAreaRangeChanged = {},
-        numberOfRooms = 0f,
-        onNumberOfRoomsChange = {},
+        minArea = "minArea",
+        minAreaError = "",
+        onMinAreaChange = {},
+        maxArea = "maxArea",
+        maxAreaError = "",
+        onMaxAreaChange = {},
+        minNumberOfRooms = "minNumberOfRooms",
+        minNumberOfRoomsError = "",
+        onMinNumberOfRoomsChange = {},
+        maxNumberOfRooms = "maxNumberOfRooms",
+        maxNumberOfRoomsError = "",
+        onMaxNumberOfRoomsChange = {},
         minPhoto = "minPhoto",
+        minPhotoError = "",
         onMinPhotoChange = {},
         minVideo = "minVideo",
+        minVideoError = "",
         onMinVideoChange = {}, modifier = Modifier,
         agentList = listOf(Agent("1", "John", "Doe", "test@gmail.com")),
         agent = Agent("1", "John", "Doe", "test@gmail.com"),
         onAgentSelected = {},
+        isSearchClickEnabled = true,
         onSearchClicked = {}
     )
 }
