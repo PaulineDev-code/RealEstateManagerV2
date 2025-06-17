@@ -19,6 +19,8 @@ data class Property (
     val description: String,
     val media: List<Media>,
     val address: String,
+    val latitude: Double?,
+    val longitude: Double?,
     val nearbyPointsOfInterest: List<PointOfInterest>,
     val status: PropertyStatus,
     val entryDate: Long,
@@ -38,6 +40,8 @@ data class Property (
                 description = propertyWithDetails.property.description,
                 media = propertyWithDetails.media.map { Media.fromMediaEntity(it) },
                 address = propertyWithDetails.property.address,
+                latitude = propertyWithDetails.property.latitude,
+                longitude = propertyWithDetails.property.longitude,
                 nearbyPointsOfInterest = propertyWithDetails.pointsOfInterest.map {
                     PointOfInterest.fromPointOfInterestEntity(it) },
                 status = propertyWithDetails.property.status.toPropertyStatus(),

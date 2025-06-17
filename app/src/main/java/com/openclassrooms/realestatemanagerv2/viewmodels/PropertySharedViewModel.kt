@@ -3,28 +3,48 @@ package com.openclassrooms.realestatemanagerv2.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.openclassrooms.realestatemanagerv2.data.network.NetworkMonitor
+import com.openclassrooms.realestatemanagerv2.data.network.NetworkStatus
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllPropertiesUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.SearchPropertiesUseCase
+import com.openclassrooms.realestatemanagerv2.domain.usecases.UpdateMissingLocationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PropertyListViewModel @Inject constructor
+class PropertySharedViewModel @Inject constructor
     (private val getAllPropertiesUseCase: GetAllPropertiesUseCase,
-     private val searchPropertiesUseCase: SearchPropertiesUseCase) : ViewModel() {
+     private val searchPropertiesUseCase: SearchPropertiesUseCase,
+     private val updateMissingLocationUseCase: UpdateMissingLocationUseCase,
+     private val networkMonitor: NetworkMonitor) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PropertyUiState>(PropertyUiState.Loading)
 
     val uiState: StateFlow<PropertyUiState> = _uiState
 
     init {
+        observeNetworkChanges()
         loadAllProperties()
+    }
+
+    private fun observeNetworkChanges() {
+        viewModelScope.launch {
+            networkMonitor.networkStatus.collectLatest { status ->
+                if (status == NetworkStatus.Available) {
+                    Log.d("LocationUpdateVM", "Network available. Processing pending location updates.")
+                    updateMissingLocationUseCase()
+                } else {
+                    Log.d("LocationUpdateVM", "Network unavailable.")
+                }
+            }
+        }
     }
 
     private fun loadAllProperties() {

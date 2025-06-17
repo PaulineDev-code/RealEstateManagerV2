@@ -4,6 +4,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
     id 'kotlin-parcelize'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.0'
 
@@ -11,6 +12,16 @@ plugins {
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.dagger.hilt.android'
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def mapsKey = localProperties.getProperty("MAPS_API_KEY", "")
 
 android {
 
@@ -33,6 +44,9 @@ android {
             useSupportLibrary true
         }
 
+        manifestPlaceholders = [
+                googleMapsKey: mapsKey
+        ]
     }
 
     buildTypes {
@@ -114,6 +128,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     //Lottie
     implementation "com.airbnb.android:lottie-compose:6.6.6"
+    //Google Map & Play Services
+    implementation "com.google.maps.android:maps-compose:2.11.4"
+    implementation "com.google.android.gms:play-services-maps:18.1.0"
 }
 
 kapt {

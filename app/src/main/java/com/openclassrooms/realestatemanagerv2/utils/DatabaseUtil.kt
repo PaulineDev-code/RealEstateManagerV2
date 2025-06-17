@@ -81,7 +81,7 @@ class DatabaseUtil(propertyDAO: PropertyLocalDAO, agentDAO: AgentDAO,
                         "Gaming room"
                     )
                 ),
-                "152 rue Lamarck, 75018 Paris, France",
+                "152 rue Lamarck, 75018 Paris, France", null, null,
                 listOf(PointOfInterest.PHARMACY, PointOfInterest.RESTAURANT),
                 PropertyStatus.Available,
                 4477894998,
@@ -126,7 +126,7 @@ class DatabaseUtil(propertyDAO: PropertyLocalDAO, agentDAO: AgentDAO,
                         "First floor")
 
                 ),
-                "4 rue Poulletier, 75004 Paris, France",
+                "4 rue Poulletier, 75004 Paris, France", null, null,
                 listOf(PointOfInterest.PHARMACY, PointOfInterest.RESTAURANT),
                 PropertyStatus.Available,
                 4477894645,

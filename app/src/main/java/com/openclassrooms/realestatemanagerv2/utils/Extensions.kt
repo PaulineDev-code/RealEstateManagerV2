@@ -37,6 +37,8 @@ fun Property.toPropertyLocalEntity(): PropertyLocalEntity {
         numberOfRooms = numberOfRooms,
         description = description,
         address = address,
+        latitude = latitude,
+        longitude = longitude,
         status = status.toReadableString(),
         entryDate = entryDate,
         saleDate = saleDate,
@@ -52,6 +54,7 @@ private fun Media.toMediaEntity(propertyLocalId: String): MediaEntity {
     val type = when (this) {
         is Photo -> "photo"
         is Video -> "video"
+        else -> error("Unknown Media type: $this")
     }
     return MediaEntity(
         id = UUID.randomUUID().toString(),
@@ -87,6 +90,7 @@ fun PropertyStatus.toReadableString(): String {
     return when (this) {
         is PropertyStatus.Available -> "Available"
         is PropertyStatus.Sold -> "Sold"
+        else -> error("Unknown PropertyStatus: $this")
     }
 }
 

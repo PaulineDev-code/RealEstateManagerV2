@@ -3,6 +3,7 @@ package com.openclassrooms.realestatemanagerv2.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.LatLng
 import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.Media
@@ -13,6 +14,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.domain.model.Video
 import com.openclassrooms.realestatemanagerv2.domain.usecases.AddPropertyUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllAgentsUseCase
+import com.openclassrooms.realestatemanagerv2.domain.usecases.GetLocationUseCase
 import com.openclassrooms.realestatemanagerv2.ui.AddScreenUiAction
 import com.openclassrooms.realestatemanagerv2.ui.models.FormField
 import com.openclassrooms.realestatemanagerv2.utils.validateLength
@@ -29,7 +31,8 @@ import javax.inject.Inject
 class AddPropertyViewModel @Inject constructor
     (
     private val addPropertyUseCase: AddPropertyUseCase,
-    private val getAllAgentsUseCase: GetAllAgentsUseCase) : ViewModel() {
+    private val getAllAgentsUseCase: GetAllAgentsUseCase,
+    private val getLocationUseCase: GetLocationUseCase) : ViewModel() {
 
     private var previousEditingState: AddPropertyUiState.Editing? = null
     private val _uiState = MutableStateFlow<AddPropertyUiState>(AddPropertyUiState.Editing())
@@ -54,9 +57,8 @@ class AddPropertyViewModel @Inject constructor
                 Log.e("ViewModel", "Error collecting agents", exception)
                 handleError(AddPropertyError.GeneralError(exception))}
         }
-
+        
     }
-
 
     private fun validatePropertyData(currentState: AddPropertyUiState.Editing): ValidationResult {
         // Ensure all required fields are filled
@@ -104,24 +106,7 @@ class AddPropertyViewModel @Inject constructor
         return if (invalidFields.isEmpty()) {
 
 
-        val newProperty = Property(
-            id = UUID.randomUUID().toString(),
-            type = currentState.type.value,
-            price = currentState.price.value.toDouble(),
-            area = currentState.area.value.toDouble(),
-            numberOfRooms = currentState.numberOfRooms.value.toInt(),
-            description = currentState.description.value,
-            media = currentState.mediaLists,
-            address = currentState.address.value,
-            nearbyPointsOfInterest = currentState.nearbyPointSet.toList(),
-            status = if (currentState.saleDate != null) PropertyStatus.Sold
-                        else PropertyStatus.Available,
-            entryDate = requireNotNull(currentState.entryDate) { "Entry date cannot be null" },
-            saleDate = if (currentState.saleDate != null) currentState.saleDate
-                        else null,
-            agent = currentState.agent!!
-        )
-            ValidationResult.Success(newProperty)
+            ValidationResult.Success()
         } else {
             ValidationResult.Error(
                     Exception
@@ -136,10 +121,34 @@ class AddPropertyViewModel @Inject constructor
             when (val validationResult = validatePropertyData(currentState)) {
                 is ValidationResult.Success -> {
                     viewModelScope.launch {
+                        val coordinates: LatLng? = try {
+                            getLocationUseCase(currentState.address.value)
+                        }catch (e: Exception){
+                            null
+                        }
+                        val newProperty = Property(
+                            id = UUID.randomUUID().toString(),
+                            type = currentState.type.value,
+                            price = currentState.price.value.toDouble(),
+                            area = currentState.area.value.toDouble(),
+                            numberOfRooms = currentState.numberOfRooms.value.toInt(),
+                            description = currentState.description.value,
+                            media = currentState.mediaLists,
+                            address = currentState.address.value,
+                            latitude = coordinates?.latitude,
+                            longitude = coordinates?.longitude,
+                            nearbyPointsOfInterest = currentState.nearbyPointSet.toList(),
+                            status = if (currentState.saleDate != null) PropertyStatus.Sold
+                            else PropertyStatus.Available,
+                            entryDate = requireNotNull(currentState.entryDate) { "Entry date cannot be null" },
+                            saleDate = if (currentState.saleDate != null) currentState.saleDate
+                            else null,
+                            agent = currentState.agent!!
+                        )
                         try {
-                            val propertyId = validationResult.property.id
+                            val propertyId = newProperty.id
 
-                            addPropertyUseCase(validationResult.property)
+                            addPropertyUseCase(newProperty)
 
                             //Pass the property id to the UI in order to navigate
                             _uiState.value = AddPropertyUiState.Success(propertyId)
@@ -368,7 +377,7 @@ class AddPropertyViewModel @Inject constructor
     }
 
     sealed class ValidationResult {
-        data class Success(val property: Property) : ValidationResult()
+        class Success() : ValidationResult()
         data class Error(val error: Exception) : ValidationResult()
     }
 

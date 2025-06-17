@@ -144,7 +144,7 @@ private fun MyInfoContentPreview() {
                 "First floor")
 
         ),
-        "4 rue Poulletier, 75004 Paris, France",
+        "4 rue Poulletier, 75004 Paris, France", null, null,
         listOf(PointOfInterest.PHARMACY, PointOfInterest.RESTAURANT),
         PropertyStatus.Available,
         338210283777,

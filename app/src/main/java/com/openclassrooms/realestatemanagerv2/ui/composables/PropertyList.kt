@@ -1,26 +1,14 @@
 package com.openclassrooms.realestatemanagerv2.ui.composables
 
-import android.util.Log
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.openclassrooms.realestatemanagerv2.domain.model.Agent
-import com.openclassrooms.realestatemanagerv2.domain.model.Media
-import com.openclassrooms.realestatemanagerv2.domain.model.Photo
-import com.openclassrooms.realestatemanagerv2.domain.model.Property
-import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
-import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyListViewModel
+import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
 
 
 @Composable
-fun PropertyList(navController: NavController, modifier:Modifier, viewModel: PropertyListViewModel = hiltViewModel()) {
+fun PropertyList(navController: NavController, modifier:Modifier, viewModel: PropertySharedViewModel = hiltViewModel()) {
 
 
     /*val viewState by viewModel.uiState.collectAsState()

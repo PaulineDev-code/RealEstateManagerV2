@@ -29,9 +29,28 @@ interface PropertyLocalDAO {
     @Query("SELECT * FROM properties")
     suspend fun getAllProperties(): List<PropertyWithDetails>
 
+    @Query("""
+    SELECT DISTINCT address
+    FROM properties
+    WHERE latitude  IS NULL
+       OR longitude IS NULL
+  """)
+    suspend fun getAddressesWithoutLatLng(): List<String>
+
+    @Query("""
+    UPDATE properties
+    SET latitude  = :latitude,
+        longitude = :longitude
+    WHERE address = :address
+  """)
+    suspend fun updateLocationByAddress(
+        address: String,
+        latitude: Double,
+        longitude: Double
+    )
+
     @Transaction
-    @Query(
-        """
+    @Query("""
     SELECT properties.*
       FROM properties
      WHERE (:propertyTypesCount IS NULL OR :propertyTypesCount = 0 OR properties.type IN (:propertyTypes))
@@ -64,8 +83,7 @@ interface PropertyLocalDAO {
        AND (:minSaleDate    IS NULL OR properties.saleDate         >= :minSaleDate)
        AND (:agentId        IS NULL OR properties.agentId          = :agentId)
        ORDER BY properties.entryDate DESC
-  """
-    )
+  """)
     suspend fun searchByCriteria(
         propertyTypes: List<String>?,
         propertyTypesCount: Int?,

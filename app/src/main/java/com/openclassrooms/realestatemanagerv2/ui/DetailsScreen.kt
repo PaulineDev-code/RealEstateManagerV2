@@ -1,8 +1,6 @@
 package com.openclassrooms.realestatemanagerv2.ui
 
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,7 +29,6 @@ import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsInformations
 import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsMediaContent
 import com.openclassrooms.realestatemanagerv2.ui.composables.VideoPlayer
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
-import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyListViewModel
 
 
 @Composable

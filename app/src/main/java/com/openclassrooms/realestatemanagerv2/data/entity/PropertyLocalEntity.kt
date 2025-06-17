@@ -24,6 +24,10 @@ data class PropertyLocalEntity (
     @ColumnInfo
     val address: String,
     @ColumnInfo
+    val latitude: Double?,
+    @ColumnInfo
+    val longitude: Double?,
+    @ColumnInfo
     val status: String,
     @ColumnInfo
     val entryDate: Long,

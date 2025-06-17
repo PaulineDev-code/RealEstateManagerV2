@@ -71,6 +71,8 @@ class EditPropertyViewModel @Inject constructor
             description = currentState.description,
             media = currentState.mediaLists,
             address = currentState.address,
+            latitude = null,
+            longitude = null,
             nearbyPointsOfInterest = currentState.nearbyPointList,
             status = if (currentState.saleDate != null) PropertyStatus.Sold
             else PropertyStatus.Available,
