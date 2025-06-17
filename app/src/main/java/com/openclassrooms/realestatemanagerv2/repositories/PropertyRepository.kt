@@ -49,28 +49,22 @@ class PropertyRepository @Inject constructor(private val database: MyDatabase,
 
     }
 
-    suspend fun getAllProperties(): Flow<List<PropertyWithDetails>> {
-        return flow {
-            emit(withContext(Dispatchers.IO) {
-                propertyDao.getAllProperties()
-            })
-        }
+    suspend fun getAllProperties(): List<PropertyWithDetails> = withContext(Dispatchers.IO) {
+        propertyDao.getAllProperties()
     }
 
-    suspend fun getPropertyById(id: String): Flow<PropertyWithDetails> {
-        return flow {
-            emit(withContext(Dispatchers.IO) {
-                propertyDao.getPropertyById(id)
-            })
-        }
+    suspend fun getPropertyById(id: String): PropertyWithDetails = withContext(Dispatchers.IO) {
+        propertyDao.getPropertyById(id)
     }
 
-    suspend fun getPropertyTypes(): List<String> = propertyDao.getDistinctTypes()
+    suspend fun getPropertyTypes(): List<String> = withContext(Dispatchers.IO){
+        propertyDao.getDistinctTypes()
+    }
 
     suspend fun searchByCriteria(
         criteria: PropertySearchCriteria
-    ): List<PropertyWithDetails> {
-        return propertyDao.searchByCriteria(
+    ): List<PropertyWithDetails> = withContext(Dispatchers.IO) {
+        propertyDao.searchByCriteria(
             propertyTypes       = criteria.propertyType
                 ?.takeIf { it.isNotEmpty() },
             propertyTypesCount = criteria.propertyType?.size,

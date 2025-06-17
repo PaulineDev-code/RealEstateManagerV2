@@ -7,9 +7,8 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class GetPropertyByIdUseCase @Inject constructor(private val propertyRepository: PropertyRepository) {
-    suspend operator fun invoke(id: String): Flow<Property> = propertyRepository
-        .getPropertyById(id).map {
-            Property.fromPropertyWithDetails(it)
-        }
-
+    suspend operator fun invoke(id: String): Property {
+        val propertyWithDetails = propertyRepository.getPropertyById(id)
+        return Property.fromPropertyWithDetails(propertyWithDetails)
+    }
 }

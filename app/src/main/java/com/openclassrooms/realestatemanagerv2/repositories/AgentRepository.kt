@@ -14,14 +14,7 @@ class AgentRepository @Inject constructor(private val agentDao: AgentDAO) {
 
     suspend fun updateAgent(agent: AgentEntity): Unit = agentDao.updateAgent(agent)
 
-    suspend fun getAllAgents(): Flow<List<AgentEntity>> {
-        return flow {
-            emit(withContext(Dispatchers.IO) {
-                agentDao.getAllAgents()
-            })
-        }
+    suspend fun getAllAgents(): List<AgentEntity> = withContext(Dispatchers.IO){
+        agentDao.getAllAgents()
     }
-
-
-
 }

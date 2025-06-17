@@ -7,14 +7,14 @@ class UpdateMissingLocationUseCase @Inject constructor(
     private val locationRepository: LocationRepository
 ) {
     suspend operator fun invoke() {
-        // 1) récupère les adresses à géocoder
+        // 1) retrieve addresses to geocode
         val addresses = locationRepository.getAddressesToGeocode()
 
-        // 2) pour chaque adresse, demande un unique geocode
+        // 2) for each address ask for unique geocode
         for (address in addresses) {
             val coordinates = locationRepository.geocodeNowOrNull(address) // renvoie LatLng? ou null
             if (coordinates != null) {
-                // 3) met à jour toutes les propriétés de cette adresse
+                // 3) update every estates for this address
                 locationRepository.updateLocationByAddress(address, coordinates.latitude, coordinates.longitude)
             }
         }

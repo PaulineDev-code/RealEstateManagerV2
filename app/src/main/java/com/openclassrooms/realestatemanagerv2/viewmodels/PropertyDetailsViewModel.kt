@@ -24,10 +24,9 @@ class PropertyDetailsViewModel @Inject constructor
     fun getPropertyById(id: String) {
         viewModelScope.launch {
             try {
-                getPropertyByIdUseCase(id).collect { property ->
-                    Log.d("DetailsViewModel", "Collected property: $property")
-                    _uiState.value = PropertyDetailsUiState.Success(property)
-                }
+                val property = getPropertyByIdUseCase(id)
+                Log.d("DetailsViewModel", "Collected property: $property")
+                _uiState.value = PropertyDetailsUiState.Success(property)
             } catch (exception: Exception) {
                 Log.e("DetailsViewModel", "Error collecting property by id", exception)
                 _uiState.value = PropertyDetailsUiState.Error(exception)

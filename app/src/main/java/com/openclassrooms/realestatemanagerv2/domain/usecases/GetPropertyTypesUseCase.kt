@@ -10,8 +10,6 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class GetPropertyTypesUseCase @Inject constructor(private val propertyRepository: PropertyRepository) {
-        suspend operator fun invoke(): List<String> =
-            withContext(Dispatchers.IO) {
-                propertyRepository.getPropertyTypes()
-            }
+    suspend operator fun invoke(): List<String> =
+        propertyRepository.getPropertyTypes()
 }

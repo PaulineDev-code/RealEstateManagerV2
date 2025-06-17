@@ -50,13 +50,14 @@ class PropertySharedViewModel @Inject constructor
     private fun loadAllProperties() {
         viewModelScope.launch {
             try {
-                getAllPropertiesUseCase().catch { error -> _uiState.value = PropertyUiState.Error(error) }
-                    .collect() { properties ->
-                        Log.d("ListViewModel", "Collected properties: $properties")
-                        _uiState.value = PropertyUiState.Success(properties, isFiltered = false)
-                    }
-            } catch (exception: Exception) {Log.e("ListViewModel", "Error collecting properties", exception)
-                _uiState.value = PropertyUiState.Error(exception)}
+                val properties = getAllPropertiesUseCase()
+                Log.d("ListViewModel", "Collected properties: $properties")
+                _uiState.value = PropertyUiState.Success(properties, isFiltered = false)
+
+            } catch (exception: Exception) {
+                Log.e("ListViewModel", "Error collecting properties", exception)
+                _uiState.value = PropertyUiState.Error(exception)
+            }
         }
     }
 

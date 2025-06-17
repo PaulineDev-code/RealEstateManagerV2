@@ -31,15 +31,15 @@ class EditPropertyViewModel @Inject constructor
     init {
         viewModelScope.launch {
             try {
-                getAllAgentsUseCase().collect() { agents ->
-                    Log.d("EditViewModel", "Collected agents: $agents")
-                    updateState {
-                        copy(agentList = agents)
-                    }
+                val agents = getAllAgentsUseCase()
+                Log.d("EditViewModel", "Collected agents: $agents")
+                updateState {
+                    copy(agentList = agents)
                 }
             } catch (exception: Exception) {
                 Log.e("ViewModel", "Error collecting agents", exception)
-                handleError(exception)}
+                handleError(exception)
+            }
         }
     }
 

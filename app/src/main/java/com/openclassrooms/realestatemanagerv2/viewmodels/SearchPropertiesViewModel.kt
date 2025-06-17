@@ -32,18 +32,15 @@ class SearchPropertiesViewModel @Inject constructor(
         //retrieve all agents
         viewModelScope.launch {
             try {
-                getAllAgentsUseCase().collect() { agents ->
-                    Log.d("SearchViewModel", "Collected agents: $agents")
-                    updateState {
-                        copy(agentList = agents)
-                    }
+                val agents = getAllAgentsUseCase()
+                Log.d("SearchViewModel", "Collected agents: $agents")
+                updateState {
+                    copy(agentList = agents)
                 }
-
             } catch (exception: Exception) {
                 Log.e("SearchViewModel", "Error collecting agents", exception)
                 /*handleError(AddPropertyError.GeneralError(exception))}*/
             }
-
         }
         //retrieve each property types
         viewModelScope.launch {

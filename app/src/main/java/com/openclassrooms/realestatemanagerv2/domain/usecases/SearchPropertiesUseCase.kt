@@ -16,10 +16,10 @@ class SearchPropertiesUseCase @Inject constructor(private val propertyRepository
     *@return List<Property>
      */
 
-    suspend operator fun invoke(searchCriterias: PropertySearchCriteria): List<Property> =
-        withContext(Dispatchers.IO) {
-            propertyRepository.searchByCriteria(searchCriterias).map {
-                Property.fromPropertyWithDetails(it)
-            }
+    suspend operator fun invoke(searchCriterias: PropertySearchCriteria): List<Property> {
+        val propertiesWithDetails = propertyRepository.searchByCriteria(searchCriterias)
+        return propertiesWithDetails.map {
+            Property.fromPropertyWithDetails(it)
         }
+    }
 }

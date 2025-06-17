@@ -40,24 +40,23 @@ class AddPropertyViewModel @Inject constructor
     val allPointOfInterestList: List<PointOfInterest> = PointOfInterest.values().toList()
 
 
-
     init {
         viewModelScope.launch {
             try {
                 //Make allAgentList out of Editing state ? Keep useCase here and expose val through viewmodel?
                 //Error management ok
                 //Interactor to move out logic?
-                getAllAgentsUseCase().collect() { agents ->
-                    Log.d("AddViewModel", "Collected agents: $agents")
-                    updateState {
-                        copy(agentList = agents)
-                    }
+                val agents = getAllAgentsUseCase()
+                Log.d("AddViewModel", "Collected agents: $agents")
+                updateState {
+                    copy(agentList = agents)
                 }
+
             } catch (exception: Exception) {
                 Log.e("ViewModel", "Error collecting agents", exception)
-                handleError(AddPropertyError.GeneralError(exception))}
+                handleError(AddPropertyError.GeneralError(exception))
+            }
         }
-        
     }
 
     private fun validatePropertyData(currentState: AddPropertyUiState.Editing): ValidationResult {
