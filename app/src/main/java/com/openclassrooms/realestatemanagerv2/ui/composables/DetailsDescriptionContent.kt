@@ -34,15 +34,8 @@ fun DetailsDescriptionContent(description: String) {
 @Preview(showBackground = true, backgroundColor = -1)
 @Composable
 fun DetailsDescriptionContentPreview() {
-    DetailsMediaContent(
-        photoList = listOf(
-            Photo("", "DescriptionTest1"),
-            Photo("", "DescriptionTest2"),
-            Photo("", "DescriptionTest3"),),
-        videoList = emptyList(),
-        onPhotoDeleted = {},
-        onVideoDeleted = { /*TODO*/ },
-        onVideoClicked = { /*TODO*/ },
-        context = LocalContext.current
+    DetailsDescriptionContent(
+
+        "blablablabalbalbalablabalbalablabalablabalbalablabalablabalablabalablabalablabalbalablabalablabala"
     )
 }

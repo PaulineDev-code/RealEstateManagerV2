@@ -12,6 +12,7 @@
     <string name="price_of_property">Price of property</string>
     <string name="type_and_price">Type and Price</string>
     <string name="area">Area</string>
+    <string name="rooms">Rooms</string>
     <string name="number_of_rooms">Number of rooms</string>
     <string name="area_and_number_of_rooms">Area and Number of rooms</string>
     <string name="location">Location</string>
@@ -71,6 +72,8 @@
     <string name="click_to_select_points_of_interest">Click here to select nearby points of interest : </string>
     <string name="min_and_max_area">Min and/or Max area</string>
     <string name="search_for_properties">Search for properties</string>
+    //Errors
+    <string name="error_loading_properties">error loading properties:</string>
     //Navigation
     <string name="list">List</string>
     <string name="search">Search</string>

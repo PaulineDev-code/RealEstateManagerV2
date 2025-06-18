@@ -2,6 +2,8 @@ package com.openclassrooms.realestatemanagerv2.ui.composables
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -11,6 +13,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -26,75 +29,88 @@ import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.utils.formatMillisToLocal
 import com.openclassrooms.realestatemanagerv2.utils.toReadableString
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DetailsInformationsContent(property: Property) {
 
     Column(
         modifier = Modifier
-            .padding(4.dp)
-            .padding(top = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+            .padding(4.dp),
     ) {
         Text(
+            modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 4.dp, bottom = 8.dp),
             text = stringResource(id = R.string.informations),
             fontSize = MaterialTheme.typography.titleMedium.fontSize,
             fontWeight = FontWeight.ExtraBold
         )
-        Spacer(Modifier.height(8.dp))
+        FlowRow(
+            modifier = Modifier,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)) {
 
-        IndividualDetailsContent(
-            title = stringResource(id = R.string.area),
-            icon = R.drawable.ic_area, data = property.area
-        )
-        IndividualDetailsContent(
-            title = stringResource(id = R.string.type),
-            icon = R.drawable.ic_type, data = property.type
-        )
-        IndividualDetailsContent(
-            title = stringResource(id = R.string.price),
-            icon = R.drawable.ic_money, data = property.price
-        )
-        IndividualDetailsContent(
-            title = stringResource(id = R.string.number_of_rooms),
-            icon = R.drawable.ic_room, data = property.numberOfRooms
-        )
-        IndividualDetailsContent(
-            title = stringResource(id = R.string.location),
-            icon = R.drawable.ic_location,
-            data = property.address
-        )
-        IndividualDetailsContent(
-            title = stringResource(id = R.string.status),
-            icon = R.drawable.ic_refresh,
-            data = property.status.toReadableString()
-        )
-        IndividualDetailsContent(
-            title = stringResource(id = R.string.entry_date),
-            icon = R.drawable.ic_entry_date,
-            data = property.entryDate.formatMillisToLocal()
-        )
-        //TODO : saleDate
-        IndividualDetailsContent(
-            title = stringResource(id = R.string.agent),
-            icon = R.drawable.ic_agent,
-            data = property.agent.name
-        )
+            IndividualDetailsContent(
+                title = stringResource(id = R.string.price),
+                icon = R.drawable.ic_money, data = property.price
+            )
+            IndividualDetailsContent(
+                title = stringResource(id = R.string.type),
+                icon = R.drawable.ic_type, data = property.type
+            )
+            IndividualDetailsContent(
+                title = stringResource(id = R.string.area),
+                icon = R.drawable.ic_area, data = property.area
+            )
+
+            IndividualDetailsContent(
+                title = stringResource(id = R.string.rooms),
+                icon = R.drawable.ic_room, data = property.numberOfRooms
+            )
+            IndividualDetailsContent(
+                title = stringResource(id = R.string.status),
+                icon = R.drawable.ic_refresh,
+                data = property.status.toReadableString()
+            )
+            IndividualDetailsContent(
+                title = stringResource(id = R.string.entry_date),
+                icon = R.drawable.ic_entry_date,
+                data = property.entryDate.formatMillisToLocal()
+            )
+            //TODO : saleDate
+            IndividualDetailsContent(
+                title = stringResource(id = R.string.agent),
+                icon = R.drawable.ic_agent,
+                data = property.agent.name
+            )
+            IndividualDetailsContent(
+                title = stringResource(id = R.string.location),
+                icon = R.drawable.ic_location,
+                data = property.address
+            )
+        }
     }
 }
 
 @Composable
 fun <T> IndividualDetailsContent(title: String, icon: Int, data: T) {
 
-    Row(Modifier.padding(start = 4.dp)) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
 
-        Icon(painter = painterResource(id = icon), contentDescription = title)
-        Spacer(modifier = Modifier.size(8.dp))
-        Column {
+        Icon(
+            modifier = Modifier.padding(end = 4.dp),
+            painter = painterResource(id = icon),
+            contentDescription = title
+        )
+
+        Column() {
             Text(
-                text = title, fontSize = MaterialTheme.typography.titleSmall.fontSize,
+                text = title,
+                fontSize = MaterialTheme.typography.titleSmall.fontSize,
                 fontWeight = FontWeight.Bold
             )
-            Text(data.toString(), fontSize = MaterialTheme.typography.bodySmall.fontSize)
+            Text(
+                text = data.toString(),
+                fontSize = MaterialTheme.typography.bodySmall.fontSize
+            )
         }
     }
 }
