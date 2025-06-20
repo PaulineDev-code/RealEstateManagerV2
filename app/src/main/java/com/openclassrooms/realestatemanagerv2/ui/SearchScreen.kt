@@ -69,7 +69,6 @@ fun SearchScreen(
         when (val error = errorState.error) {
 
             is SearchPropertiesViewModel.SearchPropertiesError.GeneralError -> {
-                // Vous pouvez afficher un message générique ou utiliser le message de l'exception
                 errorMessage = error.exception.message ?: "unknown general error"
             }
 

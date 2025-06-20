@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.openclassrooms.realestatemanagerv2.BuildConfig
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
@@ -35,6 +36,7 @@ import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
 import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsDescriptionContent
 import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsInformationsContent
 import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsMediaContent
+import com.openclassrooms.realestatemanagerv2.ui.composables.StaticMapView
 import com.openclassrooms.realestatemanagerv2.ui.composables.VideoPlayer
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
 
@@ -121,6 +123,11 @@ fun DetailsContent(uiState: PropertyDetailsViewModel.PropertyDetailsUiState,
                     )
                     DetailsDescriptionContent(description = property.description)
                     DetailsInformationsContent(property)
+                    StaticMapView(
+                        latitude = property.latitude,
+                        longitude = property.longitude,
+                        apiKey = BuildConfig.MAPS_API_KEY,
+                        )
                 }
             } else {
                 // Display Text saying there is no property available to display
