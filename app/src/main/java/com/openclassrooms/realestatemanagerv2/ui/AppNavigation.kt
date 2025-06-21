@@ -45,7 +45,10 @@ fun AppNavigation(navController: NavHostController) {
                 type = NavType.StringType
             }
         )) {
-            DetailsScreen(navController = navController, propertyId = it.arguments?.getString("propertyId")!!)
+            DetailsScreen(
+                navController = navController,
+                propertyId = it.arguments?.getString("propertyId")!!
+            )
             Log.d("DetailsScreen", "Property ID: ${it.arguments?.getString("propertyId")}")
         }
         composable(route = "add_screen") {

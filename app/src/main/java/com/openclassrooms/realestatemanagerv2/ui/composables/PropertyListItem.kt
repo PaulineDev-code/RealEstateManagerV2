@@ -3,17 +3,22 @@ package com.openclassrooms.realestatemanagerv2.ui.composables
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.Media
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
@@ -22,64 +27,74 @@ import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 
 
 @Composable
-fun PropertyListItem(property: Property, onItemClick: (String)->Unit) {
+fun PropertyListItem(property: Property, onItemClick: (String) -> Unit) {
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(),
         shape = MaterialTheme.shapes.medium,
-        backgroundColor = MaterialTheme.colors.surface
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onBackground,
+        ),
+        elevation = CardDefaults.cardElevation(2.dp)
     ) {
 
-        //
-        Row(modifier = Modifier.clickable { onItemClick(property.id) },
+        Row(
+            modifier = Modifier
+                .clickable { onItemClick(property.id) }
+                .height(128.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(property.media.filterIsInstance<Photo>()[0].mediaUrl)
-/*
-                    .placeholder(R.drawable.ic_launcher_foreground)
-*/
+                    .data(property.media.filterIsInstance<Photo>().firstOrNull()?.mediaUrl ?:
+                    R.drawable.ic_refresh)
+                    .placeholder(R.drawable.ic_refresh)
+                    .crossfade(true)
                     .build(),
                 contentDescription = null,
                 modifier = Modifier
                     .size(128.dp)
                     .padding(8.dp),
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.Crop,
                 onError = { error ->
                     Log.e("CoilError", error.result.throwable.localizedMessage ?: "Unknown error")
                 }
 
             )
 
-            /*R.drawable.ic_launcher_foreground*/
-
-
-
-            Column(Modifier.padding(8.dp),
-                verticalArrangement = Arrangement.SpaceBetween) {
+            Column(
+                Modifier
+                    .padding(end = 8.dp, top = 4.dp, bottom = 4.dp)
+                    .weight(1f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
                     text = property.type,
-                    style = MaterialTheme.typography.h4,
-                    color = MaterialTheme.colors.onSurface,
-                )
-                Text(
-                    modifier = Modifier.height(96.dp),
-                    text = property.description,
-                    style = MaterialTheme.typography.body2,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = property.price.toString() + "$",
-                    style = MaterialTheme.typography.body1,
-                    color = MaterialTheme.colors.secondaryVariant
+                    text = property.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f),
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = property.price.toInt().toString() + "$",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.align(Alignment.End),
+                    color = MaterialTheme.colorScheme.outlineVariant
                 )
             }
         }
-        }
     }
+}
 
 /*SubcomposeAsyncImage(
                 model = "https://www.istockphoto.com/fr/photo/belle-maison-avec-jardin-gm590279802-101488565",

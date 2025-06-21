@@ -1,34 +1,45 @@
 package com.openclassrooms.realestatemanagerv2.ui.composables
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.ui.BottomNavItem
 
@@ -66,7 +77,7 @@ fun AppTopBar(
                 navigationIcon = {
                     IconButton(onClick = onNavigationClick) {
                         Icon(
-                            imageVector = Icons.Filled.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Localized description"
                         )
                     }
@@ -98,7 +109,7 @@ fun AppTopBar(
         },
         bottomBar = {
             if (showBottomBar) {
-                BottomNavigation(backgroundColor = navBarsColor,
+                BottomAppBar(containerColor = navBarsColor,
                     contentColor = MaterialTheme.colorScheme.primary) {
                     val items = listOf(
                         BottomNavItem.List,
@@ -108,21 +119,40 @@ fun AppTopBar(
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentRoute = navBackStackEntry?.destination?.route
 
-                    items.forEach { item ->
-                        BottomNavigationItem(
-                            icon = { Icon(item.icon, contentDescription = item.title) },
-                            label = { Text(item.title) },
+                    items.forEachIndexed { index, item ->
+                        NavigationBarItem(
+                            icon = { Icon(
+                                imageVector = item.icon,
+                                contentDescription = item.title,
+                                modifier = Modifier.size(28.dp)
+                                ) },
+                            label = { Text(
+                                text =item.title,
+                                fontSize = MaterialTheme.typography.bodyLarge.fontSize
+                            ) },
                             selected = currentRoute == item.route,
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                indicatorColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    .copy(alpha = 0.1f),
+                                unselectedIconColor = MaterialTheme.colorScheme.primary,
+                                unselectedTextColor = MaterialTheme.colorScheme.primary
+                            ),
                             onClick = {
 
-                                navController.apply {
-                                    navigate(item.route) {
-                                        launchSingleTop = true
-                                        restoreState = true
-                                        popUpTo(navController.graph.findStartDestination().id) {
+                                navController.navigate(item.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        if (item.route == "home_screen" ||
+                                            item.route == "map_screen"
+                                        ) {
+                                            saveState = false
+                                        } else {
                                             saveState = true
                                         }
                                     }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
                                 /*
                                 // Get DetailsScreen out of the stack if we are using it and want
@@ -149,6 +179,15 @@ fun AppTopBar(
                                 }*/
                             }
                         )
+                        if (index < items.size - 1) {
+                            VerticalDivider(
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .height(32.dp)
+                                    .width(1.dp)
+                                    .align(Alignment.CenterVertically)
+                            )
+                        }
                     }
                 }
             }
