@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -24,7 +25,7 @@ import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
 @Composable
 fun MapScreen(
     navController: NavHostController,
-    viewModel: PropertySharedViewModel
+    viewModel: PropertySharedViewModel = hiltViewModel()
 ) {
 
     val uiState by viewModel.uiState.collectAsState()

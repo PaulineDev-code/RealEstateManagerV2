@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 @HiltViewModel
 class PropertySharedViewModel @Inject constructor
@@ -30,6 +31,10 @@ class PropertySharedViewModel @Inject constructor
     val uiState: StateFlow<PropertyUiState> = _uiState
 
     init {
+
+        val instanceId = Random.nextInt() // For debugging instance sharing
+        Log.d("ViewModelLifecycle", "PropertySharedViewModel INIT - Instance ID: $instanceId, HashCode: ${this.hashCode()}")
+
         observeNetworkChanges()
         loadAllProperties()
     }
