@@ -47,7 +47,7 @@ fun PropertyTypeCheckBox(
                     .wrapContentSize(),
                 shape = MaterialTheme.shapes.medium,
                 colors = CardColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
+                    containerColor = MaterialTheme.colorScheme.background,
                     contentColor = MaterialTheme.colorScheme.onBackground,
                     disabledContentColor = MaterialTheme.colorScheme.primary,
                     disabledContainerColor = MaterialTheme.colorScheme.primaryContainer
@@ -64,7 +64,7 @@ fun PropertyTypeCheckBox(
 
                     val isChecked = selectedType.contains(type)
                     Checkbox(
-                        checked = isChecked, // À adapter selon ton besoin (par exemple en utilisant un map de sélection)
+                        checked = isChecked,
                         onCheckedChange = { onTypeSelected(type, !isChecked) }
                     )
                     Text(
