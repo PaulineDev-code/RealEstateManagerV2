@@ -10,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -42,9 +43,13 @@ import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewMode
 
 
 @Composable
-fun DetailsScreen(navController: NavController,
-                  propertyId: String,
-                  viewModel: PropertyDetailsViewModel = hiltViewModel()
+fun DetailsScreen(
+    windowAdaptiveInfo: WindowAdaptiveInfo,
+    navController: NavController,
+    onNavigateToAdd: () -> Unit,
+    onNavigateToEdit: (propertyId: String) -> Unit,
+    propertyId: String,
+    viewModel: PropertyDetailsViewModel = hiltViewModel()
 ) {
 
     // State for video player visibility and URL, managed within this stateful composable
@@ -62,7 +67,7 @@ fun DetailsScreen(navController: NavController,
     AppTopBar(
         navController = navController,
         onNavigationClick = { /*TODO*/ },
-        onSearchClick = { /*TODO*/ },
+        onAddClick = onNavigateToAdd,
         onModifyClick = { /*TODO*/ },
         showModifyButton = false,
         content = { innerPadding ->
@@ -71,7 +76,8 @@ fun DetailsScreen(navController: NavController,
                 innerPadding = innerPadding, // For content padding from AppTopBar  {
                 onVideoClicked = { videoUrl ->
                     currentVideoUrl = videoUrl
-                    isVideoDisplayed = true},
+                    isVideoDisplayed = true
+                },
                 onVideoPlayerClosed = {
                     currentVideoUrl = ""
                     isVideoDisplayed = false
@@ -84,12 +90,14 @@ fun DetailsScreen(navController: NavController,
 }
 
 @Composable
-fun DetailsContent(uiState: PropertyDetailsViewModel.PropertyDetailsUiState,
-                   innerPadding: PaddingValues, // For content padding from AppTopBar
-                   onVideoClicked: (videoUrl: String) -> Unit,
-                   onVideoPlayerClosed: () -> Unit,
-                   isVideoDisplayed: Boolean,
-                   currentVideoUrl: String) {
+fun DetailsContent(
+    uiState: PropertyDetailsViewModel.PropertyDetailsUiState,
+    innerPadding: PaddingValues, // For content padding from AppTopBar
+    onVideoClicked: (videoUrl: String) -> Unit,
+    onVideoPlayerClosed: () -> Unit,
+    isVideoDisplayed: Boolean,
+    currentVideoUrl: String
+) {
     val context = LocalContext.current
 
     when (uiState) {
@@ -103,6 +111,7 @@ fun DetailsContent(uiState: PropertyDetailsViewModel.PropertyDetailsUiState,
                 CircularProgressIndicator()
             }
         }
+
         is PropertyDetailsViewModel.PropertyDetailsUiState.Success -> {
             val property = uiState.property
             if (property != null) {
@@ -127,7 +136,7 @@ fun DetailsContent(uiState: PropertyDetailsViewModel.PropertyDetailsUiState,
                         latitude = property.latitude,
                         longitude = property.longitude,
                         apiKey = BuildConfig.MAPS_API_KEY,
-                        )
+                    )
                 }
             } else {
                 // Display Text saying there is no property available to display
@@ -171,12 +180,13 @@ fun DetailsContent(uiState: PropertyDetailsViewModel.PropertyDetailsUiState,
 @Composable
 fun DetailsScreenPreview() {
     //Preview of the DetailsScreen in success state:
-    val sampleProperty = Property("1",
+    val sampleProperty = Property(
+        "1",
         "Apartment",
         300000.0,
         90.0,
         3,
-        "A spacious flat in the middle of Brooklyn "+"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mollis, massa euismod tempor rhoncus, nulla neque luctus sapien, at mollis purus ligula in libero. Sed libero augue, consequat eu mauris a, pulvinar venenatis nunc. Donec faucibus ligula ac mattis luctus. Morbi purus urna, ullamcorper ac volutpat ac, sodales id nulla. Nunc ultrices nisi ex, eget lacinia purus suscipit congue. In quis facilisis nisl, vel pharetra leo. Vivamus mollis massa at ligula consequat lacinia eget a neque. Maecenas volutpat blandit purus luctus egestas. Donec et iaculis libero. Donec quis mi sed magna sollicitudin tempus. Etiam efficitur suscipit consequat. Integer ante nisi, placerat id orci ut, eleifend sollicitudin ipsum. Integer posuere, risus ac ultrices porta, nibh quam ultricies quam, eget lobortis magna lorem id erat. Maecenas lorem purus, varius finibus odio in, accumsan imperdiet leo.",
+        "A spacious flat in the middle of Brooklyn " + "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mollis, massa euismod tempor rhoncus, nulla neque luctus sapien, at mollis purus ligula in libero. Sed libero augue, consequat eu mauris a, pulvinar venenatis nunc. Donec faucibus ligula ac mattis luctus. Morbi purus urna, ullamcorper ac volutpat ac, sodales id nulla. Nunc ultrices nisi ex, eget lacinia purus suscipit congue. In quis facilisis nisl, vel pharetra leo. Vivamus mollis massa at ligula consequat lacinia eget a neque. Maecenas volutpat blandit purus luctus egestas. Donec et iaculis libero. Donec quis mi sed magna sollicitudin tempus. Etiam efficitur suscipit consequat. Integer ante nisi, placerat id orci ut, eleifend sollicitudin ipsum. Integer posuere, risus ac ultrices porta, nibh quam ultricies quam, eget lobortis magna lorem id erat. Maecenas lorem purus, varius finibus odio in, accumsan imperdiet leo.",
         listOf(
             Photo(
                 "https://unsplash.com/fr/photos/edificio-in-cemento-bianco-e-blu-sotto-il-cielo-blu-durante-il-giorno-jfRrtH1hDTo",
@@ -208,5 +218,6 @@ fun DetailsScreenPreview() {
         onVideoClicked = {},
         onVideoPlayerClosed = {},
         isVideoDisplayed = false,
-        currentVideoUrl = "")
+        currentVideoUrl = ""
+    )
 }

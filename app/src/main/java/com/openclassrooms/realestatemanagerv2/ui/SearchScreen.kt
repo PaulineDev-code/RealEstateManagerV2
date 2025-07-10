@@ -17,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -56,7 +57,9 @@ import com.openclassrooms.realestatemanagerv2.viewmodels.SearchPropertiesViewMod
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
+    windowAdaptiveInfo: WindowAdaptiveInfo,
     navController: NavController,
+    onNavigateToAdd: () -> Unit,
     searchPropertiesViewModel: SearchPropertiesViewModel = hiltViewModel()
 ) {
 
@@ -81,6 +84,7 @@ fun SearchScreen(
 
     SearchContent(
         navController = navController,
+        onAddClick = onNavigateToAdd,
         minPrice = editingState?.minPrice?.value ?: "",
         minPriceError = editingState?.minPrice?.error ?: "",
         onMinPriceChange = { newMinPrice -> searchPropertiesViewModel.updateMinPrice(newMinPrice) },
@@ -159,6 +163,7 @@ fun SearchScreen(
 @Composable
 fun SearchContent(
     navController: NavController,
+    onAddClick: () -> Unit,
     minPrice: String,
     minPriceError: String,
     onMinPriceChange: (String) -> Unit,
@@ -218,9 +223,9 @@ fun SearchContent(
         navController = navController,
         onNavigationClick = { /*TODO*/ },
         onModifyClick = { /*TODO*/ },
+        onAddClick = onAddClick,
         showModifyButton = false,
-        navBarsColor = MaterialTheme.colorScheme.surfaceVariant,
-        showBottomBar = true
+        navBarsColor = MaterialTheme.colorScheme.surfaceVariant
     ) { paddingValues ->
 
         Column(
@@ -502,6 +507,7 @@ fun SearchContent(
 fun SearchScreenPreview() {
     SearchContent(
         navController = rememberNavController(),
+        onAddClick = {},
         selectedEntryDate = 44738399,
         onEntryDateSelected = {},
         isEntryDateDialogShown = false,

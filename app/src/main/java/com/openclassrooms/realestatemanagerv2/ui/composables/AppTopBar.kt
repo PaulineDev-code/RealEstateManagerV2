@@ -48,12 +48,11 @@ import com.openclassrooms.realestatemanagerv2.ui.BottomNavItem
 fun AppTopBar(
     navController: NavController,
     onNavigationClick: () -> Unit,
-    onSearchClick: () -> Unit = {navController.navigate("search_screen")},
-    onAddClick: () -> Unit = {navController.navigate("add_screen")},
+    onAddClick: () -> Unit,
     onModifyClick: () -> Unit,
     showModifyButton: Boolean,
     navBarsColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    showBottomBar: Boolean = true,
+    showBottomBar: Boolean = false,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -83,12 +82,6 @@ fun AppTopBar(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onSearchClick) {
-                        Icon(
-                            imageVector = Icons.Filled.Search,
-                            contentDescription = "Localized description"
-                        )
-                    }
                     IconButton(onClick = onAddClick) {
                         Icon(
                             imageVector = Icons.Filled.Add,
@@ -143,13 +136,13 @@ fun AppTopBar(
 
                                 navController.navigate(item.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {
-                                        if (item.route == "home_screen" ||
+                                        /*if (item.route == "home_screen" ||
                                             item.route == "map_screen"
                                         ) {
                                             saveState = false
-                                        } else {
+                                        } else {*/
                                             saveState = true
-                                        }
+                                       /* }*/
                                     }
                                     launchSingleTop = true
                                     restoreState = true
@@ -229,7 +222,7 @@ fun AppTopBarPreview() {
     AppTopBar(
         navController = rememberNavController(),
         onNavigationClick = { /*TODO*/ },
-        onSearchClick = { /*TODO*/ },
+        onAddClick = { /*TODO*/ },
         onModifyClick = { /*TODO*/ },
         showModifyButton = false
     ) {

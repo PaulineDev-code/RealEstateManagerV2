@@ -11,6 +11,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,8 +42,10 @@ import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
 
 @Composable
 fun MapScreen(
+    windowAdaptiveInfo: WindowAdaptiveInfo,
     navController: NavController,
-    viewModel: PropertySharedViewModel = hiltViewModel()
+    onNavigateToAdd: () -> Unit,
+    viewModel: PropertySharedViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -57,10 +60,10 @@ fun MapScreen(
     AppTopBar(
         navController = navController,
         onNavigationClick = { /*TODO*/ },
+        onAddClick = onNavigateToAdd,
         onModifyClick = { /*TODO*/ },
         showModifyButton = false,
-        navBarsColor = navBarsColor,
-        showBottomBar = true
+        navBarsColor = navBarsColor
     ) { innerPadding ->
 
         MapContent(

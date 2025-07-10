@@ -19,6 +19,7 @@ import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,7 +60,9 @@ import com.openclassrooms.realestatemanagerv2.viewmodels.AddPropertyViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddScreen(
+    windowAdaptiveInfo: WindowAdaptiveInfo,
     navController: NavController,
+    onBackClicked: () -> Unit,
     addViewModel: AddPropertyViewModel = hiltViewModel()
 ) {
     val state = addViewModel.uiState.collectAsState().value
@@ -80,7 +83,9 @@ fun AddScreen(
         }
     }
 
-    AddContent(navController = navController,
+    AddContent(
+        navController = navController,
+        onBackPressed = onBackClicked,
 
         onCreatePropertyClick = { addViewModel.createProperty() },
         errorMessage = errorMessage,
@@ -170,6 +175,7 @@ fun AddScreen(
 @Composable
 private fun AddContent(
     navController: NavController,
+    onBackPressed: () -> Unit,
 
     onCreatePropertyClick: () -> Unit,
     errorMessage: String?,
@@ -239,8 +245,8 @@ private fun AddContent(
 
     AppTopBar(
         navController = navController,
-        onNavigationClick = { /*TODO*/ },
-        onSearchClick = { /*TODO*/ },
+        onNavigationClick = onBackPressed,
+        onAddClick = {},
         onModifyClick = { /*TODO*/ },
         showModifyButton = false,
         showBottomBar = false
@@ -279,7 +285,9 @@ private fun AddContent(
                 fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(8.dp).fillMaxWidth())
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth())
 
             DetailsMediaContent(
                 photoList = photoList,
@@ -296,7 +304,9 @@ private fun AddContent(
             )
 
             Row(horizontalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier.padding(bottom = 8.dp).align(CenterHorizontally)) {
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .align(CenterHorizontally)) {
                 CameraGalleryChooser(onPhotoSelected = onPhotoUriChange)
 
                 Button(
@@ -321,7 +331,8 @@ private fun AddContent(
                 )
             }
 
-            AddTextFields( // Values
+            AddTextFields(
+                // Values
                 description = description,
                 type = type,
                 price = price,
@@ -381,7 +392,9 @@ private fun AddContent(
 
             if (showSaveButton != null) {
                 Button(onClick = onCreatePropertyClick,
-                    modifier = Modifier.padding(bottom = 24.dp).align(CenterHorizontally),
+                    modifier = Modifier
+                        .padding(bottom = 24.dp)
+                        .align(CenterHorizontally),
                     enabled = showSaveButton
                 ) {
                     Text("Save this property")
@@ -409,6 +422,7 @@ private fun AddContent(
 @Composable
 fun AddScreenPreview() {
     AddContent(navController = rememberNavController(),
+        onBackPressed = {},
         address = "address",
         agent = Agent("1", "Smith", "6666666666", "smith@gmail.com"),
         agentList = emptyList(),

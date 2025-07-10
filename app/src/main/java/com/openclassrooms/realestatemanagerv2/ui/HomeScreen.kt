@@ -3,7 +3,6 @@ package com.openclassrooms.realestatemanagerv2.ui
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +15,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
@@ -37,6 +38,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
+import com.openclassrooms.realestatemanagerv2.ui.composables.ListDetailPaneTest
 import com.openclassrooms.realestatemanagerv2.ui.composables.PropertyListItem
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
 
@@ -44,8 +46,12 @@ import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    windowAdaptiveInfo: WindowAdaptiveInfo,
     navController: NavController,
-    viewModel: PropertySharedViewModel = hiltViewModel()
+    onBackClicked: () -> Unit,
+    onNavigateToAdd: () -> Unit,
+    onNavigateToEdit: (propertyId: String) -> Unit,
+    viewModel: PropertySharedViewModel
 ) {
 
     val uiState by viewModel.uiState.collectAsState()
@@ -74,23 +80,28 @@ fun HomeScreen(
 
     AppTopBar(
         navController = navController,
-        onNavigationClick = { /*TODO*/ },
+        onNavigationClick = onBackClicked,
+        onAddClick = onNavigateToAdd,
         onModifyClick = { /*TODO*/ },
         showModifyButton = false,
-        navBarsColor = navBarsColor,
-        showBottomBar = true
+        navBarsColor = navBarsColor
     ) { innerPadding ->
 
-        HomeContent(
-            uiState = uiState,
-            innerPadding = innerPadding,
-            onPropertyItemClick = { propertyId ->
-                navController.navigate("details_screen" + "/" + propertyId)
-            },
-            onResetFiltersClick = {
-                viewModel.resetProperties()
-            }
-        )
+        if (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
+
+            HomeContent(
+                uiState = uiState,
+                innerPadding = innerPadding,
+                onPropertyItemClick = { propertyId ->
+                    navController.navigate("details_screen" + "/" + propertyId)
+                },
+                onResetFiltersClick = {
+                    viewModel.resetProperties()
+                }
+            )
+        } else {
+            ListDetailPaneTest(navController = rememberNavController())
+        }
     }
 }
 
@@ -128,7 +139,9 @@ fun HomeContent(
                     text = stringResource(id = R.string.error_loading_properties,
                         e.localizedMessage ?: "Unknown error"),
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(16.dp).align(Alignment.Center)
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.Center)
                 )
                 Log.e("HomeScreenContent", "PropertyUiState.Error: ${e.message}")
             }
