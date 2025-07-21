@@ -79,7 +79,6 @@ fun HomeScreen(
     }
 
     AppTopBar(
-        navController = navController,
         onNavigationClick = onBackClicked,
         onAddClick = onNavigateToAdd,
         onModifyClick = { /*TODO*/ },
@@ -87,7 +86,7 @@ fun HomeScreen(
         navBarsColor = navBarsColor
     ) { innerPadding ->
 
-        if (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
+        /*if (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
 
             HomeContent(
                 uiState = uiState,
@@ -99,9 +98,9 @@ fun HomeScreen(
                     viewModel.resetProperties()
                 }
             )
-        } else {
+        } else {*/
             ListDetailPaneTest(navController = rememberNavController())
-        }
+        /*}*/
     }
 }
 

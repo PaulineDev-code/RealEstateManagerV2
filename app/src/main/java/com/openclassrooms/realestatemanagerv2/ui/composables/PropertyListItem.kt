@@ -8,6 +8,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -31,6 +33,7 @@ fun PropertyListItem(property: Property, onItemClick: (String) -> Unit) {
 
     Card(
         modifier = Modifier
+            .clickable (onClick = { onItemClick(property.id) })
             .fillMaxWidth()
             .wrapContentHeight(),
         shape = MaterialTheme.shapes.medium,
@@ -43,7 +46,6 @@ fun PropertyListItem(property: Property, onItemClick: (String) -> Unit) {
 
         Row(
             modifier = Modifier
-                .clickable { onItemClick(property.id) }
                 .height(128.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {

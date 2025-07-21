@@ -45,7 +45,6 @@ import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewMode
 @Composable
 fun DetailsScreen(
     windowAdaptiveInfo: WindowAdaptiveInfo,
-    navController: NavController,
     onNavigateToAdd: () -> Unit,
     onNavigateToEdit: (propertyId: String) -> Unit,
     propertyId: String,
@@ -65,7 +64,6 @@ fun DetailsScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     AppTopBar(
-        navController = navController,
         onNavigationClick = { /*TODO*/ },
         onAddClick = onNavigateToAdd,
         onModifyClick = { /*TODO*/ },

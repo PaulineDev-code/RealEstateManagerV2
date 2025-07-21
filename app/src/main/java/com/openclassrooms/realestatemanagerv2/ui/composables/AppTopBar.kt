@@ -46,13 +46,11 @@ import com.openclassrooms.realestatemanagerv2.ui.BottomNavItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
-    navController: NavController,
     onNavigationClick: () -> Unit,
     onAddClick: () -> Unit,
     onModifyClick: () -> Unit,
     showModifyButton: Boolean,
     navBarsColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    showBottomBar: Boolean = false,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -100,7 +98,7 @@ fun AppTopBar(
                 scrollBehavior = scrollBehavior,
             )
         },
-        bottomBar = {
+        /*bottomBar = {
             if (showBottomBar) {
                 BottomAppBar(containerColor = navBarsColor,
                     contentColor = MaterialTheme.colorScheme.primary) {
@@ -136,18 +134,18 @@ fun AppTopBar(
 
                                 navController.navigate(item.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {
-                                        /*if (item.route == "home_screen" ||
+                                        *//*if (item.route == "home_screen" ||
                                             item.route == "map_screen"
                                         ) {
                                             saveState = false
-                                        } else {*/
+                                        } else {*//*
                                             saveState = true
-                                       /* }*/
+                                       *//* }*//*
                                     }
                                     launchSingleTop = true
                                     restoreState = true
                                 }
-                                /*
+                                *//*
                                 // Get DetailsScreen out of the stack if we are using it and want
                                 // to go back to home screen
                                 if (navController.currentDestination?.route?.startsWith("details_screen") == true) {
@@ -169,7 +167,7 @@ fun AppTopBar(
                                             saveState = true
                                         }
                                     }
-                                }*/
+                                }*//*
                             }
                         )
                         if (index < items.size - 1) {
@@ -184,7 +182,7 @@ fun AppTopBar(
                     }
                 }
             }
-        },
+        },*/
         content = content
     )
 }
@@ -220,7 +218,6 @@ fun PreviewAppTopBar() {
 @Composable
 fun AppTopBarPreview() {
     AppTopBar(
-        navController = rememberNavController(),
         onNavigationClick = { /*TODO*/ },
         onAddClick = { /*TODO*/ },
         onModifyClick = { /*TODO*/ },

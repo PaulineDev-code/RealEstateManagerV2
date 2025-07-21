@@ -84,7 +84,6 @@ fun AddScreen(
     }
 
     AddContent(
-        navController = navController,
         onBackPressed = onBackClicked,
 
         onCreatePropertyClick = { addViewModel.createProperty() },
@@ -174,7 +173,6 @@ fun AddScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddContent(
-    navController: NavController,
     onBackPressed: () -> Unit,
 
     onCreatePropertyClick: () -> Unit,
@@ -244,12 +242,10 @@ private fun AddContent(
 
 
     AppTopBar(
-        navController = navController,
         onNavigationClick = onBackPressed,
         onAddClick = {},
         onModifyClick = { /*TODO*/ },
         showModifyButton = false,
-        showBottomBar = false
     ) { paddingValues ->
         var isVideoDisplayed by remember { mutableStateOf(false) }
         var videoUri: String by remember { mutableStateOf("") }
@@ -421,7 +417,7 @@ private fun AddContent(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun AddScreenPreview() {
-    AddContent(navController = rememberNavController(),
+    AddContent(
         onBackPressed = {},
         address = "address",
         agent = Agent("1", "Smith", "6666666666", "smith@gmail.com"),

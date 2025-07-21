@@ -58,7 +58,6 @@ fun MapScreen(
         MaterialTheme.colorScheme.primaryContainer
     }
     AppTopBar(
-        navController = navController,
         onNavigationClick = { /*TODO*/ },
         onAddClick = onNavigateToAdd,
         onModifyClick = { /*TODO*/ },

@@ -83,7 +83,6 @@ fun SearchScreen(
     }
 
     SearchContent(
-        navController = navController,
         onAddClick = onNavigateToAdd,
         minPrice = editingState?.minPrice?.value ?: "",
         minPriceError = editingState?.minPrice?.error ?: "",
@@ -162,7 +161,6 @@ fun SearchScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchContent(
-    navController: NavController,
     onAddClick: () -> Unit,
     minPrice: String,
     minPriceError: String,
@@ -220,7 +218,6 @@ fun SearchContent(
     modifier: Modifier
 ) {
     AppTopBar(
-        navController = navController,
         onNavigationClick = { /*TODO*/ },
         onModifyClick = { /*TODO*/ },
         onAddClick = onAddClick,
@@ -506,7 +503,6 @@ fun SearchContent(
 @Composable
 fun SearchScreenPreview() {
     SearchContent(
-        navController = rememberNavController(),
         onAddClick = {},
         selectedEntryDate = 44738399,
         onEntryDateSelected = {},

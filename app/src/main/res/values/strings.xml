@@ -53,7 +53,10 @@
     <string name="import_a_video">Import a video</string>
     <string name="description_of_the_photo">Description of the photo</string>
     <string name="add_photo">Add photo</string>
+    //HomeScreen
+    <string name="select_property_to_details">Select a property to see its details</string>
     //SearchScreen
+    <string name="search_screen_introduction">Search for properties using at least one of the following criteria</string>
     <string name="min_date_of_entry">Min date of entry</string>
     <string name="min_date_of_sale">Min date of sale</string>
     <string name="min_number_of_rooms">Min Number of rooms</string>
@@ -86,7 +89,6 @@
     <string name="add_property">Add Property</string>
     //App utils
     <string name="add_a_new_property">Add a new Property</string>
-    <string name="search_screen_introduction">Search for properties using at least one of the following criteria</string>
     <string name="erase_filters">Erase Filters</string>
     <string name="add_proprety_validation_error">Fields are missing: </string>
     <string name="select_an_agent">Select an agent</string>
