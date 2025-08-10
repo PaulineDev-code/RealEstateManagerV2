@@ -59,8 +59,8 @@
     <string name="search_screen_introduction">Search for properties using at least one of the following criteria</string>
     <string name="min_date_of_entry">Min date of entry</string>
     <string name="min_date_of_sale">Min date of sale</string>
-    <string name="min_number_of_rooms">Min Number of rooms</string>
-    <string name="max_number_of_rooms">Max Number of rooms</string>
+    <string name="min_rooms">Min Rooms</string>
+    <string name="max_rooms">Max Rooms</string>
     <string name="min_and_max_number_of_rooms">Min and/or Max number of rooms</string>
     <string name="min_number_of_medias">Min number of medias</string>
     <string name="min_price">Min Price</string>

@@ -51,6 +51,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun ListDetailPaneTest(
+    innerPadding: PaddingValues,
     navController: NavHostController,
     onBackClicked: () -> Unit = { navController.popBackStack() },
     listViewModel: PropertySharedViewModel = hiltViewModel(),
@@ -66,14 +67,6 @@ fun ListDetailPaneTest(
     // List values
     val listUiState by listViewModel.uiState.collectAsState()
 
-    val navBarsColor = if (
-        listUiState is PropertySharedViewModel.PropertyUiState.Success
-        && (listUiState as PropertySharedViewModel.PropertyUiState.Success).isFiltered
-    ) {
-        MaterialTheme.colorScheme.surfaceVariant
-    } else {
-        MaterialTheme.colorScheme.primaryContainer
-    }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val savedState = navBackStackEntry?.savedStateHandle
@@ -98,72 +91,62 @@ fun ListDetailPaneTest(
         }
     }
 
-
-    AppTopBar(
-        onNavigationClick = onBackClicked,
-        onAddClick = {},
-        onModifyClick = {},
-        showModifyButton = false,
-        navBarsColor = navBarsColor,
-    ) { innerPadding ->
-
-        NavigableListDetailPaneScaffold(
-            navigator = navigator,
-            defaultBackBehavior = if (isListAndDetailVisible) {
-                BackNavigationBehavior.PopLatest
-            } else {
-                BackNavigationBehavior.PopUntilScaffoldValueChange
-            },
-            modifier = Modifier.padding(innerPadding),
-            listPane = {
-                AnimatedPane(modifier = Modifier) {
-                    HomeContent(
-                        uiState = listUiState,
+    NavigableListDetailPaneScaffold(
+        navigator = navigator,
+        defaultBackBehavior = if (isListAndDetailVisible) {
+            BackNavigationBehavior.PopUntilContentChange
+        } else {
+            BackNavigationBehavior.PopUntilScaffoldValueChange
+        },
+        modifier = Modifier.padding(innerPadding),
+        listPane = {
+            AnimatedPane(modifier = Modifier) {
+                HomeContent(
+                    uiState = listUiState,
+                    innerPadding = PaddingValues(0.dp),
+                    onPropertyItemClick = { propertyId ->
+                        scope.launch {
+                            navigator.navigateTo(
+                                ListDetailPaneScaffoldRole.Detail,
+                                propertyId
+                            )
+                        }
+                    },
+                    onResetFiltersClick = {
+                        listViewModel.resetProperties()
+                    }
+                )
+            }
+        },
+        detailPane = {
+            AnimatedPane(modifier = Modifier) {
+                navigator.currentDestination?.contentKey?.let { propertyId ->
+                    detailsViewModel.getPropertyById(propertyId)
+                }
+                if (navigator.currentDestination?.contentKey != null) {
+                    DetailsContent(
+                        uiState = detailsUiState,
                         innerPadding = PaddingValues(0.dp),
-                        onPropertyItemClick = { propertyId ->
-                            scope.launch {
-                                navigator.navigateTo(
-                                    ListDetailPaneScaffoldRole.Detail,
-                                    propertyId
-                                )
-                            }
+                        onVideoClicked = { videoUrl ->
+                            currentVideoUrl = videoUrl
+                            isVideoDisplayed = true
                         },
-                        onResetFiltersClick = {
-                            listViewModel.resetProperties()
-                        }
+                        onVideoPlayerClosed = {
+                            currentVideoUrl = ""
+                            isVideoDisplayed = false
+                        },
+                        isVideoDisplayed = isVideoDisplayed,
+                        currentVideoUrl = currentVideoUrl
                     )
-                }
-            },
-            detailPane = {
-                AnimatedPane(modifier = Modifier) {
-                    navigator.currentDestination?.contentKey?.let { propertyId ->
-                        detailsViewModel.getPropertyById(propertyId)
-                    }
-                    if (navigator.currentDestination?.contentKey != null) {
-                        DetailsContent(
-                            uiState = detailsUiState,
-                            innerPadding = PaddingValues(0.dp),
-                            onVideoClicked = { videoUrl ->
-                                currentVideoUrl = videoUrl
-                                isVideoDisplayed = true
-                            },
-                            onVideoPlayerClosed = {
-                                currentVideoUrl = ""
-                                isVideoDisplayed = false
-                            },
-                            isVideoDisplayed = isVideoDisplayed,
-                            currentVideoUrl = currentVideoUrl
-                        )
-                    } else {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(stringResource(R.string.select_property_to_details))
-                        }
+                } else {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(stringResource(R.string.select_property_to_details))
                     }
                 }
-            },
-            paneExpansionState = rememberPaneExpansionState(navigator.scaffoldValue),
-            paneExpansionDragHandle = {}
+            }
+        },
+        paneExpansionState = rememberPaneExpansionState(navigator.scaffoldValue),
+        paneExpansionDragHandle = {}
 
-        )
-    }
+    )
 }

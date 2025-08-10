@@ -1,6 +1,7 @@
 package com.openclassrooms.realestatemanagerv2.ui
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.runtime.Composable
@@ -39,6 +41,7 @@ import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsInformations
 import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsMediaContent
 import com.openclassrooms.realestatemanagerv2.ui.composables.StaticMapView
 import com.openclassrooms.realestatemanagerv2.ui.composables.VideoPlayer
+import com.openclassrooms.realestatemanagerv2.ui.theme.RealEstateManagerV2Theme
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
 
 
@@ -71,7 +74,7 @@ fun DetailsScreen(
         content = { innerPadding ->
             DetailsContent(
                 uiState = uiState,
-                innerPadding = innerPadding, // For content padding from AppTopBar  {
+                innerPadding = innerPadding, // For content padding from AppTopBar
                 onVideoClicked = { videoUrl ->
                     currentVideoUrl = videoUrl
                     isVideoDisplayed = true
@@ -117,6 +120,7 @@ fun DetailsContent(
                 Column(
                     modifier = Modifier
                         .padding(innerPadding)
+                        .background(MaterialTheme.colorScheme.background)
                         .padding(8.dp)
                         .verticalScroll(rememberScrollState())
                 ) {

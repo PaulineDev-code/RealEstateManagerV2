@@ -99,7 +99,9 @@ fun HomeScreen(
                 }
             )
         } else {*/
-            ListDetailPaneTest(navController = rememberNavController())
+            ListDetailPaneTest(
+                innerPadding = innerPadding,
+                navController = rememberNavController())
         /*}*/
     }
 }

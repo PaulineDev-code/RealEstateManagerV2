@@ -128,14 +128,14 @@ fun AppNavHost(
                 windowAdaptiveInfo = windowAdaptiveInfo,
                 navController = navController,
                 viewModel = sharedViewModel,
-                onNavigateToAdd = { navController.navigate("add_estate") }
+                onNavigateToAdd = { navController.navigate("add_screen") }
             )
         }
         composable("search_screen") {
             SearchScreen(
                 windowAdaptiveInfo = windowAdaptiveInfo,
                 navController = navController, // If SearchScreen needs to navigate
-                onNavigateToAdd = { navController.navigate("add_estate") }
+                onNavigateToAdd = { navController.navigate("add_screen") }
             )
         }
         composable("details_screen/{propertyId}") { backStackEntry ->

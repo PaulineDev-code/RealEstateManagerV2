@@ -34,47 +34,24 @@ import com.openclassrooms.realestatemanagerv2.utils.formatMillisToLocal
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTextFields(
-//Values
+    //Values
     description: String,
     type: String,
     price: String,
     area: String,
     numberOfRooms: String,
-    address: String,
-    nearbyPointSelectedSet: Set<PointOfInterest>,
-    nearbyPointList: List<PointOfInterest>,
-    //EntryDatePicker
-    selectedEntryDate: Long?,
-    isEntryDateDialogShown: Boolean,
-    onShowEntryDateDialog: () -> Unit,
-    onDismissEntryDateDialog: () -> Unit,
-    onEntryDateSelected: (Long?) -> Unit,
-    entryDatePickerState: DatePickerState,
-    //SaleDatePicker
-    selectedSaleDate: Long?,
-    isSaleDateDialogShown: Boolean,
-    onShowSaleDateDialog: () -> Unit,
-    onDismissSaleDateDialog: () -> Unit,
-    onSaleDateSelected: (Long?) -> Unit,
-    saleDatePickerState: DatePickerState,
-
     //Error Values
-    addressError: String,
     descriptionError: String,
     typeError: String,
     priceError: String,
     areaError: String,
     numberOfRoomsError: String,
-
-
-// OnChange functions
+    //OnChange functions
     onDescriptionChange: (String) -> Unit,
     onTypeChange: (String) -> Unit,
     onPriceChange: (String) -> Unit,
     onAreaChange: (String) -> Unit,
     onNumberOfRoomsChange: (String) -> Unit,
-    onAddressChange: (String) -> Unit,
-    onNearbyPointChange: (PointOfInterest, Boolean) -> Unit,
 ) {
 
     TitleText(
@@ -175,104 +152,7 @@ fun AddTextFields(
         )
     }
 
-    TitleText(
-        text = stringResource(id = R.string.entry_date),
-        modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp)
-    )
 
-    CustomDatePicker(
-        selectedDateMillis = selectedEntryDate,
-        isDialogShown = isEntryDateDialogShown,
-        onShowDialog = onShowEntryDateDialog,
-        onDismissDialog = onDismissEntryDateDialog,
-        onDateSelected = onEntryDateSelected,
-        datePickerState = entryDatePickerState,
-        modifier = Modifier.padding(8.dp)
-    )
-
-    TitleText(
-        text = stringResource(id = R.string.sale_date_optional),
-        modifier = Modifier.padding(top = 24.dp, start = 8.dp, end = 8.dp)
-    )
-
-    CustomDatePicker(
-        selectedDateMillis = selectedSaleDate,
-        isDialogShown = isSaleDateDialogShown,
-        onShowDialog = onShowSaleDateDialog,
-        onDismissDialog = onDismissSaleDateDialog,
-        onDateSelected = onSaleDateSelected,
-        datePickerState = saleDatePickerState,
-        modifier = Modifier.padding(8.dp)
-    )
-
-
-    TitleText(
-        text = stringResource(id = R.string.address),
-        modifier = Modifier.padding(top = 24.dp, start = 8.dp, end = 8.dp)
-    )
-
-    CustomTextField(
-        label = { Text(text = stringResource(id = R.string.location)) },
-        placeHolder = { Text(text = stringResource(id = R.string.address)) },
-        text = address,
-        onTextChange = onAddressChange,
-        supportingText = { Text(text = addressError, color = Color.Red) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-    )
-
-    /*Row(modifier = Modifier
-        .fillMaxWidth()
-        .height(IntrinsicSize.Min),
-        verticalAlignment = Alignment.CenterVertically) {
-        CustomTextField(
-            label = { Text(text = "Point of interest") },
-            placeHolder = { Text(text = "Add a nearby point of interest") },
-            text = nearbyPoint,
-            onTextChange = onNearbyPointChange,
-            modifier = Modifier
-                .padding(4.dp)
-                .weight(2f)
-        )*/
-
-    /*  Button( modifier = Modifier
-          .padding(4.dp)
-          .weight(1f),
-          onClick =  onAddNearbyPoint ) {
-          Text(text = "Add")
-      }
-  }*/
-
-    /*LazyRow(modifier = Modifier.wrapContentWidth()) {
-        itemsIndexed(items = nearbyPointList) { _, nearbyPoint ->
-            RemovableCard(
-                content = { Text(
-                    text = nearbyPoint,
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .padding(start = 8.dp),
-                    textAlign = TextAlign.Center
-                )},
-                onDelete = { onDeleteNearbyPoint(nearbyPoint) }
-                )
-
-        }
-    }*/
-    /*
-    val nearbyPointList2 :List<PointOfInterest> = emptyList()*/
-
-    TitleText(
-        text = stringResource(id = R.string.nearby_points_of_interest),
-        modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp)
-    )
-
-    PointsOfInterestDropdown(
-        modifier = Modifier.padding(8.dp),
-        allPointOfInterestList = nearbyPointList,
-        selectedPointOfInterestSet = nearbyPointSelectedSet,
-        onSelectionChanged = onNearbyPointChange
-    )
 
 }
 
@@ -289,27 +169,11 @@ fun AddTextFieldsPreview() {
             price = "price",
             area = "area",
             numberOfRooms = "numberOfRooms",
-            address = "address",
-            nearbyPointSelectedSet = emptySet(),
-            nearbyPointList = emptyList(),
-            selectedEntryDate = null,
-            onEntryDateSelected = {},
-            isEntryDateDialogShown = false,
-            onShowEntryDateDialog = {},
-            onDismissEntryDateDialog = {},
-            entryDatePickerState = rememberDatePickerState(),
-            selectedSaleDate = null,
-            onSaleDateSelected = {},
-            isSaleDateDialogShown = false,
-            onShowSaleDateDialog = {},
-            onDismissSaleDateDialog = {},
-            saleDatePickerState = rememberDatePickerState(),
 
             //Errors
             descriptionError = "",
             typeError = "",
             priceError = "",
-            addressError = "",
             areaError = "",
             numberOfRoomsError = "",
 
@@ -319,9 +183,6 @@ fun AddTextFieldsPreview() {
             onPriceChange = {},
             onAreaChange = {},
             onNumberOfRoomsChange = {},
-            onAddressChange = {},
-            onNearbyPointChange = { poi, bool -> },
-
             )
     }
 }

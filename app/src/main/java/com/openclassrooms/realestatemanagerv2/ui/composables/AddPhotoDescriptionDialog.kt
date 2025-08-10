@@ -23,15 +23,14 @@ fun AddPhotoDescriptionDialog(photoUri: String,
                               photoDescription: String,
                               onPhotoUriChange: (String) -> Unit,
                               onPhotoDescriptionChange: (String) -> Unit,
-                              onAddPhotoDescriptionClick: () -> Unit,
+                              onConfirm: () -> Unit,
+                              onDismiss: () -> Unit
                               ) {
-
 
     AlertDialog(
         onDismissRequest = {
             // Clear photo uri and description for next use
-            onPhotoDescriptionChange("")
-            onPhotoUriChange("")
+            onDismiss()
         },
         title = { Text("Add Description") },
         text = {
@@ -70,7 +69,7 @@ fun AddPhotoDescriptionDialog(photoUri: String,
             Button(
                 onClick = {
                     if (photoDescription.isNotEmpty()) {
-                        onAddPhotoDescriptionClick()
+                        onConfirm()
                     }
                     // Fermer la boîte de dialogue
 
@@ -83,8 +82,7 @@ fun AddPhotoDescriptionDialog(photoUri: String,
         dismissButton = {
             Button(onClick = {
                 // Clear photo uri and description for next use
-                onPhotoUriChange("")
-                onPhotoDescriptionChange("")
+                onDismiss()
             }) {
                 Text("Cancel")
             }
@@ -97,8 +95,10 @@ fun AddPhotoDescriptionDialog(photoUri: String,
 fun AddPhotoDescriptionDialogPreview() {
     AddPhotoDescriptionDialog(photoUri = "",
         photoDescription = "",
-        onAddPhotoDescriptionClick = {},
         onPhotoUriChange = {},
-        onPhotoDescriptionChange = {}
+        onPhotoDescriptionChange = {},
+        onConfirm = {},
+        onDismiss = {}
+
     )
 }
