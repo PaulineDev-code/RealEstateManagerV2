@@ -14,7 +14,9 @@ import com.openclassrooms.realestatemanagerv2.data.dao.AgentDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.MediaDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.PropertyLocalDAO
+import com.openclassrooms.realestatemanagerv2.data.dao.ProviderDAO
 import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestCrossRef
+import com.openclassrooms.realestatemanagerv2.data.view.PropertyWithDetailsRow
 import com.openclassrooms.realestatemanagerv2.utils.DatabaseUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,6 +25,7 @@ import javax.inject.Singleton
 
 @Database(entities = [PropertyLocalEntity::class, PointOfInterestEntity::class,
     MediaEntity::class, AgentEntity::class, PointOfInterestCrossRef::class],
+    views = [PropertyWithDetailsRow::class],
     version = 1, exportSchema = false)
 @Singleton
 abstract class MyDatabase : RoomDatabase() {
@@ -31,5 +34,6 @@ abstract class MyDatabase : RoomDatabase() {
     abstract fun mediaDAO(): MediaDAO
     abstract fun pointOfInterestDAO(): PointOfInterestDAO
     abstract fun agentDAO(): AgentDAO
+    abstract fun providerDAO(): ProviderDAO
 
 }

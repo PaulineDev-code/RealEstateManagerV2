@@ -17,6 +17,8 @@ import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllAgentsUseCas
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetLocationUseCase
 import com.openclassrooms.realestatemanagerv2.ui.AddScreenUiAction
 import com.openclassrooms.realestatemanagerv2.ui.models.FormField
+import com.openclassrooms.realestatemanagerv2.utils.convertFromLocalCurrency
+import com.openclassrooms.realestatemanagerv2.utils.formatToLocalCurrency
 import com.openclassrooms.realestatemanagerv2.utils.validateLength
 import com.openclassrooms.realestatemanagerv2.utils.validateNonEmpty
 import com.openclassrooms.realestatemanagerv2.utils.validatePositiveNumber

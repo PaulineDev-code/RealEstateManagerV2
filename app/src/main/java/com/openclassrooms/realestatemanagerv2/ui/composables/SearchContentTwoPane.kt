@@ -1,10 +1,14 @@
 package com.openclassrooms.realestatemanagerv2.ui.composables
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -23,7 +27,7 @@ import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SearchContentTwoPane(
     modifier: Modifier,
@@ -80,23 +84,23 @@ fun SearchContentTwoPane(
     isSearchClickEnabled: Boolean,
     onSearchClicked: () -> Unit,
 ) {
-    Row(modifier = modifier,
-    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween) {
+    Column(
+        modifier = modifier,
+    ) {
 
-        Column(
-            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
-        ) {
+        SearchHeaderAnimation()
 
-            SearchHeaderAnimation()
-
-            Text(
-                modifier = Modifier.padding(8.dp),
-                text = stringResource(id = R.string.search_screen_introduction),
-                fontStyle = FontStyle.Italic
-            )
+        Text(
+            modifier = Modifier.padding(8.dp),
+            text = stringResource(id = R.string.search_screen_introduction),
+            fontStyle = FontStyle.Italic
+        )
+        FlowRow {
 
             SearchMinMaxElement(
-                modifier = Modifier.padding(top = 8.dp),
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .width(350.dp),
                 title = stringResource(R.string.min_and_max_price),
                 minValue = minPrice,
                 maxValue = maxPrice,
@@ -111,6 +115,7 @@ fun SearchContentTwoPane(
             )
 
             SearchMinMaxElement(
+                modifier = Modifier.width(350.dp),
                 title = stringResource(R.string.min_number_of_medias),
                 minValue = minPhoto,
                 maxValue = minVideo,
@@ -125,6 +130,7 @@ fun SearchContentTwoPane(
             )
 
             SearchMinMaxElement(
+                modifier = Modifier.width(350.dp),
                 title = stringResource(R.string.min_and_max_area),
                 minValue = minArea,
                 maxValue = maxArea,
@@ -138,7 +144,9 @@ fun SearchContentTwoPane(
                 maxValueError = maxAreaError
             )
 
+
             SearchMinMaxElement(
+                modifier = Modifier.width(350.dp),
                 title = stringResource(R.string.min_and_max_number_of_rooms),
                 minValue = minNumberOfRooms,
                 maxValue = maxNumberOfRooms,
@@ -152,91 +160,96 @@ fun SearchContentTwoPane(
                 maxValueError = maxNumberOfRoomsError
             )
 
+            Column() {
+                TitleText(
+                    text = stringResource(id = R.string.select_types_of_property),
+                    modifier = Modifier.padding(8.dp)
+                )
 
-        }
-
-        Column(
-            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
-        ) {
-            TitleText(
-                text = stringResource(id = R.string.select_types_of_property),
-                modifier = Modifier.padding(8.dp)
-            )
-
-            PropertyTypeCheckBox(
-                types = types,
-                selectedType = selectedTypes,
-                onTypeSelected = onTypeSelected,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth()
-            )
-
-            TitleText(
-                text = stringResource(id = R.string.select_points_of_interest),
-                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 24.dp)
-            )
-
-            PointsOfInterestDropdown(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(),
-                allPointOfInterestList = nearbyPointList,
-                selectedPointOfInterestSet = nearbyPointSelectedSet,
-                onSelectionChanged = onNearbyPointChange
-            )
-
-            TitleText(
-                stringResource(id = R.string.min_date_of_entry),
-                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 24.dp)
-            )
-
-            CustomDatePicker(
-                selectedDateMillis = selectedEntryDate,
-                isDialogShown = isEntryDateDialogShown,
-                onShowDialog = onShowEntryDateDialog,
-                onDismissDialog = onDismissEntryDateDialog,
-                onDateSelected = onEntryDateSelected,
-                datePickerState = entryDatePickerState,
-                modifier = Modifier.padding(8.dp)
-            )
-
-            TitleText(
-                stringResource(R.string.min_date_of_sale),
-                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 24.dp)
-            )
-
-            CustomDatePicker(
-                selectedDateMillis = selectedSaleDate,
-                isDialogShown = isSaleDateDialogShown,
-                onShowDialog = onShowSaleDateDialog,
-                onDismissDialog = onDismissSaleDateDialog,
-                onDateSelected = onSaleDateSelected,
-                datePickerState = saleDatePickerState,
-                modifier = Modifier.padding(8.dp)
-            )
-
-            TitleText(
-                text = stringResource(id = R.string.agent),
-                modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp)
-            )
-
-            AgentSpinner(
-                modifier = Modifier.padding(8.dp),
-                agents = agentList,
-                selectedAgent = agent,
-                onAgentSelected = onAgentSelected
-            )
-
-            Button(
-                modifier = Modifier
-                    .padding(top = 16.dp, bottom = 16.dp)
-                    .align(CenterHorizontally),
-                onClick = onSearchClicked,
-                enabled = isSearchClickEnabled
-            ) {
-                Text(stringResource(id = R.string.search_for_properties))
+                PropertyTypeCheckBox(
+                    types = types,
+                    selectedType = selectedTypes,
+                    onTypeSelected = onTypeSelected,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .width(350.dp)
+                )
             }
+
+            Column() {
+                TitleText(
+                    text = stringResource(id = R.string.select_points_of_interest),
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 24.dp)
+                )
+
+                PointsOfInterestDropdown(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .width(350.dp),
+                    allPointOfInterestList = nearbyPointList,
+                    selectedPointOfInterestSet = nearbyPointSelectedSet,
+                    onSelectionChanged = onNearbyPointChange
+                )
+            }
+
+
+
+                Column() {
+                    TitleText(
+                        stringResource(id = R.string.min_date_of_entry),
+                        modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 24.dp)
+                    )
+
+                    CustomDatePicker(
+                        selectedDateMillis = selectedEntryDate,
+                        isDialogShown = isEntryDateDialogShown,
+                        onShowDialog = onShowEntryDateDialog,
+                        onDismissDialog = onDismissEntryDateDialog,
+                        onDateSelected = onEntryDateSelected,
+                        datePickerState = entryDatePickerState,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+                Column() {
+
+                    TitleText(
+                        stringResource(R.string.min_date_of_sale),
+                        modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 24.dp)
+                    )
+
+                    CustomDatePicker(
+                        selectedDateMillis = selectedSaleDate,
+                        isDialogShown = isSaleDateDialogShown,
+                        onShowDialog = onShowSaleDateDialog,
+                        onDismissDialog = onDismissSaleDateDialog,
+                        onDateSelected = onSaleDateSelected,
+                        datePickerState = saleDatePickerState,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+
+            Column() {
+                TitleText(
+                    text = stringResource(id = R.string.agent),
+                    modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp)
+                )
+
+                AgentSpinner(
+                    modifier = Modifier.padding(8.dp),
+                    agents = agentList,
+                    selectedAgent = agent,
+                    onAgentSelected = onAgentSelected
+                )
+            }
+        }
+        Button(
+            modifier = Modifier
+                .padding(top = 16.dp, bottom = 16.dp)
+                .align(CenterHorizontally),
+            onClick = onSearchClicked,
+            enabled = isSearchClickEnabled
+        ) {
+            Text(stringResource(id = R.string.search_for_properties))
         }
     }
 }

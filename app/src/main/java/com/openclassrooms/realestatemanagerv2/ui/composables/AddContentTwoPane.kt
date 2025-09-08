@@ -298,7 +298,7 @@ fun AddContentTwoPane(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true, backgroundColor = -1)
+@Preview(showBackground = true, backgroundColor = -1, widthDp = 1000, heightDp = 600)
 @Composable
 fun AddContentTwoPanePreview() {
     AddContentTwoPane(
@@ -352,7 +352,7 @@ fun AddContentTwoPanePreview() {
         errorMessage = "errorMessage",
         onDismissError = {},
 
-        photoUri = "photoUri",
+        photoUri = "",
         photoDescription = "photoDescription",
         onPhotoUriChange = {},
         onPhotoDescriptionChange = {},

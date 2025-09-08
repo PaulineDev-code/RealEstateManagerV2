@@ -3,8 +3,10 @@ package com.openclassrooms.realestatemanagerv2.ui.composables
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +18,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -24,24 +27,39 @@ import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.Media
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
+import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
+import com.openclassrooms.realestatemanagerv2.utils.convertToLocalCurrency
 
 
 @Composable
-fun PropertyListItem(property: Property, onItemClick: (String) -> Unit) {
+fun PropertyListItem(property: Property, isItemSelected: Boolean, onItemClick: (String) -> Unit) {
 
-    Card(
+    ElevatedCard(
         modifier = Modifier
-            .clickable (onClick = { onItemClick(property.id) })
+            .selectable(
+                selected = isItemSelected,
+                onClick = { onItemClick(property.id) }
+            )
+            /*.clickable (onClick = { onItemClick(property.id) })*/
             .fillMaxWidth()
             .wrapContentHeight(),
         shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(
+        colors = if (isItemSelected) {
+            CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onBackground,
+        )} else {
+            CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onBackground,
-        ),
-        elevation = CardDefaults.cardElevation(2.dp)
+        )},
+        elevation = if (isItemSelected) {
+            CardDefaults.elevatedCardElevation(10.dp)
+        } else {
+            CardDefaults.elevatedCardElevation(2.dp)
+}
     ) {
 
         Row(
@@ -88,7 +106,7 @@ fun PropertyListItem(property: Property, onItemClick: (String) -> Unit) {
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = property.price.toInt().toString() + "$",
+                    text = property.price.convertToLocalCurrency(),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.align(Alignment.End),
                     color = MaterialTheme.colorScheme.outlineVariant
@@ -127,4 +145,43 @@ fun PreviewPropertyItem(@PreviewParameter(PropertyPreviewParameterProvider::clas
         )
     )
 }*/
+
+@Preview(showBackground = true, showSystemUi = true, backgroundColor = -1)
+@Composable
+fun PropertyListItemPreview() {
+    PropertyListItem(
+        property = Property("1",
+            "Apartment",
+            300000.0,
+            90.0,
+            3,
+            "A spacious flat in the middle of Brooklyn "+"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mollis, massa euismod tempor rhoncus, nulla neque luctus sapien, at mollis purus ligula in libero. Sed libero augue, consequat eu mauris a, pulvinar venenatis nunc. Donec faucibus ligula ac mattis luctus. Morbi purus urna, ullamcorper ac volutpat ac, sodales id nulla. Nunc ultrices nisi ex, eget lacinia purus suscipit congue. In quis facilisis nisl, vel pharetra leo. Vivamus mollis massa at ligula consequat lacinia eget a neque. Maecenas volutpat blandit purus luctus egestas. Donec et iaculis libero. Donec quis mi sed magna sollicitudin tempus. Etiam efficitur suscipit consequat. Integer ante nisi, placerat id orci ut, eleifend sollicitudin ipsum. Integer posuere, risus ac ultrices porta, nibh quam ultricies quam, eget lobortis magna lorem id erat. Maecenas lorem purus, varius finibus odio in, accumsan imperdiet leo.",
+            listOf(
+                Photo(
+                    "https://unsplash.com/fr/photos/edificio-in-cemento-bianco-e-blu-sotto-il-cielo-blu-durante-il-giorno-jfRrtH1hDTo",
+                    "façade"
+                ),
+                Photo(
+                    "https://unsplash.com/fr/photos/divano-componibile-grigio-A4U4dEuN-hw",
+                    "LivingRoom"
+                ),
+                Photo(
+                    "https://unsplash.com/fr/photos/une-salle-de-bain-avec-baignoire-lavabo-et-miroir--4muZDx4-dM",
+                    "Bathroom"
+                )
+            ),
+
+            "833 Ocean Ave, Brooklyn, NY 11226, États-Unis",
+            latitude = 40.652,
+            longitude = -73.961,
+            listOf(PointOfInterest.PHARMACY, PointOfInterest.RESTAURANT),
+            PropertyStatus.Available,
+            4477894645,
+            null,
+            Agent("1", "Will", "911", "willagent@brooklyn.com")
+        ),
+        isItemSelected = false,
+        onItemClick = { }
+    )
+}
 

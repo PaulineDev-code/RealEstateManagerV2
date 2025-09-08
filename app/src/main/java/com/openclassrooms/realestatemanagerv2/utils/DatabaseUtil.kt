@@ -6,6 +6,7 @@ import com.openclassrooms.realestatemanagerv2.data.dao.MediaDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestDAO
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.data.dao.PropertyLocalDAO
+import com.openclassrooms.realestatemanagerv2.data.dao.ProviderDAO
 import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestEntity
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest

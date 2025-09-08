@@ -129,6 +129,7 @@ fun HomeContent(
                     itemsIndexed(items = uiState.properties) { _, item ->
                         PropertyListItem(
                             property = item,
+                            isItemSelected = uiState.selectedPropertyId == item.id,
                             onItemClick = { onPropertyItemClick(item.id) }
                         )
                     }
@@ -230,7 +231,7 @@ fun HomeScreenPreview() {
     Agent("1", "Will", "911", "willagent@brooklyn.com")
     ))
     HomeContent(
-        uiState = PropertySharedViewModel.PropertyUiState.Success(sampleProperties, false),
+        uiState = PropertySharedViewModel.PropertyUiState.Success(sampleProperties, "", isFiltered = false),
         innerPadding = PaddingValues(all = 8.dp),
         onPropertyItemClick = {},
         onResetFiltersClick = {}

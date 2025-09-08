@@ -1,6 +1,5 @@
 package com.openclassrooms.realestatemanagerv2.utils
 
-import android.content.Context
 import com.openclassrooms.realestatemanagerv2.data.entity.AgentEntity
 import com.openclassrooms.realestatemanagerv2.data.entity.MediaEntity
 import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestEntity
@@ -13,6 +12,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.domain.model.Video
 import com.openclassrooms.realestatemanagerv2.ui.models.SelectablePointOfInterest
+import java.text.NumberFormat
 import java.util.UUID
 import java.time.Instant
 import java.time.ZoneId
@@ -150,6 +150,59 @@ fun Long?.formatMillisToLocal(
     ?.format(DateTimeFormatter.ofPattern(pattern, locale))
     .orEmpty()
 
+fun String.formatToLocalCurrency(): String {
+    val locale = Locale.getDefault()
+
+    val formatter = NumberFormat.getCurrencyInstance(locale)
+
+    return formatter.format(this)
+}
+
+fun Double.convertToLocalCurrency(): String {
+    //To use in AddScreen & SearchScreen convert from dollar to local currency
+    val locale = Locale.getDefault()
+
+    val formatter = NumberFormat.getCurrencyInstance(locale)
+
+    when (locale) {
+        Locale.FRANCE -> return formatter.format(this * 0.91)
+        Locale.UK -> return formatter.format(this * 0.78)
+        Locale.JAPAN -> return formatter.format(this * 145.30)
+        Locale.forLanguageTag("de-CH") -> return formatter.format(this * 0.90) // Suisse (Alémanique)
+        Locale.CANADA -> return formatter.format(this * 1.35)
+        Locale.forLanguageTag("en-AU")  -> return formatter.format(this * 1.52)   // Australie
+        Locale.CHINA -> return formatter.format(this * 7.19)
+        Locale.forLanguageTag("sv-SE") -> return formatter.format(this * 11.0)  // Suède
+        Locale.forLanguageTag("ru-RU") -> return formatter.format(this * 92.3)   // Russie
+        Locale.forLanguageTag("en-IN") -> return formatter.format(this * 83.1)   // Inde
+        Locale.forLanguageTag("pt-BR") -> return formatter.format(this * 4.95)   // Brésil
+        Locale.forLanguageTag("es-MX") -> return formatter.format(this * 17.3)    // Mexique
+        else -> return NumberFormat.getCurrencyInstance(Locale.US).format(this)
+    }
+
+}
+
+fun Double.convertFromLocalCurrency(): String {
+    //To use in AddScreen & SearchScreen convert from local currency to dollar
+    val locale = Locale.getDefault()
+    val formatter = NumberFormat.getCurrencyInstance(locale)
+
+    when (locale) {
+        Locale.FRANCE -> return formatter.format(this / 0.91)
+        Locale.UK -> return formatter.format(this / 0.78)
+        Locale.JAPAN -> return formatter.format(this / 145.30)
+        Locale.forLanguageTag("de-CH") -> return formatter.format(this / 0.90) // Suisse (Alémanique)
+        Locale.CANADA -> return formatter.format(this / 1.35)
+        Locale.forLanguageTag("en-AU")  -> return formatter.format(this / 1.52)   // Australie
+        Locale.CHINA -> return formatter.format(this / 7.19)
+        Locale.forLanguageTag("sv-SE") -> return formatter.format(this / 11.0)  // Suède
+        Locale.forLanguageTag("ru-RU") -> return formatter.format(this / 92.3)   // Russie
+        Locale.forLanguageTag("en-IN") -> return formatter.format(this / 83.1)   // Inde
+        Locale.forLanguageTag("pt-BR") -> return formatter.format(this / 4.95)   // Brésil
+        Locale.forLanguageTag("es-MX") -> return formatter.format(this / 17.3)    // Mexique
+        else -> return NumberFormat.getCurrencyInstance(Locale.US).format(this)
+    }
+}
 
 
 

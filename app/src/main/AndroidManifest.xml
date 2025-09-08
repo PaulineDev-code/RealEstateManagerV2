@@ -25,7 +25,7 @@
 
     <application
         android:name=".di.MyApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -46,6 +46,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name=".provider.PropertyContentProvider"
+            android:authorities="com.openclassrooms.realestatemanagerv2.provider"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

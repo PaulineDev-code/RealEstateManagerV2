@@ -26,6 +26,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Photo
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
+import com.openclassrooms.realestatemanagerv2.utils.convertToLocalCurrency
 import com.openclassrooms.realestatemanagerv2.utils.formatMillisToLocal
 import com.openclassrooms.realestatemanagerv2.utils.toReadableString
 
@@ -50,7 +51,7 @@ fun DetailsInformationsContent(property: Property) {
 
             IndividualDetailsContent(
                 title = stringResource(id = R.string.price),
-                icon = R.drawable.ic_money, data = property.price
+                icon = R.drawable.ic_money, data = property.price.convertToLocalCurrency()
             )
             IndividualDetailsContent(
                 title = stringResource(id = R.string.type),

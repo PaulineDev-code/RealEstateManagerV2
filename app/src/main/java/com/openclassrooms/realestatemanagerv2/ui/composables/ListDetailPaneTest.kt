@@ -105,6 +105,9 @@ fun ListDetailPaneTest(
                     uiState = listUiState,
                     innerPadding = PaddingValues(0.dp),
                     onPropertyItemClick = { propertyId ->
+                        if (isListAndDetailVisible) {
+                            listViewModel.updateSelectedProperty(propertyId)
+                        }
                         scope.launch {
                             navigator.navigateTo(
                                 ListDetailPaneScaffoldRole.Detail,

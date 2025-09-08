@@ -62,6 +62,10 @@ class PropertySharedViewModel @Inject constructor
         }
     }
 
+    fun updateSelectedProperty(propertyId: String) {
+        _uiState.value = (_uiState.value as PropertyUiState.Success).copy(selectedPropertyId = propertyId)
+    }
+
     fun searchProperties(searchCriterias: PropertySearchCriteria) {
         viewModelScope.launch {
             _uiState.value = PropertyUiState.Loading
@@ -81,6 +85,7 @@ class PropertySharedViewModel @Inject constructor
     sealed class PropertyUiState {
         object Loading : PropertyUiState()
         data class Success(val properties: List<Property>,
+                           val selectedPropertyId: String = "",
                            val isFiltered: Boolean = false): PropertyUiState()
         data class Error(val exception: Throwable): PropertyUiState()
     }

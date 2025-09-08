@@ -55,7 +55,6 @@ import com.openclassrooms.realestatemanagerv2.ui.composables.AddTextFields
 import com.openclassrooms.realestatemanagerv2.ui.composables.AgentSpinner
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
 import com.openclassrooms.realestatemanagerv2.ui.composables.CameraGalleryChooser
-import com.openclassrooms.realestatemanagerv2.ui.composables.DebugRecompositions
 import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsMediaContent
 import com.openclassrooms.realestatemanagerv2.ui.composables.TitleText
 import com.openclassrooms.realestatemanagerv2.ui.composables.VideoPlayer

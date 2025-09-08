@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.utils.formatMillisToLocal
+import com.openclassrooms.realestatemanagerv2.utils.formatToLocalCurrency
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,7 +97,6 @@ fun AddTextFields(
         CustomTextField(
             label = { Text(text = stringResource(id = R.string.price)) },
             placeHolder = { Text(text = stringResource(R.string.price)) },
-            suffix = { Text(text = "$") },
             keyboardType = KeyboardType.Decimal,
             text = price,
             onTextChange = onPriceChange,
@@ -151,8 +151,6 @@ fun AddTextFields(
                 .padding(8.dp)
         )
     }
-
-
 
 }
 
