@@ -46,6 +46,7 @@ class DatabaseModule {
                             dbInstance.propertyDAO(),
                             dbInstance.agentDAO(),
                             dbInstance.pointOfInterestDAO(),
+                            dbInstance.pointOfInterestCrossRefDAO(),
                             dbInstance.mediaDAO()
                         ).prepopulateDatabase()
                     }

@@ -25,17 +25,19 @@ import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
       a.name                     AS agent_name,
       a.email                    AS agent_email,
       a.phoneNumber              AS agent_phone,
-      -- agrégations utiles
-      SUM(CASE WHEN m.type = 'photo' THEN 1 ELSE 0 END) AS photos_count,
-      SUM(CASE WHEN m.type = 'video' THEN 1 ELSE 0 END) AS videos_count,
+      
+      COALESCE((SELECT COUNT(*) FROM medias WHERE propertyLocalId = p.id AND type = 'photo'), 0) AS photos_count,
+      COALESCE((SELECT COUNT(*) FROM medias WHERE propertyLocalId = p.id AND type = 'video'), 0) AS videos_count,
+
       -- listes aplaties (séparateur peu probable)
-      GROUP_CONCAT(DISTINCT poi.pointOfInterestId) AS poi_ids,
-      GROUP_CONCAT(DISTINCT m.mediaUrl)            AS media_urls
-    FROM properties AS p
+      (SELECT GROUP_CONCAT(DISTINCT pointOfInterestId) 
+       FROM point_of_interest_cross_ref 
+       WHERE propertyId = p.id) AS poi_ids,
+      (SELECT GROUP_CONCAT(DISTINCT mediaUrl) 
+       FROM medias 
+       WHERE propertyLocalId = p.id) AS media_urls
+    FROM properties p
     LEFT JOIN agents  AS a   ON a.id  = p.agentId
-    LEFT JOIN medias  AS m   ON m.propertyLocalId = p.id
-    LEFT JOIN point_of_interest_cross_ref AS poi ON poi.propertyId = p.id
-    GROUP BY p.id
     """
 )
 data class PropertyWithDetailsRow(

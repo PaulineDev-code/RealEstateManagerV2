@@ -3,10 +3,12 @@ package com.openclassrooms.realestatemanagerv2.utils
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.data.dao.AgentDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.MediaDAO
+import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestCrossRefDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestDAO
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.data.dao.PropertyLocalDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.ProviderDAO
+import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestCrossRef
 import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestEntity
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
@@ -14,15 +16,17 @@ import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import java.util.UUID
 
 class DatabaseUtil(propertyDAO: PropertyLocalDAO, agentDAO: AgentDAO,
-                   pointOfInterestDAO: PointOfInterestDAO, mediaDAO: MediaDAO
+                   pointOfInterestDAO: PointOfInterestDAO,
+                   pointOfInterestCrossRefDAO: PointOfInterestCrossRefDAO, mediaDAO: MediaDAO
 ) {
     private val propertyDao = propertyDAO
     private val agentDao = agentDAO
     private val photoDao = mediaDAO
     private val pointOfInterestDao = pointOfInterestDAO
+    private val pointOfInterestCrossRefDAO = pointOfInterestCrossRefDAO
     suspend fun prepopulateDatabase(
     ) {
-        val pointsOfInterest = PointOfInterest.values().map { poiEnum ->
+        val pointsOfInterest = PointOfInterest.entries.map { poiEnum ->
             PointOfInterestEntity(
                 id = poiEnum.serialName,
                 displayNameResId = poiEnum.displayNameResId
@@ -141,13 +145,18 @@ class DatabaseUtil(propertyDAO: PropertyLocalDAO, agentDAO: AgentDAO,
             val propertyLocalEntity = property.toPropertyLocalEntity()
             val agentEntity = property.agent.toAgentEntity()
             val photosEntities = property.mapToMediaEntities()
-            val pointsOfInterestEntities = property.mapToPointOfInterestEntities()
+            val crossRefs = property.nearbyPointsOfInterest.map { poi ->
+                PointOfInterestCrossRef(
+                    propertyId = propertyLocalEntity.id,
+                    pointOfInterestId = poi.serialName  // ids stables
+                )
+            }
 
             //Insert order to ensure no foreign-Keys violation
             agentDao.insertAgent(agentEntity)
             propertyDao.insertProperty(propertyLocalEntity)
             photoDao.insertMedias(photosEntities)
-            pointOfInterestDao.insertPointsOfInterest(pointsOfInterestEntities)
+            pointOfInterestCrossRefDAO.insertAll(crossRefs)
         }
     }
 

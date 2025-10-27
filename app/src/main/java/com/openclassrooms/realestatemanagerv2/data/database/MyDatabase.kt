@@ -13,6 +13,7 @@ import com.openclassrooms.realestatemanagerv2.data.entity.PropertyLocalEntity
 import com.openclassrooms.realestatemanagerv2.data.dao.AgentDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.MediaDAO
+import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestCrossRefDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.PropertyLocalDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.ProviderDAO
 import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestCrossRef
@@ -33,6 +34,7 @@ abstract class MyDatabase : RoomDatabase() {
     abstract fun propertyDAO(): PropertyLocalDAO
     abstract fun mediaDAO(): MediaDAO
     abstract fun pointOfInterestDAO(): PointOfInterestDAO
+    abstract fun pointOfInterestCrossRefDAO(): PointOfInterestCrossRefDAO
     abstract fun agentDAO(): AgentDAO
     abstract fun providerDAO(): ProviderDAO
 

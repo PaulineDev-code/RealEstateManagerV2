@@ -284,7 +284,7 @@ fun ListDetailPaneTest2(
 fun MapContentPreview() {
 
     MapContent(
-        uiState = PropertySharedViewModel.PropertyUiState.Success(emptyList(), true),
+        uiState = PropertySharedViewModel.PropertyUiState.Success(emptyList(), "", isFiltered = false),
         onInfoWindowClick = {},
         onEraseFiltersClick = {})
 }
