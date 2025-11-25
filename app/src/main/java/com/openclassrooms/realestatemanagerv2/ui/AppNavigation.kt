@@ -102,11 +102,20 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = "home_screen",
+        startDestination = BottomNavItem.List.fullRoute,
         modifier = modifier
     ) {
 
-        composable("home_screen") { backStackEntry ->
+        composable(
+            route = BottomNavItem.List.fullRoute,
+            arguments = listOf(
+                navArgument(BottomNavItem.List.ARG_NEW_ID) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
 
             val sharedViewModel = hiltViewModel<PropertySharedViewModel>(backStackEntry)
             HomeScreen(
@@ -120,9 +129,9 @@ fun AppNavHost(
                 }
             )
         }
-        composable("map_screen") {
+        composable(BottomNavItem.Map.route) {
 
-            val parentEntry = navController.getBackStackEntry("home_screen")
+            val parentEntry = navController.getBackStackEntry(BottomNavItem.List.route)
             val sharedViewModel = hiltViewModel<PropertySharedViewModel>(parentEntry)
             MapScreen(
                 windowAdaptiveInfo = windowAdaptiveInfo,
@@ -131,7 +140,7 @@ fun AppNavHost(
                 onNavigateToAdd = { navController.navigate("add_screen") }
             )
         }
-        composable("search_screen") {
+        composable(BottomNavItem.Search.route) {
             SearchScreen(
                 windowAdaptiveInfo = windowAdaptiveInfo,
                 navController = navController, // If SearchScreen needs to navigate

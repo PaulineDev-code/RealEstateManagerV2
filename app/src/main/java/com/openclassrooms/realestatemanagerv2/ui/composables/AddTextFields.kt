@@ -16,13 +16,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,6 +59,8 @@ fun AddTextFields(
     onAreaChange: (String) -> Unit,
     onNumberOfRoomsChange: (String) -> Unit,
 ) {
+    var pricePretty by remember(price) { mutableStateOf(price) }
+    var hasFocus by remember { mutableStateOf(false) }
 
     TitleText(
         text = stringResource(id = R.string.description_for_the_property),
@@ -94,16 +101,26 @@ fun AddTextFields(
                 .weight(1f)
                 .padding(8.dp)
         )
+
         CustomTextField(
             label = { Text(text = stringResource(id = R.string.price)) },
             placeHolder = { Text(text = stringResource(R.string.price)) },
             keyboardType = KeyboardType.Decimal,
-            text = price,
+            text = pricePretty,
             onTextChange = onPriceChange,
             supportingText = { Text(text = priceError, color = Color.Red) },
             modifier = Modifier
                 .weight(1f)
                 .padding(8.dp)
+                .onFocusChanged { f ->
+                    if (!f.isFocused && price != "") {
+                        hasFocus = true
+                        pricePretty = price.formatToLocalCurrency()
+                    } else {
+                        hasFocus = false
+                        pricePretty = price
+                    }
+                }
         )
     }
 

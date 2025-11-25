@@ -16,4 +16,7 @@ interface PointOfInterestDAO {
     @Update
     suspend fun updatePointsOfInterest(pointsOfInterest: List<PointOfInterestEntity>)
 
+    @Query("SELECT COUNT(*) FROM points_of_interest")
+    suspend fun count(): Int
+
 }

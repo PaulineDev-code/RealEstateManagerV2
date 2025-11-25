@@ -9,8 +9,14 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Photo
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
+import com.openclassrooms.realestatemanagerv2.domain.model.Video
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllAgentsUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.UpdatePropertyUseCase
+import com.openclassrooms.realestatemanagerv2.ui.models.FormField
+import com.openclassrooms.realestatemanagerv2.utils.validateLength
+import com.openclassrooms.realestatemanagerv2.utils.validateNonEmpty
+import com.openclassrooms.realestatemanagerv2.utils.validatePositiveNumber
+import com.openclassrooms.realestatemanagerv2.viewmodels.AddPropertyViewModel.AddPropertyUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,8 +30,8 @@ class EditPropertyViewModel @Inject constructor
     private val getAllAgentsUseCase: GetAllAgentsUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<UpdatePropertyUiState>(UpdatePropertyUiState.Editing())
-    val uiState: StateFlow<UpdatePropertyUiState> = _uiState
+    private val _uiState = MutableStateFlow<EditPropertyUiState>(EditPropertyUiState.Editing())
+    val uiState: StateFlow<EditPropertyUiState> = _uiState
 
 
     init {
@@ -44,16 +50,16 @@ class EditPropertyViewModel @Inject constructor
     }
 
 
-    private fun validatePropertyData(currentState: UpdatePropertyUiState.Editing): ValidationResult {
+    private fun validatePropertyData(currentState: EditPropertyUiState.Editing): ValidationResult {
         // Ensure all required fields are filled
-        if (currentState.type.isBlank() ||
-            currentState.price.toDoubleOrNull() == null ||
-            currentState.area.toDoubleOrNull() == null ||
-            currentState.numberOfRooms.toIntOrNull() == null ||
-            currentState.description.isBlank() ||
+        if (currentState.type.value.isBlank() ||
+            currentState.price.value.toDoubleOrNull() == null ||
+            currentState.area.value.toDoubleOrNull() == null ||
+            currentState.numberOfRooms.value.toIntOrNull() == null ||
+            currentState.description.value.isBlank() ||
             currentState.mediaLists.isEmpty() ||
-            currentState.address.isBlank() ||
-            currentState.nearbyPointList.isEmpty() ||
+            currentState.address.value.isBlank() ||
+            currentState.nearbyPointSet.toList().isEmpty() ||
             currentState.entryDate == null ||
             currentState.agent == null
         ) {
@@ -64,16 +70,16 @@ class EditPropertyViewModel @Inject constructor
 
         val newProperty = Property(
             id = currentState.id,
-            type = currentState.type,
-            price = currentState.price.toDouble(),
-            area = currentState.area.toDouble(),
-            numberOfRooms = currentState.numberOfRooms.toInt(),
-            description = currentState.description,
+            type = currentState.type.value,
+            price = currentState.price.value.toDouble(),
+            area = currentState.area.value.toDouble(),
+            numberOfRooms = currentState.numberOfRooms.value.toInt(),
+            description = currentState.description.value,
             media = currentState.mediaLists,
-            address = currentState.address,
+            address = currentState.address.value,
             latitude = null,
             longitude = null,
-            nearbyPointsOfInterest = currentState.nearbyPointList,
+            nearbyPointsOfInterest = currentState.nearbyPointSet.toList(),
             status = if (currentState.saleDate != null) PropertyStatus.Sold
             else PropertyStatus.Available,
             entryDate = requireNotNull(currentState.entryDate) { "Entry date cannot be null" },
@@ -87,7 +93,7 @@ class EditPropertyViewModel @Inject constructor
 
     fun updateProperty() {
         val currentState = _uiState.value
-        if (currentState is UpdatePropertyUiState.Editing) {
+        if (currentState is EditPropertyUiState.Editing) {
             when (val validationResult = validatePropertyData(currentState)) {
                 is ValidationResult.Success -> {
                     viewModelScope.launch {
@@ -97,7 +103,7 @@ class EditPropertyViewModel @Inject constructor
                             updatePropertyUseCase(validationResult.property)
 
                             //Pass the property id to the UI in order to navigate
-                            _uiState.value = UpdatePropertyUiState.Success(propertyId)
+                            _uiState.value = EditPropertyUiState.Success(propertyId)
                         } catch (e: Exception) {
                             handleError(e)
                         }
@@ -111,8 +117,8 @@ class EditPropertyViewModel @Inject constructor
     }
 
     private fun handleError(exception: Exception) {
-        val currentState = _uiState.value as? UpdatePropertyUiState.Editing
-        _uiState.value = UpdatePropertyUiState.Error(exception, currentState)
+        val currentState = _uiState.value as? EditPropertyUiState.Editing
+        _uiState.value = EditPropertyUiState.Error(exception, currentState)
     }
 
     //ADD AND DELETE A PHOTO
@@ -131,9 +137,28 @@ class EditPropertyViewModel @Inject constructor
         }
     }
 
+    fun addVideo(videoUri: String, videoDescription: String = "") {
+        updateState {
+            copy(
+                mediaLists = mediaLists + Video(videoUri, videoDescription)
+            )
+        }
+    }
+
     fun deleteVideo() {
         updateState {
             copy(videoUri = null)
+        }
+    }
+
+    fun updatePointOfInterestSelection(poi: PointOfInterest, isSelected: Boolean) {
+        updateState {
+            val updatedNearbyPoints = if (isSelected) {
+                nearbyPointSet + poi
+            } else {
+                nearbyPointSet - poi
+            }
+            copy(nearbyPointSet = updatedNearbyPoints)
         }
     }
 
@@ -165,32 +190,45 @@ class EditPropertyViewModel @Inject constructor
     }
 
     fun updateDescription(newDescription: String) {
+        val error = newDescription.validateNonEmpty() + newDescription.validateLength()
         updateState {
-            copy(description = newDescription)
+            copy(
+                description = description.copy(value = newDescription, error = error)
+            )
         }
     }
 
     fun updateType(newType: String) {
+        val error = newType.validateNonEmpty()
         updateState {
-            copy(type = newType)
+            copy(
+                type = type.copy(value = newType, error = error)
+            )
         }
     }
 
     fun updatePrice(newPrice: String) {
+        val error = newPrice.validatePositiveNumber() + newPrice.validateNonEmpty()
         updateState {
-            copy(price =  newPrice)
+            copy(
+                price = price.copy(value = newPrice, error = error)
+            )
         }
     }
 
     fun updateArea(newArea: String) {
+        val error = newArea.validatePositiveNumber() + newArea.validateNonEmpty()
         updateState {
-            copy(area = newArea)
+            copy(
+                area = area.copy(value = newArea, error = error)
+            )
         }
     }
 
     fun updateNumberOfRooms(newNumberOfRooms: String) {
+        val error = newNumberOfRooms.validateNonEmpty() + newNumberOfRooms.validatePositiveNumber()
         updateState {
-            copy(numberOfRooms = newNumberOfRooms)
+            copy(numberOfRooms = numberOfRooms.copy(value = newNumberOfRooms, error = error))
         }
     }
 
@@ -201,14 +239,9 @@ class EditPropertyViewModel @Inject constructor
     }
 
     fun updateAddress(newAddress: String) {
+        val error = newAddress.validateNonEmpty()
         updateState {
-            copy(address = newAddress)
-        }
-    }
-
-    fun updateNearbyPoint(newPoint: String) {
-        updateState {
-            copy(nearbyPoint = newPoint)
+            copy(address = address.copy(value = newAddress, error = error))
         }
     }
 
@@ -250,16 +283,16 @@ class EditPropertyViewModel @Inject constructor
         }
     }
 
-    private fun updateState(update: UpdatePropertyUiState.Editing.() -> UpdatePropertyUiState.Editing) {
+    private fun updateState(update: EditPropertyUiState.Editing.() -> EditPropertyUiState.Editing) {
         val currentState = _uiState.value
-        if (currentState is UpdatePropertyUiState.Editing) {
+        if (currentState is EditPropertyUiState.Editing) {
             _uiState.value = currentState.update()
         }
     }
 
     fun returnToEditingState() {
         val currentState = _uiState.value
-        if (currentState is UpdatePropertyUiState.Error && currentState.previousEditingState != null) {
+        if (currentState is EditPropertyUiState.Error && currentState.previousEditingState != null) {
             _uiState.value = currentState.previousEditingState
         }
     }
@@ -269,35 +302,41 @@ class EditPropertyViewModel @Inject constructor
         data class Error(val errorMessage: String) : ValidationResult()
     }
 
-    sealed class UpdatePropertyUiState {
+    sealed interface EditPropertyUiState {
         /*data class Success(val properties: List<Property>): AddPropertyUiState()
         data class Error(val exception: Exception): AddPropertyUiState()*/
-        object Initial : UpdatePropertyUiState()
-        data class Success(val propertyId: String) : UpdatePropertyUiState()
-        data class Error(val exception: Exception, val previousEditingState: Editing? = null): UpdatePropertyUiState()
+        data class Success(val propertyId: String) : EditPropertyUiState
+        data class Error(val exception: Exception, val previousEditingState: Editing? = null): EditPropertyUiState
         data class Editing(
 
             val id: String = "",
-            val description: String = "",
-            val type: String = "",
-            val price: String = "",
-            val area: String = "",
-            val numberOfRooms: String = "",
+            val description: FormField = FormField(),
+            val type: FormField = FormField(),
+            val price: FormField = FormField(),
+            val area: FormField = FormField(),
+            val numberOfRooms: FormField = FormField(),
             val photoUri: String = "",
             val photoDescription: String = "",
             val mediaLists: List<Media> = emptyList<Media>(),
             val videoUri: String? = null,
-            val address: String = "",
-            val nearbyPoint: String = "",
-            val nearbyPointList: List<PointOfInterest> = emptyList(),
+            val address: FormField = FormField(),
+            val nearbyPointSet: Set<PointOfInterest> = emptySet(),
             val entryDate: Long? = null,
             val isEntryDatePickerShown: Boolean = false,
             val saleDate: Long? = null,
             val isSaleDatePickerShown: Boolean = false,
             val agent: Agent? = null,
-            val agentList: List<Agent> = emptyList()
+            val agentList: List<Agent> = emptyList(),
+            val isFormValid: Boolean = false
 
-        ) : UpdatePropertyUiState()
+        ) : EditPropertyUiState {
+            val photoList: List<Photo>
+                get() = mediaLists.filterIsInstance<Photo>()
+
+            val videoList: List<Video>
+                get() = mediaLists.filterIsInstance<Video>()
+
+        }
     }
 
 }

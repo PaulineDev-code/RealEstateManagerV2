@@ -31,6 +31,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.utils.convertToLocalCurrency
+import com.openclassrooms.realestatemanagerv2.utils.formatToLocalCurrency
 
 
 @Composable
@@ -106,7 +107,7 @@ fun PropertyListItem(property: Property, isItemSelected: Boolean, onItemClick: (
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = property.price.convertToLocalCurrency(),
+                    text = property.price.convertToLocalCurrency().formatToLocalCurrency(),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.align(Alignment.End),
                     color = MaterialTheme.colorScheme.outlineVariant

@@ -1,5 +1,6 @@
 package com.openclassrooms.realestatemanagerv2.ui.composables
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,12 +31,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.openclassrooms.realestatemanagerv2.R
@@ -46,13 +49,14 @@ import com.openclassrooms.realestatemanagerv2.ui.DetailsContent
 import com.openclassrooms.realestatemanagerv2.ui.HomeContent
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun ListDetailPaneTest(
     innerPadding: PaddingValues,
-    navController: NavHostController,
+    navController: NavController,
     onBackClicked: () -> Unit = { navController.popBackStack() },
     listViewModel: PropertySharedViewModel = hiltViewModel(),
     detailsViewModel: PropertyDetailsViewModel = hiltViewModel()
@@ -67,12 +71,9 @@ fun ListDetailPaneTest(
     // List values
     val listUiState by listViewModel.uiState.collectAsState()
 
-
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val savedState = navBackStackEntry?.savedStateHandle
-    val criteria = remember(savedState) {
-        savedState?.get<PropertySearchCriteria>("criterias")
-    }
+
     // Details values
     // State for video player visibility and URL, managed within this stateful composable
     var isVideoDisplayed by remember { mutableStateOf(false) }
@@ -84,11 +85,16 @@ fun ListDetailPaneTest(
     // Collect UI state from ViewModel
     val detailsUiState by detailsViewModel.uiState.collectAsState()
 
-    LaunchedEffect(criteria) {
-        criteria?.let {
-            listViewModel.searchProperties(it)
-            savedState?.remove<PropertySearchCriteria>("criterias")
+    val propertyIdToDisplay: String? = (listUiState as? PropertySharedViewModel.PropertyUiState.Success)?.addedPropertyId
+
+    propertyIdToDisplay?.let { id ->
+        if (isListAndDetailVisible) {
+            listViewModel.updateSelectedProperty(id)
         }
+        scope.launch {
+            navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, id)
+        }
+        listViewModel.updateAddedProperty(null)
     }
 
     NavigableListDetailPaneScaffold(
@@ -100,6 +106,12 @@ fun ListDetailPaneTest(
         },
         modifier = Modifier.padding(innerPadding),
         listPane = {
+            if (
+                !isListAndDetailVisible
+                && listUiState is PropertySharedViewModel.PropertyUiState.Success
+            ) {
+                listViewModel.updateSelectedProperty("")
+            }
             AnimatedPane(modifier = Modifier) {
                 HomeContent(
                     uiState = listUiState,
@@ -127,6 +139,8 @@ fun ListDetailPaneTest(
                     detailsViewModel.getPropertyById(propertyId)
                 }
                 if (navigator.currentDestination?.contentKey != null) {
+                    navigator.currentDestination?.contentKey?.let { propertyId ->
+                        listViewModel.updateSelectedProperty(propertyId) }
                     DetailsContent(
                         uiState = detailsUiState,
                         innerPadding = PaddingValues(0.dp),
@@ -141,10 +155,15 @@ fun ListDetailPaneTest(
                         isVideoDisplayed = isVideoDisplayed,
                         currentVideoUrl = currentVideoUrl
                     )
-                } else {
+                } else if (isListAndDetailVisible
+                    && listUiState is PropertySharedViewModel.PropertyUiState.Success
+                ) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(stringResource(R.string.select_property_to_details))
+                        listViewModel.updateSelectedProperty("")
                     }
+                } else {
+                    Box(Modifier.fillMaxSize())
                 }
             }
         },

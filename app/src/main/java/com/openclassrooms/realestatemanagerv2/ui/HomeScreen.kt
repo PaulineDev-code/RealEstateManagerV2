@@ -17,19 +17,23 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import androidx.window.core.layout.WindowWidthSizeClass
 import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
@@ -65,8 +69,9 @@ fun HomeScreen(
         MaterialTheme.colorScheme.primaryContainer
     }
 
-    val backStackEntry = navController.previousBackStackEntry
-    val savedState     = backStackEntry?.savedStateHandle
+    val currentBackStackEntry = navController.currentBackStackEntry
+    val savedState     = currentBackStackEntry?.savedStateHandle
+
     val criteria       = remember(savedState) {
         savedState?.get<PropertySearchCriteria>("criterias")
     }
@@ -78,6 +83,13 @@ fun HomeScreen(
         }
     }
 
+    LifecycleResumeEffect(Unit) {
+        Log.d("HomeScreenDebug", "HomeScreen resumed, refreshing property list")
+        viewModel.refreshProperties()
+        onPauseOrDispose {}
+    }
+
+
     AppTopBar(
         onNavigationClick = onBackClicked,
         onAddClick = onNavigateToAdd,
@@ -86,23 +98,10 @@ fun HomeScreen(
         navBarsColor = navBarsColor
     ) { innerPadding ->
 
-        /*if (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
-
-            HomeContent(
-                uiState = uiState,
-                innerPadding = innerPadding,
-                onPropertyItemClick = { propertyId ->
-                    navController.navigate("details_screen" + "/" + propertyId)
-                },
-                onResetFiltersClick = {
-                    viewModel.resetProperties()
-                }
-            )
-        } else {*/
-            ListDetailPaneTest(
-                innerPadding = innerPadding,
-                navController = rememberNavController())
-        /*}*/
+        ListDetailPaneTest(
+            innerPadding = innerPadding,
+            navController = navController
+        )
     }
 }
 

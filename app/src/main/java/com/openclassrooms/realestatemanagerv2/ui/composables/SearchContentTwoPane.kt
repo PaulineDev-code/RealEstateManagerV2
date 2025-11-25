@@ -87,8 +87,9 @@ fun SearchContentTwoPane(
     Column(
         modifier = modifier,
     ) {
-
-        SearchHeaderAnimation()
+        Column(modifier = Modifier.width(350.dp)) {
+            SearchHeaderAnimation()
+        }
 
         Text(
             modifier = Modifier.padding(8.dp),
@@ -280,10 +281,10 @@ fun SearchContentTwoPanePreview() {
         onMaxPriceChange = {},
         types = listOf("type1", "type2"),
         selectedTypes = setOf("type1"),
-        onTypeSelected = { type, bool -> },
+        onTypeSelected = { _, _ -> },
         nearbyPointSelectedSet = setOf(PointOfInterest.PHARMACY, PointOfInterest.RESTAURANT),
         nearbyPointList = emptyList(),
-        onNearbyPointChange = { poi, bool -> },
+        onNearbyPointChange = { _, _ -> },
         minArea = "",
         minAreaError = "",
         onMinAreaChange = {},

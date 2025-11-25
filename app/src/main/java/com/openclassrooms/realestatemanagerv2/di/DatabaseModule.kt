@@ -19,6 +19,11 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import android.util.Log
+import androidx.room.withTransaction
+import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestCrossRefDAO
+import kotlinx.coroutines.coroutineScope
 import javax.inject.Singleton
 
 @Module
@@ -29,32 +34,42 @@ class DatabaseModule {
     fun provideDatabase(
         @ApplicationContext context: Context
     ): MyDatabase {
-        // On déclare la variable avant de la construire, pour pouvoir la capturer dans le callback
-        lateinit var dbInstance: MyDatabase
-
-        dbInstance = Room.databaseBuilder(
+        val db = Room.databaseBuilder(
             context.applicationContext,
             MyDatabase::class.java,
-            "database"          // nom de ta BDD
-        )
-            .addCallback(object : RoomDatabase.Callback() {
-                override fun onCreate(db: SupportSQLiteDatabase) {
-                    super.onCreate(db)
-                    // Ce bloc ne sera exécuté qu'au tout premier onCreate
-                    CoroutineScope(Dispatchers.IO).launch {
+            "database"
+        ).build()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                Log.d("DatabaseModule", "Checking if database needs prepopulation")
+
+                // Check if DB is empty by counting POIs
+                val poiCount = db.pointOfInterestDAO().count()
+
+                if (poiCount == 0) {
+                    Log.d("DatabaseModule", "Database is empty, starting prepopulation")
+
+                    db.withTransaction {
                         DatabaseUtil(
-                            dbInstance.propertyDAO(),
-                            dbInstance.agentDAO(),
-                            dbInstance.pointOfInterestDAO(),
-                            dbInstance.pointOfInterestCrossRefDAO(),
-                            dbInstance.mediaDAO()
+                            db.propertyDAO(),
+                            db.agentDAO(),
+                            db.pointOfInterestDAO(),
+                            db.pointOfInterestCrossRefDAO(),
+                            db.mediaDAO()
                         ).prepopulateDatabase()
                     }
-                }
-            })
-            .build()
 
-        return dbInstance
+                    Log.d("DatabaseModule", "✅ Database prepopulation completed successfully")
+                } else {
+                    Log.d("DatabaseModule", "Database already contains $poiCount POIs, skipping prepopulation")
+                }
+            } catch (e: Exception) {
+                Log.e("DatabaseModule", "❌ Error during database prepopulation", e)
+            }
+        }
+
+        return db
     }
 
     @Provides
@@ -75,6 +90,12 @@ class DatabaseModule {
     @Singleton
     fun providePointOfInterestDao(myDatabase: MyDatabase): PointOfInterestDAO {
         return myDatabase.pointOfInterestDAO()
+    }
+
+    @Provides
+    @Singleton
+    fun providePoiXDao(myDatabase: MyDatabase): PointOfInterestCrossRefDAO {
+        return myDatabase.pointOfInterestCrossRefDAO()
     }
 
     @Provides

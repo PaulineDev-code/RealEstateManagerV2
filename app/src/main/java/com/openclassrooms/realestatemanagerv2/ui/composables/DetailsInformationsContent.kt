@@ -28,6 +28,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.utils.convertToLocalCurrency
 import com.openclassrooms.realestatemanagerv2.utils.formatMillisToLocal
+import com.openclassrooms.realestatemanagerv2.utils.formatToLocalCurrency
 import com.openclassrooms.realestatemanagerv2.utils.toReadableString
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -51,7 +52,8 @@ fun DetailsInformationsContent(property: Property) {
 
             IndividualDetailsContent(
                 title = stringResource(id = R.string.price),
-                icon = R.drawable.ic_money, data = property.price.convertToLocalCurrency()
+                icon = R.drawable.ic_money,
+                data = property.price.convertToLocalCurrency().formatToLocalCurrency()
             )
             IndividualDetailsContent(
                 title = stringResource(id = R.string.type),
@@ -61,7 +63,6 @@ fun DetailsInformationsContent(property: Property) {
                 title = stringResource(id = R.string.area),
                 icon = R.drawable.ic_area, data = property.area
             )
-
             IndividualDetailsContent(
                 title = stringResource(id = R.string.rooms),
                 icon = R.drawable.ic_room, data = property.numberOfRooms
@@ -169,6 +170,5 @@ private fun MyInfoContentPreview() {
         Agent("1", "Will", "911", "willagent@brooklyn.com")
     )
     )
-
 
 }

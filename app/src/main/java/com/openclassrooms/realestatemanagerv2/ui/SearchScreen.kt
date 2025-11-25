@@ -197,10 +197,14 @@ fun SearchScreen(
                 isSearchClickEnabled = editingState?.isFormValid ?: false,
                 onSearchClicked = {
                     val criterias = searchPropertiesViewModel.getCurrentCriteria()
-                    navController.currentBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("criterias", criterias)
-                    navController.navigate("home_screen")
+                    navController.getBackStackEntry("home_screen")
+                        .savedStateHandle
+                        .set("criterias", criterias)
+
+                    navController.popBackStack(
+                        route = "home_screen",
+                        inclusive = false
+                    )
                 }
             )
         } else {
@@ -304,10 +308,14 @@ fun SearchScreen(
                 isSearchClickEnabled = editingState?.isFormValid ?: false,
                 onSearchClicked = {
                     val criterias = searchPropertiesViewModel.getCurrentCriteria()
-                    navController.currentBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("criterias", criterias)
-                    navController.navigate("home_screen")
+                    navController.getBackStackEntry("home_screen")
+                        .savedStateHandle
+                        .set("criterias", criterias)
+
+                    navController.popBackStack(
+                        route = "home_screen",
+                        inclusive = false
+                    )
                 }
             )
         }

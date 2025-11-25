@@ -12,6 +12,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.domain.model.Video
 import com.openclassrooms.realestatemanagerv2.ui.models.SelectablePointOfInterest
+import java.lang.Double.parseDouble
 import java.text.NumberFormat
 import java.util.UUID
 import java.time.Instant
@@ -102,14 +103,9 @@ fun String.toPropertyStatus(): PropertyStatus {
     }
 }
 
-//
 fun PointOfInterest.toSelectable(): SelectablePointOfInterest {
     return SelectablePointOfInterest(name = this.name, isSelected = false)
 }
-
-/*fun SelectablePointOfInterest.toPointOfInterest(): PointOfInterest {
-    return SelectablePointOfInterest(name = this.name, isSelected = false)
-}*/
 
 fun List<PointOfInterest>.toSelectableList(): List<SelectablePointOfInterest> {
     return this.map { it.toSelectable() }
@@ -154,54 +150,68 @@ fun String.formatToLocalCurrency(): String {
     val locale = Locale.getDefault()
 
     val formatter = NumberFormat.getCurrencyInstance(locale)
-
-    return formatter.format(this)
+    return formatter.format(this.toDoubleOrNull() ?:  return this)
 }
 
+/**
+* Formats a String representing a USD price into the user's locale currency format.
+* Note: This converts from USD to local currency based on hardcoded exchange rates.
+*
+* WARNING: Exchange rates are static and may become outdated.
+* For production, consider using a real-time exchange rate API.
+*
+* @receiver String representing a price in USD (e.g., "300000")
+* @return Formatted string in local currency (e.g., "273 000 €" for France)
+*/
 fun Double.convertToLocalCurrency(): String {
-    //To use in AddScreen & SearchScreen convert from dollar to local currency
+    //To use in screens convert from dollar to local currency
     val locale = Locale.getDefault()
 
-    val formatter = NumberFormat.getCurrencyInstance(locale)
-
-    when (locale) {
-        Locale.FRANCE -> return formatter.format(this * 0.91)
-        Locale.UK -> return formatter.format(this * 0.78)
-        Locale.JAPAN -> return formatter.format(this * 145.30)
-        Locale.forLanguageTag("de-CH") -> return formatter.format(this * 0.90) // Suisse (Alémanique)
-        Locale.CANADA -> return formatter.format(this * 1.35)
-        Locale.forLanguageTag("en-AU")  -> return formatter.format(this * 1.52)   // Australie
-        Locale.CHINA -> return formatter.format(this * 7.19)
-        Locale.forLanguageTag("sv-SE") -> return formatter.format(this * 11.0)  // Suède
-        Locale.forLanguageTag("ru-RU") -> return formatter.format(this * 92.3)   // Russie
-        Locale.forLanguageTag("en-IN") -> return formatter.format(this * 83.1)   // Inde
-        Locale.forLanguageTag("pt-BR") -> return formatter.format(this * 4.95)   // Brésil
-        Locale.forLanguageTag("es-MX") -> return formatter.format(this * 17.3)    // Mexique
-        else -> return NumberFormat.getCurrencyInstance(Locale.US).format(this)
+    val convertedAmount = when (locale.country) {
+        "FR" -> this * 0.91  // EUR (France)
+        "GB" -> this * 0.78  // GBP (United Kingdom)
+        "JP" -> this * 145.30  // JPY (Japan)
+        "de-CH" -> this * 0.90  // CHF (Switzerland)
+        "CA" -> this * 1.35  // CAD (Canada)
+        "AU" -> this * 1.52  // AUD (Australia)
+        "CN" -> this * 7.19  // CNY (China)
+        "SE" -> this * 11.0  // SEK (Sweden)
+        "RU" -> this * 92.3  // RUB (Russia)
+        "IN" -> this * 83.1  // INR (India)
+        "BR" -> this * 4.95  // BRL (Brazil)
+        "MX" -> this * 17.3  // MXN (Mexico)
+        else -> this  // Default: keep USD
     }
+
+    return convertedAmount.toString()
 
 }
 
+/**
+* Converts a price from local currency back to USD.
+*
+* Note: This returns a Double (not a formatted String) because it's typically
+* used to store values in the database, which expects raw USD amounts.
+*/
 fun Double.convertFromLocalCurrency(): String {
     //To use in AddScreen & SearchScreen convert from local currency to dollar
     val locale = Locale.getDefault()
-    val formatter = NumberFormat.getCurrencyInstance(locale)
-
-    when (locale) {
-        Locale.FRANCE -> return formatter.format(this / 0.91)
-        Locale.UK -> return formatter.format(this / 0.78)
-        Locale.JAPAN -> return formatter.format(this / 145.30)
-        Locale.forLanguageTag("de-CH") -> return formatter.format(this / 0.90) // Suisse (Alémanique)
-        Locale.CANADA -> return formatter.format(this / 1.35)
-        Locale.forLanguageTag("en-AU")  -> return formatter.format(this / 1.52)   // Australie
-        Locale.CHINA -> return formatter.format(this / 7.19)
-        Locale.forLanguageTag("sv-SE") -> return formatter.format(this / 11.0)  // Suède
-        Locale.forLanguageTag("ru-RU") -> return formatter.format(this / 92.3)   // Russie
-        Locale.forLanguageTag("en-IN") -> return formatter.format(this / 83.1)   // Inde
-        Locale.forLanguageTag("pt-BR") -> return formatter.format(this / 4.95)   // Brésil
-        Locale.forLanguageTag("es-MX") -> return formatter.format(this / 17.3)    // Mexique
-        else -> return NumberFormat.getCurrencyInstance(Locale.US).format(this)
+    val toUSD = when (locale.country) {
+        "FR" -> this / 0.91      // EUR → USD
+        "GB" -> this / 0.78      // GBP → USD
+        "JP" -> this / 145.30    // JPY → USD
+        "CH" -> this / 0.90      // CHF → USD
+        "CA" -> this / 1.35      // CAD → USD
+        "AU" -> this / 1.52      // AUD → USD
+        "CN" -> this / 7.19      // CNY → USD
+        "SE" -> this / 11.0      // SEK → USD
+        "RU" -> this / 92.3      // RUB → USD
+        "IN" -> this / 83.1      // INR → USD
+        "BR" -> this / 4.95      // BRL → USD
+        "MX" -> this / 17.3      // MXN → USD
+        else -> this             // if already USD or unknown
     }
+    return toUSD.toString()
 }
 
 

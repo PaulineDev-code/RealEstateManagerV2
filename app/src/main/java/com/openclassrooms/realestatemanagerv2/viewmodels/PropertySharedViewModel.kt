@@ -1,6 +1,9 @@
 package com.openclassrooms.realestatemanagerv2.viewmodels
 
+import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.snapshotFlow
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.realestatemanagerv2.data.network.NetworkMonitor
@@ -10,21 +13,23 @@ import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteri
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllPropertiesUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.SearchPropertiesUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.UpdateMissingLocationUseCase
+import com.openclassrooms.realestatemanagerv2.ui.BottomNavItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.random.Random
 
 @HiltViewModel
 class PropertySharedViewModel @Inject constructor
     (private val getAllPropertiesUseCase: GetAllPropertiesUseCase,
      private val searchPropertiesUseCase: SearchPropertiesUseCase,
      private val updateMissingLocationUseCase: UpdateMissingLocationUseCase,
-     private val networkMonitor: NetworkMonitor) : ViewModel() {
+     private val networkMonitor: NetworkMonitor,
+     private val savedState: SavedStateHandle
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PropertyUiState>(PropertyUiState.Loading)
 
@@ -49,11 +54,20 @@ class PropertySharedViewModel @Inject constructor
     }
 
     private fun loadAllProperties() {
+        val newId: String? = Uri.decode(savedState[BottomNavItem.List.ARG_NEW_ID])
+
         viewModelScope.launch {
             try {
                 val properties = getAllPropertiesUseCase()
                 Log.d("ListViewModel", "Collected properties: $properties")
-                _uiState.value = PropertyUiState.Success(properties, isFiltered = false)
+                _uiState.value = PropertyUiState.Success(
+                    properties = properties,
+                    addedPropertyId = newId,
+                    isFiltered = false)
+
+                newId?.let {
+                    savedState.remove<String>(BottomNavItem.List.ARG_NEW_ID)
+                }
 
             } catch (exception: Exception) {
                 Log.e("ListViewModel", "Error collecting properties", exception)
@@ -64,6 +78,10 @@ class PropertySharedViewModel @Inject constructor
 
     fun updateSelectedProperty(propertyId: String) {
         _uiState.value = (_uiState.value as PropertyUiState.Success).copy(selectedPropertyId = propertyId)
+    }
+
+    fun updateAddedProperty(propertyId: String?) {
+        _uiState.value = (_uiState.value as PropertyUiState.Success).copy(addedPropertyId = propertyId)
     }
 
     fun searchProperties(searchCriterias: PropertySearchCriteria) {
@@ -82,10 +100,17 @@ class PropertySharedViewModel @Inject constructor
         loadAllProperties()
     }
 
+    fun refreshProperties() {
+        if ((uiState.value as? PropertySharedViewModel.PropertyUiState.Success)?.isFiltered != true) {
+            loadAllProperties()
+        }
+    }
+
     sealed class PropertyUiState {
         object Loading : PropertyUiState()
         data class Success(val properties: List<Property>,
                            val selectedPropertyId: String = "",
+                           val addedPropertyId: String? = null,
                            val isFiltered: Boolean = false): PropertyUiState()
         data class Error(val exception: Throwable): PropertyUiState()
     }

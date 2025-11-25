@@ -119,15 +119,6 @@ fun AddContentTwoPane(
 
     val context = LocalContext.current
 
-    val singleVideoPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { videoPickedUri ->
-            if (videoPickedUri.toString() != "") {
-                onVideoAdded(videoPickedUri.toString())
-            }
-            /*onVideoUriChange(it.toString())*/
-        })
-
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
@@ -179,16 +170,7 @@ fun AddContentTwoPane(
             ) {
                 CameraGalleryChooser(onPhotoSelected = onPhotoUriChange)
 
-                Button(
-                    modifier = Modifier.padding(8.dp),
-                    onClick = {
-                        singleVideoPicker.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)
-                        )
-                    }
-                ) {
-                    Text(text = stringResource(id = R.string.import_a_video))
-                }
+                VideoPicker(onVideoAdded = onVideoAdded)
             }
 
             if (photoUri != "") {

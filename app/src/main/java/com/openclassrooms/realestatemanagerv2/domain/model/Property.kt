@@ -171,11 +171,11 @@ enum class PointOfInterest(val serialName: String, val displayNameResId: Int) {
             return PointOfInterest.valueOf(entity.name)
         }*/
         fun fromSerializedName(serializedName: String): PointOfInterest? {
-            return values().find { it.serialName == serializedName }
+            return entries.find { it.serialName == serializedName }
         }
 
         fun fromPointOfInterestEntity(entity: PointOfInterestEntity): PointOfInterest {
-            return PointOfInterest.values().find { it.displayNameResId == entity.displayNameResId } ?:
+            return entries.find { it.displayNameResId == entity.displayNameResId } ?:
             throw IllegalArgumentException("PointOfInterest from entity unknown : ${entity.displayNameResId}")
         }
 
