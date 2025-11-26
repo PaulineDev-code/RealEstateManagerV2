@@ -54,20 +54,17 @@ class PropertySharedViewModel @Inject constructor
     }
 
     private fun loadAllProperties() {
-        val newId: String? = Uri.decode(savedState[BottomNavItem.List.ARG_NEW_ID])
 
         viewModelScope.launch {
             try {
                 val properties = getAllPropertiesUseCase()
+                val currentState = _uiState.value as? PropertyUiState.Success
                 Log.d("ListViewModel", "Collected properties: $properties")
                 _uiState.value = PropertyUiState.Success(
                     properties = properties,
-                    addedPropertyId = newId,
+                    selectedPropertyId = currentState?.selectedPropertyId ?: "",
+                    addedPropertyId = currentState?.addedPropertyId,
                     isFiltered = false)
-
-                newId?.let {
-                    savedState.remove<String>(BottomNavItem.List.ARG_NEW_ID)
-                }
 
             } catch (exception: Exception) {
                 Log.e("ListViewModel", "Error collecting properties", exception)
@@ -82,6 +79,8 @@ class PropertySharedViewModel @Inject constructor
 
     fun updateAddedProperty(propertyId: String?) {
         _uiState.value = (_uiState.value as PropertyUiState.Success).copy(addedPropertyId = propertyId)
+        Log.d("ListViewModel", "succes added property ID: ${(_uiState.value as PropertyUiState.Success).addedPropertyId}")
+
     }
 
     fun searchProperties(searchCriterias: PropertySearchCriteria) {

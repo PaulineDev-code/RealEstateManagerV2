@@ -58,7 +58,7 @@ fun ListDetailPaneTest(
     innerPadding: PaddingValues,
     navController: NavController,
     onBackClicked: () -> Unit = { navController.popBackStack() },
-    listViewModel: PropertySharedViewModel = hiltViewModel(),
+    listViewModel: PropertySharedViewModel,
     detailsViewModel: PropertyDetailsViewModel = hiltViewModel()
 ) {
 
@@ -71,16 +71,10 @@ fun ListDetailPaneTest(
     // List values
     val listUiState by listViewModel.uiState.collectAsState()
 
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val savedState = navBackStackEntry?.savedStateHandle
-
     // Details values
     // State for video player visibility and URL, managed within this stateful composable
     var isVideoDisplayed by remember { mutableStateOf(false) }
     var currentVideoUrl by remember { mutableStateOf("") }
-
-    // Fetch property details when propertyId changes
-
 
     // Collect UI state from ViewModel
     val detailsUiState by detailsViewModel.uiState.collectAsState()

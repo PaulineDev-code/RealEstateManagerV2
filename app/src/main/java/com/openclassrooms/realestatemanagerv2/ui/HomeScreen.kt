@@ -100,7 +100,8 @@ fun HomeScreen(
 
         ListDetailPaneTest(
             innerPadding = innerPadding,
-            navController = navController
+            navController = navController,
+            listViewModel = viewModel
         )
     }
 }

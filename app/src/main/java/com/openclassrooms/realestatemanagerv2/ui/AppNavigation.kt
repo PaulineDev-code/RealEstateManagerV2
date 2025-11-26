@@ -9,6 +9,7 @@ import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -37,7 +38,7 @@ fun AppNavigation(windowAdaptiveInfo: WindowAdaptiveInfo) {
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    val currentRoute = navBackStackEntry?.destination?.route?.substringBefore("?")
 
     // This determines if we should show the full NavSuite (BottomNav, Rail, Drawer)
     // or if we are in a different flow (e.g., AddScreen, EditScreen, DetailsScreen on compact)
@@ -102,69 +103,85 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = BottomNavItem.List.fullRoute,
+        startDestination = "main_graph",
         modifier = modifier
     ) {
+        navigation(
+            route = "main_graph",
+            startDestination = BottomNavItem.List.fullRoute
+        ) {
 
-        composable(
-            route = BottomNavItem.List.fullRoute,
-            arguments = listOf(
-                navArgument(BottomNavItem.List.ARG_NEW_ID) {
-                    type = NavType.StringType
-                    nullable = true
-                    defaultValue = null
+            composable(
+                route = BottomNavItem.List.fullRoute,
+                arguments = listOf(
+                    navArgument(BottomNavItem.List.ARG_NEW_ID) {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("main_graph")
                 }
-            )
-        ) { backStackEntry ->
+                val sharedViewModel = hiltViewModel<PropertySharedViewModel>(parentEntry)
+                val newId: String? =
+                    backStackEntry.arguments?.getString(BottomNavItem.List.ARG_NEW_ID)
 
-            val sharedViewModel = hiltViewModel<PropertySharedViewModel>(backStackEntry)
-            HomeScreen(
-                windowAdaptiveInfo = windowAdaptiveInfo,
-                navController = navController,
-                viewModel = sharedViewModel,
-                onBackClicked = { navController.popBackStack() },
-                onNavigateToAdd = { navController.navigate("add_screen") },
-                onNavigateToEdit = { propertyId ->
-                    navController.navigate("edit_estate/$propertyId")
+                LaunchedEffect(newId) {
+                    if (newId != null) {
+                        sharedViewModel.updateAddedProperty(newId)
+                    }
                 }
-            )
-        }
-        composable(BottomNavItem.Map.route) {
 
-            val parentEntry = navController.getBackStackEntry(BottomNavItem.List.route)
-            val sharedViewModel = hiltViewModel<PropertySharedViewModel>(parentEntry)
-            MapScreen(
-                windowAdaptiveInfo = windowAdaptiveInfo,
-                navController = navController,
-                viewModel = sharedViewModel,
-                onNavigateToAdd = { navController.navigate("add_screen") }
-            )
-        }
-        composable(BottomNavItem.Search.route) {
-            SearchScreen(
-                windowAdaptiveInfo = windowAdaptiveInfo,
-                navController = navController, // If SearchScreen needs to navigate
-                onNavigateToAdd = { navController.navigate("add_screen") }
-            )
-        }
-        composable("details_screen/{propertyId}") { backStackEntry ->
-            val propertyId = backStackEntry.arguments?.getString("propertyId")!!
-            // DetailsScreen might not be part of the NavSuite if it takes the full screen
-            DetailsScreen(
-                propertyId = propertyId,
-                windowAdaptiveInfo = windowAdaptiveInfo,
-                onNavigateToAdd = { navController.navigate("add_screen") },
-                onNavigateToEdit = { navController.navigate("edit_estate/$propertyId") }
-            )
-        }
-        composable("add_screen") {
-            AddScreen(
-                navController = navController,
-                windowAdaptiveInfo = windowAdaptiveInfo,
-                onBackClicked = { navController.popBackStack() }
-            )
-        }
-        /*composable("edit_estate/{propertyId}") { backStackEntry ->
+                HomeScreen(
+                    windowAdaptiveInfo = windowAdaptiveInfo,
+                    navController = navController,
+                    viewModel = sharedViewModel,
+                    onBackClicked = { navController.popBackStack() },
+                    onNavigateToAdd = { navController.navigate("add_screen") },
+                    onNavigateToEdit = { propertyId ->
+                        navController.navigate("edit_estate/$propertyId")
+                    }
+                )
+            }
+            composable(BottomNavItem.Map.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("main_graph")
+                }
+                val sharedViewModel = hiltViewModel<PropertySharedViewModel>(parentEntry)
+                MapScreen(
+                    windowAdaptiveInfo = windowAdaptiveInfo,
+                    navController = navController,
+                    viewModel = sharedViewModel,
+                    onNavigateToAdd = { navController.navigate("add_screen") }
+                )
+            }
+            composable(BottomNavItem.Search.route) {
+                SearchScreen(
+                    windowAdaptiveInfo = windowAdaptiveInfo,
+                    navController = navController, // If SearchScreen needs to navigate
+                    onNavigateToAdd = { navController.navigate("add_screen") }
+                )
+            }
+            composable("details_screen/{propertyId}") { backStackEntry ->
+                val propertyId = backStackEntry.arguments?.getString("propertyId")!!
+                // DetailsScreen might not be part of the NavSuite if it takes the full screen
+                DetailsScreen(
+                    propertyId = propertyId,
+                    windowAdaptiveInfo = windowAdaptiveInfo,
+                    onNavigateToAdd = { navController.navigate("add_screen") },
+                    onNavigateToEdit = { navController.navigate("edit_estate/$propertyId") }
+                )
+            }
+            composable("add_screen") {
+                AddScreen(
+                    navController = navController,
+                    windowAdaptiveInfo = windowAdaptiveInfo,
+                    onBackClicked = { navController.popBackStack() }
+                )
+            }
+            /*composable("edit_estate/{propertyId}") { backStackEntry ->
             val propertyId = backStackEntry.arguments?.getString("propertyId")
             EditScreen(
                 propertyId = propertyId,
@@ -173,6 +190,7 @@ fun AppNavHost(
                 onBack = { navController.popBackStack() }
             )
         }*/
+        }
     }
 }
 

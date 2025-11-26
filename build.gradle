@@ -3,10 +3,10 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        gradlePluginPortal() // Essentiel pour trouver les plugins
+        gradlePluginPortal()
     }
     dependencies {
-        // Définition de tous les plugins ici
+        // plugins
         classpath 'com.android.tools.build:gradle:8.5.0'
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.0'
         classpath 'com.google.devtools.ksp:symbol-processing-gradle-plugin:2.0.0-1.0.22'
