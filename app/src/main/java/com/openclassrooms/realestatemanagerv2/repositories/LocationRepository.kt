@@ -49,10 +49,15 @@ class LocationRepository @Inject constructor(
                         object : Geocoder.GeocodeListener {
                             override fun onGeocode(results: MutableList<Address>) {
                                 val first = results.firstOrNull()
-                                continuation.resume(first?.let { LatLng(it.latitude, it.longitude) }) {}
+                                continuation.resume(first?.let {
+                                    LatLng(
+                                        it.latitude,
+                                        it.longitude
+                                    )
+                                }) { cause, _, _ -> }
                             }
                             override fun onError(errorMessage: String?) {
-                                continuation.resume(null) {}
+                                continuation.resume(null) { cause, _, _ -> }
                             }
                         }
                     )
@@ -61,7 +66,8 @@ class LocationRepository @Inject constructor(
                     }
                 }
             } else {
-                geocoder.getFromLocationName(address, 1)
+                @Suppress("DEPRECATION")
+                geocoder.getFromLocationName(address, 1, )
                     ?.firstOrNull()
                     ?.let { LatLng(it.latitude, it.longitude) }
             }

@@ -87,6 +87,7 @@
     <string name="search">Search</string>
     <string name="map">Map</string>
     <string name="add_property">Add Property</string>
+    <string name="press_again_to_exit">Press again to exit application</string>
     //App utils
     <string name="add_a_new_property">Add a new Property</string>
     <string name="erase_filters">Erase Filters</string>

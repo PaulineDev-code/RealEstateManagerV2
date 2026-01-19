@@ -17,8 +17,12 @@ import com.openclassrooms.realestatemanagerv2.ui.BottomNavItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,8 +36,18 @@ class PropertySharedViewModel @Inject constructor
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PropertyUiState>(PropertyUiState.Loading)
-
     val uiState: StateFlow<PropertyUiState> = _uiState
+    /*private val networkFlow = networkMonitor.networkStatus
+    private val myProperties = flowOf( getAllPropertiesUseCase() )
+
+    val uiState: StateFlow<PropertyUiState> = combine(networkFlow.distinctUntilChanged(), myProperties) {
+            networkStatus, properties -> PropertyUiState.Success(
+        properties = properties,
+        selectedPropertyId = currentState?.selectedPropertyId ?: "",
+        addedPropertyId = currentState?.addedPropertyId,
+        isFiltered = false)
+
+    }.catch { when() }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), PropertyUiState.Loading)*/
 
     init {
         observeNetworkChanges()
@@ -53,7 +67,7 @@ class PropertySharedViewModel @Inject constructor
         }
     }
 
-    private fun loadAllProperties() {
+    private fun loadAllProperties(incrementCloseVersion: Boolean = false) {
 
         viewModelScope.launch {
             try {
@@ -64,8 +78,12 @@ class PropertySharedViewModel @Inject constructor
                     properties = properties,
                     selectedPropertyId = currentState?.selectedPropertyId ?: "",
                     addedPropertyId = currentState?.addedPropertyId,
-                    isFiltered = false)
-
+                    detailPaneCloseVersion = if (incrementCloseVersion)
+                        (currentState?.detailPaneCloseVersion ?: 0) + 1
+                    else
+                        currentState?.detailPaneCloseVersion ?: 0,
+                    isFiltered = false
+                )
             } catch (exception: Exception) {
                 Log.e("ListViewModel", "Error collecting properties", exception)
                 _uiState.value = PropertyUiState.Error(exception)
@@ -75,6 +93,8 @@ class PropertySharedViewModel @Inject constructor
 
     fun updateSelectedProperty(propertyId: String) {
         _uiState.value = (_uiState.value as PropertyUiState.Success).copy(selectedPropertyId = propertyId)
+
+
     }
 
     fun updateAddedProperty(propertyId: String?) {
@@ -85,10 +105,12 @@ class PropertySharedViewModel @Inject constructor
 
     fun searchProperties(searchCriterias: PropertySearchCriteria) {
         viewModelScope.launch {
+            val currentVersion = (_uiState.value as? PropertyUiState.Success)?.detailPaneCloseVersion ?: 0
             _uiState.value = PropertyUiState.Loading
             try {
                 val filtered = searchPropertiesUseCase(searchCriterias)
-                _uiState.value = PropertyUiState.Success(filtered, isFiltered = true)
+                _uiState.value = PropertyUiState.Success(filtered, isFiltered = true,
+                    detailPaneCloseVersion = currentVersion + 1 )
             } catch (e: Exception) {
                 _uiState.value = PropertyUiState.Error(e)
             }
@@ -96,7 +118,7 @@ class PropertySharedViewModel @Inject constructor
     }
 
     fun resetProperties() {
-        loadAllProperties()
+        loadAllProperties(true)
     }
 
     fun refreshProperties() {
@@ -110,7 +132,12 @@ class PropertySharedViewModel @Inject constructor
         data class Success(val properties: List<Property>,
                            val selectedPropertyId: String = "",
                            val addedPropertyId: String? = null,
-                           val isFiltered: Boolean = false): PropertyUiState()
+                           val isFiltered: Boolean = false,
+                           val detailPaneCloseVersion: Int = 0
+        ) : PropertyUiState() {
+            val hasPropertySelected:Boolean
+                get() = selectedPropertyId.isNotEmpty()
+        }
         data class Error(val exception: Throwable): PropertyUiState()
     }
 

@@ -38,6 +38,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -69,7 +70,7 @@ fun ListDetailPaneTest(
                 navigator.scaffoldValue[ListDetailPaneScaffoldRole.List] == PaneAdaptedValue.Expanded
 
     // List values
-    val listUiState by listViewModel.uiState.collectAsState()
+    val listUiState by listViewModel.uiState.collectAsStateWithLifecycle()
 
     // Details values
     // State for video player visibility and URL, managed within this stateful composable
@@ -79,16 +80,16 @@ fun ListDetailPaneTest(
     // Collect UI state from ViewModel
     val detailsUiState by detailsViewModel.uiState.collectAsState()
 
-    val propertyIdToDisplay: String? = (listUiState as? PropertySharedViewModel.PropertyUiState.Success)?.addedPropertyId
+    val propertyIdToDisplay: String? =
+        (listUiState as? PropertySharedViewModel.PropertyUiState.Success)?.addedPropertyId
 
-    propertyIdToDisplay?.let { id ->
-        if (isListAndDetailVisible) {
-            listViewModel.updateSelectedProperty(id)
+    LaunchedEffect(propertyIdToDisplay) {
+        propertyIdToDisplay?.let { id ->
+            scope.launch {
+                navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, id)
+            }
+            listViewModel.updateAddedProperty(null)
         }
-        scope.launch {
-            navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, id)
-        }
-        listViewModel.updateAddedProperty(null)
     }
 
     NavigableListDetailPaneScaffold(
@@ -100,20 +101,13 @@ fun ListDetailPaneTest(
         },
         modifier = Modifier.padding(innerPadding),
         listPane = {
-            if (
-                !isListAndDetailVisible
-                && listUiState is PropertySharedViewModel.PropertyUiState.Success
-            ) {
-                listViewModel.updateSelectedProperty("")
-            }
+
             AnimatedPane(modifier = Modifier) {
                 HomeContent(
                     uiState = listUiState,
                     innerPadding = PaddingValues(0.dp),
+                    itemIdSelected = navigator.currentDestination?.contentKey ?: "",
                     onPropertyItemClick = { propertyId ->
-                        if (isListAndDetailVisible) {
-                            listViewModel.updateSelectedProperty(propertyId)
-                        }
                         scope.launch {
                             navigator.navigateTo(
                                 ListDetailPaneScaffoldRole.Detail,
@@ -133,8 +127,6 @@ fun ListDetailPaneTest(
                     detailsViewModel.getPropertyById(propertyId)
                 }
                 if (navigator.currentDestination?.contentKey != null) {
-                    navigator.currentDestination?.contentKey?.let { propertyId ->
-                        listViewModel.updateSelectedProperty(propertyId) }
                     DetailsContent(
                         uiState = detailsUiState,
                         innerPadding = PaddingValues(0.dp),
@@ -154,8 +146,9 @@ fun ListDetailPaneTest(
                 ) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(stringResource(R.string.select_property_to_details))
-                        listViewModel.updateSelectedProperty("")
+                        //TODO: review use of vm method here, might not work in all cases
                     }
+
                 } else {
                     Box(Modifier.fillMaxSize())
                 }

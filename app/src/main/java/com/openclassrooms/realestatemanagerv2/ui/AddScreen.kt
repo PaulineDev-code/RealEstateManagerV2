@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -72,9 +73,9 @@ fun AddScreen(
     onBackClicked: () -> Unit,
     addViewModel: AddPropertyViewModel = hiltViewModel()
 ) {
-    val state = addViewModel.uiState.collectAsState().value
+    val state by addViewModel.uiState.collectAsStateWithLifecycle()
     val editingState = state as? AddPropertyViewModel.AddPropertyUiState.Editing
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(null) } //TODO : à transmettre au VM
     val addedPropertyId = (state as? AddPropertyViewModel.AddPropertyUiState.Success)?.propertyId
 
     if (state is AddPropertyViewModel.AddPropertyUiState.Error) {

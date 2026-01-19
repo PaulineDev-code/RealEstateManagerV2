@@ -1,7 +1,6 @@
 package com.openclassrooms.realestatemanagerv2.ui
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,21 +23,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -46,30 +45,63 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.openclassrooms.realestatemanagerv2.R
-import com.openclassrooms.realestatemanagerv2.domain.model.Agent
-import com.openclassrooms.realestatemanagerv2.domain.model.Photo
-import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
-import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
-import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
+import com.openclassrooms.realestatemanagerv2.utils.convertToLocalCurrency
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
 import kotlinx.coroutines.launch
 
-
+@ExperimentalMaterial3AdaptiveApi
 @Composable
 fun MapScreen(
     windowAdaptiveInfo: WindowAdaptiveInfo,
     navController: NavController,
     onNavigateToAdd: () -> Unit,
-    viewModel: PropertySharedViewModel
+    propertiesViewModel: PropertySharedViewModel,
+    detailsViewModel: PropertyDetailsViewModel
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val listUiState by propertiesViewModel.uiState.collectAsStateWithLifecycle()
+    val detailsUiState by detailsViewModel.uiState.collectAsStateWithLifecycle()
+    val successListState = listUiState as? PropertySharedViewModel.PropertyUiState.Success
+
+    // State for video player visibility and URL, managed within this stateful composable
+    var isVideoDisplayed by remember { mutableStateOf(false) }
+    var currentVideoUrl by remember { mutableStateOf("") }
+
+    val navigator = rememberListDetailPaneScaffoldNavigator<String>()
+    val scope = rememberCoroutineScope()
+    val isListAndDetailVisible =
+        navigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail] == PaneAdaptedValue.Expanded &&
+                navigator.scaffoldValue[ListDetailPaneScaffoldRole.List] == PaneAdaptedValue.Expanded
+
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+    val criterias =
+        savedStateHandle?.get<PropertySearchCriteria>("Criterias")
+
+    //Track latest close version of the detail pane
+    val closeVersion = successListState?.detailPaneCloseVersion ?: 0
+    var lastHandledVersion by rememberSaveable { mutableIntStateOf(0) }
+
+    LaunchedEffect(closeVersion) {
+        if (closeVersion > lastHandledVersion) {
+            if (navigator.canNavigateBack(BackNavigationBehavior.PopUntilCurrentDestinationChange)) {
+                navigator.navigateBack(BackNavigationBehavior.PopUntilCurrentDestinationChange)
+            }
+            lastHandledVersion = closeVersion
+        }
+    }
+
+    LaunchedEffect(criterias) {
+        if (criterias != null) {
+            propertiesViewModel.searchProperties(criterias)
+            savedStateHandle.remove<PropertySearchCriteria>("Criterias")
+        }
+    }
 
     val navBarsColor = if (
-        uiState is PropertySharedViewModel.PropertyUiState.Success
-        && (uiState as PropertySharedViewModel.PropertyUiState.Success).isFiltered
+        listUiState is PropertySharedViewModel.PropertyUiState.Success
+        && (listUiState as PropertySharedViewModel.PropertyUiState.Success).isFiltered
     ) {
         MaterialTheme.colorScheme.surfaceVariant
     } else {
@@ -84,13 +116,71 @@ fun MapScreen(
         navBarsColor = navBarsColor
     ) { innerPadding ->
 
-        ListDetailPaneTest2(
-            innerPadding = innerPadding,
-            listViewModel = viewModel,
-            navController = rememberNavController()
+        NavigableListDetailPaneScaffold(
+            navigator = navigator,
+            defaultBackBehavior = if (isListAndDetailVisible) {
+
+                BackNavigationBehavior.PopUntilContentChange
+            } else {
+                BackNavigationBehavior.PopUntilScaffoldValueChange
+            },
+            modifier = Modifier.padding(innerPadding),
+            listPane = {
+                AnimatedPane(modifier = Modifier) {
+                    MapContent(
+                        uiState = listUiState,
+                        onInfoWindowClick = { propertyId ->
+                            scope.launch {
+                                navigator.navigateTo(
+                                    ListDetailPaneScaffoldRole.Detail,
+                                    propertyId
+                                )
+                            }
+                        },
+                        onEraseFiltersClick = {
+                            propertiesViewModel.resetProperties()
+                        }
+                    )
+                }
+            },
+            detailPane = {
+                AnimatedPane(modifier = Modifier) {
+                    navigator.currentDestination?.contentKey?.let { propertyId ->
+                        detailsViewModel.getPropertyById(propertyId)
+                    }
+                    if (navigator.currentDestination?.contentKey != null) {
+                        DetailsContent(
+                            uiState = detailsUiState,
+                            innerPadding = PaddingValues(0.dp),
+                            onVideoClicked = { videoUrl ->
+                                currentVideoUrl = videoUrl
+                                isVideoDisplayed = true
+                            },
+                            onVideoPlayerClosed = {
+                                currentVideoUrl = ""
+                                isVideoDisplayed = false
+                            },
+                            isVideoDisplayed = isVideoDisplayed,
+                            currentVideoUrl = currentVideoUrl
+                        )
+                    } else if (isListAndDetailVisible
+                        && listUiState is PropertySharedViewModel.PropertyUiState.Success
+                    ) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(stringResource(R.string.select_property_to_details))
+                        }
+                    } else {
+                        Box(Modifier.fillMaxSize())
+                    }
+                }
+            },
+            paneExpansionState = rememberPaneExpansionState(navigator.scaffoldValue),
+            paneExpansionDragHandle = {}
+
         )
 
     }
+}
 
     /*MapContent(
          innerPadding = innerPadding,
@@ -104,7 +194,7 @@ fun MapScreen(
          }
      )
  }*/
-}
+
 
 @Composable
 fun MapContent(
@@ -155,7 +245,7 @@ fun MapContent(
                                     position = LatLng(property.latitude, property.longitude)
                                 ),
                                 title = property.address,
-                                snippet = property.type + " - " + "${property.price} €",
+                                snippet = property.type + " - " + "${property.price.convertToLocalCurrency()}",
                                 onInfoWindowClick = { onInfoWindowClick(property.id) }
                             )
                         }
@@ -265,10 +355,14 @@ fun ListDetailPaneTest2(
                         isVideoDisplayed = isVideoDisplayed,
                         currentVideoUrl = currentVideoUrl
                     )
-                } else {
+                } else if (isListAndDetailVisible
+                    && listUiState is PropertySharedViewModel.PropertyUiState.Success
+                ) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(stringResource(R.string.select_property_to_details))
                     }
+                } else {
+                    Box(Modifier.fillMaxSize())
                 }
             }
         },

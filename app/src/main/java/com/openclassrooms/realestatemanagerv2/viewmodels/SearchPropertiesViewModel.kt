@@ -26,7 +26,7 @@ class SearchPropertiesViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<SearchPropertiesUiState>(SearchPropertiesUiState.Editing())
     val uiState: StateFlow<SearchPropertiesUiState> = _uiState
-    val allPointOfInterestList: List<PointOfInterest> = PointOfInterest.values().toList()
+    val allPointOfInterestList: List<PointOfInterest> = PointOfInterest.entries
 
     init {
         //retrieve all agents

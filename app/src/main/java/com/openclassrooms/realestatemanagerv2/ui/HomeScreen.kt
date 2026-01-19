@@ -15,23 +15,32 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
+import androidx.compose.material3.adaptive.layout.AnimatedPane
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem
+import androidx.compose.material3.adaptive.layout.rememberPaneExpansionState
+import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
+import androidx.compose.material3.adaptive.navigation.NavigableListDetailPaneScaffold
+import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.openclassrooms.realestatemanagerv2.R
@@ -42,12 +51,13 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
-import com.openclassrooms.realestatemanagerv2.ui.composables.ListDetailPaneTest
 import com.openclassrooms.realestatemanagerv2.ui.composables.PropertyListItem
+import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
+import kotlinx.coroutines.launch
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun HomeScreen(
     windowAdaptiveInfo: WindowAdaptiveInfo,
@@ -55,53 +65,146 @@ fun HomeScreen(
     onBackClicked: () -> Unit,
     onNavigateToAdd: () -> Unit,
     onNavigateToEdit: (propertyId: String) -> Unit,
-    viewModel: PropertySharedViewModel
+    listViewModel: PropertySharedViewModel,
+    detailsViewModel: PropertyDetailsViewModel
 ) {
+    // Collect UI state from ViewModels
+    val detailsUiState by detailsViewModel.uiState.collectAsStateWithLifecycle()
+    val listUiState by listViewModel.uiState.collectAsStateWithLifecycle()
+    val successListState = listUiState as? PropertySharedViewModel.PropertyUiState.Success
 
-    val uiState by viewModel.uiState.collectAsState()
+    val navigator = rememberListDetailPaneScaffoldNavigator<String>()
+    val scope = rememberCoroutineScope()
+    // State for video player visibility and URL, managed within this stateful composable
+    var isVideoDisplayed by remember { mutableStateOf(false) }
+    var currentVideoUrl by remember { mutableStateOf("") }
+
+    val propertyIdToDisplay: String? = successListState?.addedPropertyId
+
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+
+    val criterias = savedStateHandle?.get<PropertySearchCriteria>("Criterias") //TODO: as const
+
+    val isListAndDetailVisible =
+        navigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail] == PaneAdaptedValue.Expanded &&
+                navigator.scaffoldValue[ListDetailPaneScaffoldRole.List] == PaneAdaptedValue.Expanded
+
+    //Track latest close version of the detail pane
+    val closeVersion = successListState?.detailPaneCloseVersion ?: 0
+    var lastHandledVersion by rememberSaveable { mutableIntStateOf(0) }
+
+    LaunchedEffect(closeVersion) {
+        if (closeVersion > lastHandledVersion) {
+            if (navigator.canNavigateBack(BackNavigationBehavior.PopUntilCurrentDestinationChange)) {
+                navigator.navigateBack(BackNavigationBehavior.PopUntilCurrentDestinationChange)
+            }
+            lastHandledVersion = closeVersion
+        }
+    }
+
+    LaunchedEffect(propertyIdToDisplay) {
+        propertyIdToDisplay?.let { id ->
+            scope.launch {
+                navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, id)
+            }
+            listViewModel.updateAddedProperty(null)
+        }
+    }
+
+    LaunchedEffect(criterias) {
+        if (criterias != null) {
+            listViewModel.searchProperties(criterias)
+            savedStateHandle.remove<PropertySearchCriteria>("Criterias")
+        }
+    }
 
     val navBarsColor = if (
-        uiState is PropertySharedViewModel.PropertyUiState.Success
-        && (uiState as PropertySharedViewModel.PropertyUiState.Success).isFiltered
+       successListState?.isFiltered == true
     ) {
         MaterialTheme.colorScheme.surfaceVariant
     } else {
         MaterialTheme.colorScheme.primaryContainer
     }
 
-    val currentBackStackEntry = navController.currentBackStackEntry
-    val savedState     = currentBackStackEntry?.savedStateHandle
-
-    val criteria       = remember(savedState) {
-        savedState?.get<PropertySearchCriteria>("criterias")
-    }
-
-    LaunchedEffect(criteria) {
-        criteria?.let {
-            viewModel.searchProperties(it)
-            savedState?.remove<PropertySearchCriteria>("criterias")
-        }
-    }
-
     LifecycleResumeEffect(Unit) {
         Log.d("HomeScreenDebug", "HomeScreen resumed, refreshing property list")
-        viewModel.refreshProperties()
+        listViewModel.refreshProperties()
         onPauseOrDispose {}
     }
 
-
     AppTopBar(
-        onNavigationClick = onBackClicked,
+        onNavigationClick = {  },
         onAddClick = onNavigateToAdd,
         onModifyClick = { /*TODO*/ },
         showModifyButton = false,
         navBarsColor = navBarsColor
     ) { innerPadding ->
 
-        ListDetailPaneTest(
-            innerPadding = innerPadding,
-            navController = navController,
-            listViewModel = viewModel
+        NavigableListDetailPaneScaffold(
+            navigator = navigator,
+            defaultBackBehavior = if (isListAndDetailVisible) {
+                BackNavigationBehavior.PopUntilContentChange
+            } else {
+                BackNavigationBehavior.PopUntilScaffoldValueChange
+            },
+            modifier = Modifier.padding(innerPadding),
+            listPane = {
+
+                AnimatedPane(modifier = Modifier) {
+                    HomeContent(
+                        uiState = listUiState,
+                        innerPadding = PaddingValues(0.dp),
+                        itemIdSelected = navigator.currentDestination?.contentKey ?: "",
+                        onPropertyItemClick = { propertyId ->
+                            scope.launch {
+                                navigator.navigateTo(
+                                    ListDetailPaneScaffoldRole.Detail,
+                                    propertyId
+                                )
+                            }
+                        },
+                        onResetFiltersClick = {
+                            listViewModel.resetProperties()
+                        }
+                    )
+                }
+            },
+            detailPane = {
+                AnimatedPane(modifier = Modifier) {
+                    navigator.currentDestination?.contentKey?.let { propertyId ->
+                        detailsViewModel.getPropertyById(propertyId)
+                    }
+                    if (navigator.currentDestination?.contentKey != null) {
+                        DetailsContent(
+                            uiState = detailsUiState,
+                            innerPadding = PaddingValues(0.dp),
+                            onVideoClicked = { videoUrl ->
+                                currentVideoUrl = videoUrl
+                                isVideoDisplayed = true
+                            },
+                            onVideoPlayerClosed = {
+                                currentVideoUrl = ""
+                                isVideoDisplayed = false
+                            },
+                            isVideoDisplayed = isVideoDisplayed,
+                            currentVideoUrl = currentVideoUrl
+                        )
+                    } else if (isListAndDetailVisible
+                        && listUiState is PropertySharedViewModel.PropertyUiState.Success
+                    ) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(stringResource(R.string.select_property_to_details))
+                            //TODO: review use of vm method here, might not work in all cases
+                        }
+
+
+                    } else {
+                        Box(Modifier.fillMaxSize())
+                    }
+                }
+            },
+            paneExpansionState = rememberPaneExpansionState(navigator.scaffoldValue),
+            paneExpansionDragHandle = {}
         )
     }
 }
@@ -110,6 +213,7 @@ fun HomeScreen(
 fun HomeContent(
     uiState: PropertySharedViewModel.PropertyUiState,
     innerPadding: PaddingValues, // Padding from AppTopBar
+    itemIdSelected: String,
     onPropertyItemClick: (propertyId: String) -> Unit,
     onResetFiltersClick: () -> Unit
 ) {
@@ -129,7 +233,7 @@ fun HomeContent(
                     itemsIndexed(items = uiState.properties) { _, item ->
                         PropertyListItem(
                             property = item,
-                            isItemSelected = uiState.selectedPropertyId == item.id,
+                            isItemSelected = itemIdSelected == item.id,
                             onItemClick = { onPropertyItemClick(item.id) }
                         )
                     }
@@ -233,6 +337,7 @@ fun HomeScreenPreview() {
     HomeContent(
         uiState = PropertySharedViewModel.PropertyUiState.Success(sampleProperties, "", isFiltered = false),
         innerPadding = PaddingValues(all = 8.dp),
+        itemIdSelected = "",
         onPropertyItemClick = {},
         onResetFiltersClick = {}
         )

@@ -86,7 +86,6 @@ fun DetailsMediaContent(
                         )
                     }
                 )
-                Log.d("Property photo url", photo.mediaUrl)
 
                 if (isInEditMode) {
 
@@ -105,7 +104,6 @@ fun DetailsMediaContent(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .background(Color.White, CircleShape)
-
                         )
                     }
                 }
@@ -129,6 +127,7 @@ fun DetailsMediaContent(
             }
         }
     }
+
     //TODO: Add isInEditMode to hide delete button
     if (videoList.isNotEmpty()) {
         LazyRow(modifier = Modifier.fillMaxWidth()) {
@@ -148,7 +147,6 @@ fun DetailsMediaContent(
                         modifier = Modifier
                             .background(Color.White, CircleShape)
                             .align(Alignment.Center)
-
                     )
 
                     IconButton(
@@ -157,8 +155,6 @@ fun DetailsMediaContent(
                             .padding(2.dp)
                             .size(16.dp)
                             .align(Alignment.TopEnd)
-
-
                     ) {
                         Icon(
                             imageVector = Icons.Default.Clear,

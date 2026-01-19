@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.window.core.layout.WindowWidthSizeClass
@@ -57,6 +59,7 @@ import com.openclassrooms.realestatemanagerv2.ui.composables.SearchHeaderAnimati
 import com.openclassrooms.realestatemanagerv2.ui.composables.SearchMinMaxElement
 import com.openclassrooms.realestatemanagerv2.ui.composables.TitleText
 import com.openclassrooms.realestatemanagerv2.ui.composables.TypewriterText
+import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.SearchPropertiesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,7 +102,8 @@ fun SearchScreen(
         if(windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
             SearchContentTwoPane(
                 modifier = Modifier
-                    .padding(paddingValues),
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState()),
                 minPrice = editingState?.minPrice?.value ?: "",
                 minPriceError = editingState?.minPrice?.error ?: "",
                 onMinPriceChange = { newMinPrice ->
@@ -197,20 +201,15 @@ fun SearchScreen(
                 isSearchClickEnabled = editingState?.isFormValid ?: false,
                 onSearchClicked = {
                     val criterias = searchPropertiesViewModel.getCurrentCriteria()
-                    navController.getBackStackEntry("home_screen")
-                        .savedStateHandle
-                        .set("criterias", criterias)
-
-                    navController.popBackStack(
-                        route = "home_screen",
-                        inclusive = false
-                    )
+                    navController.previousBackStackEntry?.savedStateHandle?.set("Criterias", criterias)
+                    navController.popBackStack()
                 }
             )
         } else {
             SearchContentOnePane(
                 modifier = Modifier
-                    .padding(paddingValues).verticalScroll(rememberScrollState()),
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState()),
                 minPrice = editingState?.minPrice?.value ?: "",
                 minPriceError = editingState?.minPrice?.error ?: "",
                 onMinPriceChange = { newMinPrice ->
@@ -308,14 +307,8 @@ fun SearchScreen(
                 isSearchClickEnabled = editingState?.isFormValid ?: false,
                 onSearchClicked = {
                     val criterias = searchPropertiesViewModel.getCurrentCriteria()
-                    navController.getBackStackEntry("home_screen")
-                        .savedStateHandle
-                        .set("criterias", criterias)
-
-                    navController.popBackStack(
-                        route = "home_screen",
-                        inclusive = false
-                    )
+                    navController.previousBackStackEntry?.savedStateHandle?.set("Criterias", criterias)
+                    navController.popBackStack()
                 }
             )
         }
