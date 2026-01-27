@@ -1,6 +1,5 @@
 package com.openclassrooms.realestatemanagerv2.ui
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
@@ -11,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -20,7 +18,6 @@ import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.layout.AnimatedPane
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
-import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem
 import androidx.compose.material3.adaptive.layout.rememberPaneExpansionState
 import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
 import androidx.compose.material3.adaptive.navigation.NavigableListDetailPaneScaffold
@@ -28,7 +25,6 @@ import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +47,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
+import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsContent
 import com.openclassrooms.realestatemanagerv2.ui.composables.PropertyListItem
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
@@ -70,6 +67,7 @@ fun HomeScreen(
 ) {
     // Collect UI state from ViewModels
     val detailsUiState by detailsViewModel.uiState.collectAsStateWithLifecycle()
+    val successDetailsState = detailsUiState as? PropertyDetailsViewModel.PropertyDetailsUiState.Success
     val listUiState by listViewModel.uiState.collectAsStateWithLifecycle()
     val successListState = listUiState as? PropertySharedViewModel.PropertyUiState.Success
 
@@ -178,6 +176,18 @@ fun HomeScreen(
                         DetailsContent(
                             uiState = detailsUiState,
                             innerPadding = PaddingValues(0.dp),
+                            onPhotoClicked = { photoIndex ->
+                                detailsViewModel.updateSelectedPhotoIndex(photoIndex)
+                                detailsViewModel.updatePhotoViewerShown(true)
+                            },
+                            onPhotoViewerClosed = {
+                                detailsViewModel.updatePhotoViewerShown(false)
+                            },
+                            isPhotoViewerDisplayed = successDetailsState?.isPhotoViewerShown ?: false,
+                            selectedPhotoIndex = successDetailsState?.selectedPhotoIndex ?: 0,
+                            onPhotoIndexChanged = { index ->
+                                detailsViewModel.updateSelectedPhotoIndex(index)
+                            },
                             onVideoClicked = { videoUrl ->
                                 currentVideoUrl = videoUrl
                                 isVideoDisplayed = true

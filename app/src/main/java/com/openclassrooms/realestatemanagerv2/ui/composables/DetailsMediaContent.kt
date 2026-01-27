@@ -50,6 +50,7 @@ fun DetailsMediaContent(
     videoList: List<Video>,
     isInEditMode: Boolean = false,
     onPhotoDeleted: (Media) -> Unit,
+    onPhotoClicked: (Int) -> Unit,
     onVideoDeleted: (Media) -> Unit,
     onVideoClicked: (String) -> Unit,
     context: Context
@@ -62,7 +63,7 @@ fun DetailsMediaContent(
         modifier = modifier.padding(8.dp)
     )
     LazyRow(modifier = Modifier.fillMaxWidth()) {
-        itemsIndexed(items = photoList) { _, photo ->
+        itemsIndexed(items = photoList) { index, photo ->
             Box(
                 modifier = Modifier
                     .height(128.dp)
@@ -77,7 +78,12 @@ fun DetailsMediaContent(
                     contentDescription = photo.description,
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Gray),
+                        .background(Color.Gray)
+                        .then(
+                        if (!isInEditMode) {
+                            Modifier.clickable { onPhotoClicked(index) }
+                        } else Modifier
+                        ),
                     contentScale = ContentScale.Crop,
                     onError = { error ->
                         Log.e(
@@ -190,6 +196,7 @@ fun DetailsMediaContentPreview() {
             photoList = pictureList,
             videoList = videoList,
             onPhotoDeleted = {},
+            onPhotoClicked = {},
             onVideoDeleted = {},
             onVideoClicked = {},
             context = LocalContext.current

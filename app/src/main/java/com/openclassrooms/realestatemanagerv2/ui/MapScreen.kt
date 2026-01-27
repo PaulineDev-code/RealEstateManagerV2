@@ -21,7 +21,6 @@ import androidx.compose.material3.adaptive.navigation.NavigableListDetailPaneSca
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -34,10 +33,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -47,6 +44,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
+import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsContent
 import com.openclassrooms.realestatemanagerv2.utils.convertToLocalCurrency
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
@@ -62,8 +60,10 @@ fun MapScreen(
     detailsViewModel: PropertyDetailsViewModel
 ) {
     val listUiState by propertiesViewModel.uiState.collectAsStateWithLifecycle()
-    val detailsUiState by detailsViewModel.uiState.collectAsStateWithLifecycle()
     val successListState = listUiState as? PropertySharedViewModel.PropertyUiState.Success
+
+    val detailsUiState by detailsViewModel.uiState.collectAsStateWithLifecycle()
+    val successDetailsState = detailsUiState as? PropertyDetailsViewModel.PropertyDetailsUiState.Success
 
     // State for video player visibility and URL, managed within this stateful composable
     var isVideoDisplayed by remember { mutableStateOf(false) }
@@ -152,6 +152,18 @@ fun MapScreen(
                         DetailsContent(
                             uiState = detailsUiState,
                             innerPadding = PaddingValues(0.dp),
+                            onPhotoClicked = { photoIndex ->
+                                detailsViewModel.updateSelectedPhotoIndex(photoIndex)
+                                detailsViewModel.updatePhotoViewerShown(true)
+                            },
+                            onPhotoViewerClosed = {
+                                detailsViewModel.updatePhotoViewerShown(false)
+                            },
+                            isPhotoViewerDisplayed = successDetailsState?.isPhotoViewerShown ?: false,
+                            selectedPhotoIndex = successDetailsState?.selectedPhotoIndex ?: 0,
+                            onPhotoIndexChanged = { index ->
+                                detailsViewModel.updateSelectedPhotoIndex(index)
+                            },
                             onVideoClicked = { videoUrl ->
                                 currentVideoUrl = videoUrl
                                 isVideoDisplayed = true
@@ -273,105 +285,6 @@ fun MapContent(
         }
     }
 }
-
-//Test
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@Composable
-fun ListDetailPaneTest2(
-    innerPadding: PaddingValues,
-    navController: NavHostController,
-    onBackClicked: () -> Unit = { navController.popBackStack() },
-    listViewModel: PropertySharedViewModel,
-    detailsViewModel: PropertyDetailsViewModel = hiltViewModel()
-) {
-
-    val navigator = rememberListDetailPaneScaffoldNavigator<String>()
-    val scope = rememberCoroutineScope()
-    val isListAndDetailVisible =
-        navigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail] == PaneAdaptedValue.Expanded &&
-                navigator.scaffoldValue[ListDetailPaneScaffoldRole.List] == PaneAdaptedValue.Expanded
-
-    // List values
-    val listUiState by listViewModel.uiState.collectAsState()
-
-
-
-    // Details values
-    // State for video player visibility and URL, managed within this stateful composable
-    var isVideoDisplayed by remember { mutableStateOf(false) }
-    var currentVideoUrl by remember { mutableStateOf("") }
-
-    // Fetch property details when propertyId changes
-
-
-    // Collect UI state from ViewModel
-    val detailsUiState by detailsViewModel.uiState.collectAsState()
-
-
-    NavigableListDetailPaneScaffold(
-        navigator = navigator,
-        defaultBackBehavior = if (isListAndDetailVisible) {
-
-            BackNavigationBehavior.PopUntilContentChange
-        } else {
-            BackNavigationBehavior.PopUntilScaffoldValueChange
-        },
-        modifier = Modifier.padding(innerPadding),
-        listPane = {
-            AnimatedPane(modifier = Modifier) {
-                MapContent(
-                    uiState = listUiState,
-                    onInfoWindowClick = { propertyId ->
-                        scope.launch {
-                            navigator.navigateTo(
-                                ListDetailPaneScaffoldRole.Detail,
-                                propertyId
-                            )
-                        }
-                    },
-                    onEraseFiltersClick = {
-                        listViewModel.resetProperties()
-                    }
-                )
-            }
-        },
-        detailPane = {
-            AnimatedPane(modifier = Modifier) {
-                navigator.currentDestination?.contentKey?.let { propertyId ->
-                    detailsViewModel.getPropertyById(propertyId)
-                }
-                if (navigator.currentDestination?.contentKey != null) {
-                    DetailsContent(
-                        uiState = detailsUiState,
-                        innerPadding = PaddingValues(0.dp),
-                        onVideoClicked = { videoUrl ->
-                            currentVideoUrl = videoUrl
-                            isVideoDisplayed = true
-                        },
-                        onVideoPlayerClosed = {
-                            currentVideoUrl = ""
-                            isVideoDisplayed = false
-                        },
-                        isVideoDisplayed = isVideoDisplayed,
-                        currentVideoUrl = currentVideoUrl
-                    )
-                } else if (isListAndDetailVisible
-                    && listUiState is PropertySharedViewModel.PropertyUiState.Success
-                ) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(stringResource(R.string.select_property_to_details))
-                    }
-                } else {
-                    Box(Modifier.fillMaxSize())
-                }
-            }
-        },
-        paneExpansionState = rememberPaneExpansionState(navigator.scaffoldValue),
-        paneExpansionDragHandle = {}
-
-    )
-}
-
 
 @Preview(showBackground = true, showSystemUi = true, backgroundColor = -1)
 @Composable

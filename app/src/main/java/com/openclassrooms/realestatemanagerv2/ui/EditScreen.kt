@@ -17,7 +17,6 @@ import com.openclassrooms.realestatemanagerv2.ui.composables.AddContentTwoPane
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
 import com.openclassrooms.realestatemanagerv2.viewmodels.EditPropertyViewModel
 
-/*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditScreen(
@@ -47,7 +46,7 @@ fun EditScreen(
     AppTopBar(
         onNavigationClick = onBackClicked,
         onAddClick = {},
-        onModifyClick = { *//*TODO*//* },
+        onModifyClick = {},
         showModifyButton = false,
     ) { paddingValues ->
 
@@ -143,7 +142,7 @@ fun EditScreen(
             AddContentOnePane(
                 paddingValues = paddingValues,
 
-                onCreatePropertyClick = { editViewModel.createProperty() },
+                onCreatePropertyClick = { editViewModel.updateProperty() },
                 errorMessage = errorMessage,
                 onDismissError = {
                     errorMessage = null
@@ -230,4 +229,4 @@ fun EditScreen(
             )
         }
     }
-}*/
+}

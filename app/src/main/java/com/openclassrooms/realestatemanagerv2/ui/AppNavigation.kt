@@ -181,16 +181,6 @@ fun AppNavHost(
                 onNavigateToAdd = { navController.navigate("add_screen") }
             )
         }
-        composable("details_screen/{propertyId}") { backStackEntry ->
-            val propertyId = backStackEntry.arguments?.getString("propertyId")!!
-            // DetailsScreen might not be part of the NavSuite if it takes the full screen
-            DetailsScreen(
-                propertyId = propertyId,
-                windowAdaptiveInfo = windowAdaptiveInfo,
-                onNavigateToAdd = { navController.navigate("add_screen") },
-                onNavigateToEdit = { navController.navigate("edit_estate/$propertyId") }
-            )
-        }
         composable("add_screen") {
             AddScreen(
                 navController = navController,

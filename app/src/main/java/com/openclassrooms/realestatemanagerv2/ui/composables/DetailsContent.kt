@@ -1,4 +1,4 @@
-package com.openclassrooms.realestatemanagerv2.ui
+package com.openclassrooms.realestatemanagerv2.ui.composables
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -12,22 +12,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.openclassrooms.realestatemanagerv2.BuildConfig
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
@@ -35,65 +25,17 @@ import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.domain.model.Video
-import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
-import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsDescriptionContent
-import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsInformationsContent
-import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsMediaContent
-import com.openclassrooms.realestatemanagerv2.ui.composables.StaticMapView
-import com.openclassrooms.realestatemanagerv2.ui.composables.VideoPlayer
-import com.openclassrooms.realestatemanagerv2.ui.theme.RealEstateManagerV2Theme
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
-
-
-@Composable
-fun DetailsScreen(
-    windowAdaptiveInfo: WindowAdaptiveInfo,
-    onNavigateToAdd: () -> Unit,
-    onNavigateToEdit: (propertyId: String) -> Unit,
-    propertyId: String,
-    viewModel: PropertyDetailsViewModel = hiltViewModel()
-) {
-
-    // State for video player visibility and URL, managed within this stateful composable
-    var isVideoDisplayed by remember { mutableStateOf(false) }
-    var currentVideoUrl by remember { mutableStateOf("") }
-
-    // Fetch property details when propertyId changes
-    LaunchedEffect(propertyId) {
-        viewModel.getPropertyById(propertyId)
-    }
-
-    // Collect UI state from ViewModel
-    val uiState by viewModel.uiState.collectAsState()
-
-    AppTopBar(
-        onNavigationClick = { /*TODO*/ },
-        onAddClick = onNavigateToAdd,
-        onModifyClick = { /*TODO*/ },
-        showModifyButton = false,
-        content = { innerPadding ->
-            DetailsContent(
-                uiState = uiState,
-                innerPadding = innerPadding, // For content padding from AppTopBar
-                onVideoClicked = { videoUrl ->
-                    currentVideoUrl = videoUrl
-                    isVideoDisplayed = true
-                },
-                onVideoPlayerClosed = {
-                    currentVideoUrl = ""
-                    isVideoDisplayed = false
-                },
-                isVideoDisplayed = isVideoDisplayed,
-                currentVideoUrl = currentVideoUrl
-            )
-        }
-    )
-}
 
 @Composable
 fun DetailsContent(
     uiState: PropertyDetailsViewModel.PropertyDetailsUiState,
     innerPadding: PaddingValues, // For content padding from AppTopBar
+    onPhotoClicked: (photoIndex: Int) -> Unit,
+    onPhotoViewerClosed: () -> Unit,
+    isPhotoViewerDisplayed: Boolean,
+    selectedPhotoIndex: Int,
+    onPhotoIndexChanged: (Int) -> Unit,
     onVideoClicked: (videoUrl: String) -> Unit,
     onVideoPlayerClosed: () -> Unit,
     isVideoDisplayed: Boolean,
@@ -129,6 +71,7 @@ fun DetailsContent(
                         videoList = property.media.filterIsInstance<Video>(),
                         context = context,
                         onPhotoDeleted = {},
+                        onPhotoClicked = onPhotoClicked,
                         onVideoDeleted = {},
                         onVideoClicked = onVideoClicked
                     )
@@ -155,8 +98,16 @@ fun DetailsContent(
             if (isVideoDisplayed && currentVideoUrl.isNotBlank()) {
                 VideoPlayer(
                     videoUri = currentVideoUrl,
-                    context = context,
+                    context = context.applicationContext,
                     onClose = onVideoPlayerClosed
+                )
+            }
+            if (isPhotoViewerDisplayed && property != null) {
+                PhotoViewer(
+                    photos = property.media.filterIsInstance<Photo>(),
+                    selectedPhotoIndex = selectedPhotoIndex,
+                    onPhotoIndexChanged = onPhotoIndexChanged,
+                    onClose = onPhotoViewerClosed
                 )
             }
         }
@@ -217,6 +168,11 @@ fun DetailsScreenPreview() {
     DetailsContent(
         uiState = PropertyDetailsViewModel.PropertyDetailsUiState.Success(sampleProperty),
         innerPadding = PaddingValues(0.dp),
+        onPhotoClicked = {},
+        onPhotoViewerClosed = {},
+        isPhotoViewerDisplayed = false,
+        selectedPhotoIndex = 0,
+        onPhotoIndexChanged = { },
         onVideoClicked = {},
         onVideoPlayerClosed = {},
         isVideoDisplayed = false,

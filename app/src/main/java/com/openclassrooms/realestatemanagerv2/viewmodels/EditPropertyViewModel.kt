@@ -11,12 +11,15 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.domain.model.Video
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllAgentsUseCase
+import com.openclassrooms.realestatemanagerv2.domain.usecases.GetPropertyByIdUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.UpdatePropertyUseCase
 import com.openclassrooms.realestatemanagerv2.ui.models.FormField
 import com.openclassrooms.realestatemanagerv2.utils.validateLength
 import com.openclassrooms.realestatemanagerv2.utils.validateNonEmpty
 import com.openclassrooms.realestatemanagerv2.utils.validatePositiveNumber
+import com.openclassrooms.realestatemanagerv2.viewmodels.AddPropertyViewModel.AddPropertyError
 import com.openclassrooms.realestatemanagerv2.viewmodels.AddPropertyViewModel.AddPropertyUiState
+import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel.PropertyDetailsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,12 +30,15 @@ import javax.inject.Inject
 class EditPropertyViewModel @Inject constructor
     (
     private val updatePropertyUseCase: UpdatePropertyUseCase,
-    private val getAllAgentsUseCase: GetAllAgentsUseCase
+    private val getAllAgentsUseCase: GetAllAgentsUseCase,
+    private val getPropertyByIdUseCase: GetPropertyByIdUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<EditPropertyUiState>(EditPropertyUiState.Editing())
-    val uiState: StateFlow<EditPropertyUiState> = _uiState
+    private var previousEditingState: EditPropertyUiState.Editing? = null
 
+    val uiState: StateFlow<EditPropertyUiState> = _uiState
+    val allPointOfInterestList: List<PointOfInterest> = PointOfInterest.entries
 
     init {
         viewModelScope.launch {
@@ -49,6 +55,39 @@ class EditPropertyViewModel @Inject constructor
         }
     }
 
+    fun getPropertyById(id: String) {
+        viewModelScope.launch {
+            val currentState = _uiState.value as EditPropertyUiState.Editing
+            try {
+                val property = getPropertyByIdUseCase(id)
+                Log.d("DetailsViewModel", "Collected property: $property")
+                _uiState.value = EditPropertyUiState.Editing(
+                    id = property.id,
+                 description = FormField(value = property.description),
+                 type = FormField(value = property.type),
+                 price = FormField(value = property.price.toString()),
+                 area = FormField(value = property.area.toString()),
+                 numberOfRooms = FormField(value = property.numberOfRooms.toString()),
+                 photoUri = "",
+                 photoDescription = "",
+                 mediaLists = property.media,
+                 videoUri = property.media.find { it is Video }?.mediaUrl,
+                 address = FormField(value = property.address),
+                 nearbyPointSet = emptySet(),
+                 entryDate = property.entryDate,
+                 isEntryDatePickerShown = false,
+                 saleDate = property.saleDate,
+                 isSaleDatePickerShown = false,
+                 agent = property.agent,
+                 agentList = currentState.agentList,
+                 isFormValid = false
+                )
+            } catch (exception: Exception) {
+                Log.e("DetailsViewModel", "Error collecting property by id", exception)
+                _uiState.value = EditPropertyUiState.Error(EditPropertyError.GeneralError(exception))
+            }
+        }
+    }
 
     private fun validatePropertyData(currentState: EditPropertyUiState.Editing): ValidationResult {
         // Ensure all required fields are filled
@@ -118,7 +157,7 @@ class EditPropertyViewModel @Inject constructor
 
     private fun handleError(exception: Exception) {
         val currentState = _uiState.value as? EditPropertyUiState.Editing
-        _uiState.value = EditPropertyUiState.Error(exception, currentState)
+        _uiState.value = EditPropertyUiState.Error(EditPropertyError.GeneralError(exception))
     }
 
     //ADD AND DELETE A PHOTO
@@ -292,9 +331,26 @@ class EditPropertyViewModel @Inject constructor
 
     fun returnToEditingState() {
         val currentState = _uiState.value
-        if (currentState is EditPropertyUiState.Error && currentState.previousEditingState != null) {
-            _uiState.value = currentState.previousEditingState
+        if (currentState is EditPropertyUiState.Error && previousEditingState != null) {
+            _uiState.value = previousEditingState as EditPropertyUiState.Editing
         }
+    }
+
+    private fun isFormValid(state: EditPropertyUiState.Editing): Boolean {
+        return listOf(
+            state.description.error,
+            state.type.error,
+            state.price.error,
+            state.address.error,
+            state.area.error,
+            state.numberOfRooms.error,
+        ).all { it.isNullOrBlank() && state.agent != null && state.mediaLists.isNotEmpty()
+                && state.nearbyPointSet.isNotEmpty() && state.entryDate != null}
+    }
+
+    sealed class EditPropertyError {
+        data class FieldError(val fieldId: Int) : EditPropertyError()
+        data class GeneralError(val exception: Throwable) : EditPropertyError()
     }
 
     sealed class ValidationResult {
@@ -306,7 +362,7 @@ class EditPropertyViewModel @Inject constructor
         /*data class Success(val properties: List<Property>): AddPropertyUiState()
         data class Error(val exception: Exception): AddPropertyUiState()*/
         data class Success(val propertyId: String) : EditPropertyUiState
-        data class Error(val exception: Exception, val previousEditingState: Editing? = null): EditPropertyUiState
+        data class Error(val error: EditPropertyError?) : EditPropertyUiState
         data class Editing(
 
             val id: String = "",

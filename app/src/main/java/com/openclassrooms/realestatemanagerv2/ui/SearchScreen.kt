@@ -86,8 +86,6 @@ fun SearchScreen(
             is SearchPropertiesViewModel.SearchPropertiesError.FieldError -> {
                 TODO()
             }
-
-            null -> TODO()
         }
     }
 

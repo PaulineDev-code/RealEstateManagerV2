@@ -34,12 +34,14 @@ class AddPropertyViewModel @Inject constructor
     (
     private val addPropertyUseCase: AddPropertyUseCase,
     private val getAllAgentsUseCase: GetAllAgentsUseCase,
-    private val getLocationUseCase: GetLocationUseCase) : ViewModel() {
+    private val getLocationUseCase: GetLocationUseCase
+            ) : ViewModel() {
 
     private var previousEditingState: AddPropertyUiState.Editing? = null
     private val _uiState = MutableStateFlow<AddPropertyUiState>(AddPropertyUiState.Editing())
     val uiState: StateFlow<AddPropertyUiState> = _uiState
-    val allPointOfInterestList: List<PointOfInterest> = PointOfInterest.values().toList()
+    //TODO: replace set with double list of points of interest one full/one selected items
+    val allPointOfInterestList: List<PointOfInterest> = PointOfInterest.entries
 
 
     init {

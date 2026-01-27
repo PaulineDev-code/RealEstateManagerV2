@@ -151,6 +151,7 @@ fun AddContentOnePane(
             videoList = videoList,
             isInEditMode = true,
             onPhotoDeleted = onPhotoDeleteClick,
+            onPhotoClicked = {},
             onVideoDeleted = onVideoDeleteClick,
             onVideoClicked = { uri ->
                 videoUri = uri
