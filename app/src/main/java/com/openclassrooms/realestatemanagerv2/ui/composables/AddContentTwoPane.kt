@@ -127,13 +127,15 @@ fun AddContentTwoPane(
     }
 
 
-    Row(modifier = Modifier.padding(paddingValues)) {
+    Row(modifier = Modifier
+        .padding(paddingValues)
+        .verticalScroll(rememberScrollState())
+    ) {
 
         Column(
             modifier = Modifier
                 .padding(8.dp)
                 .weight(1f)
-                .verticalScroll(rememberScrollState())
         ) {
 
             AddPropertyAnimation(modifier = Modifier, iterations = 1)
@@ -211,7 +213,6 @@ fun AddContentTwoPane(
             modifier = Modifier
                 .padding(8.dp)
                 .weight(1f)
-                .verticalScroll(rememberScrollState())
         ) {
             AddPropertyInfos(
                 // Values
@@ -255,7 +256,7 @@ fun AddContentTwoPane(
                 onAgentSelected = onAgentSelected
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             if (showSaveButton != null) {
                 Button(
