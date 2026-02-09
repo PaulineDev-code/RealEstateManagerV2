@@ -80,40 +80,6 @@ class EditPropertyViewModel @Inject constructor
         }
     }
 
-    fun getPropertyById(id: String) {
-        viewModelScope.launch {
-            val currentState = _uiState.value as EditPropertyUiState.Editing
-            try {
-                val property = getPropertyByIdUseCase(id)
-                Log.d("DetailsViewModel", "Collected property: $property")
-                _uiState.value = EditPropertyUiState.Editing(
-                    id = property.id,
-                 description = FormField(value = property.description),
-                 type = FormField(value = property.type),
-                 price = FormField(value = property.price.toString()),
-                 area = FormField(value = property.area.toString()),
-                 numberOfRooms = FormField(value = property.numberOfRooms.toString()),
-                 photoUri = "",
-                 photoDescription = "",
-                 mediaLists = property.media,
-                 videoUri = property.media.find { it is Video }?.mediaUrl,
-                 address = FormField(value = property.address),
-                 nearbyPointSet = emptySet(),
-                 entryDate = property.entryDate,
-                 isEntryDatePickerShown = false,
-                 saleDate = property.saleDate,
-                 isSaleDatePickerShown = false,
-                 agent = property.agent,
-                 agentList = currentState.agentList,
-                 isFormValid = false
-                )
-            } catch (exception: Exception) {
-                Log.e("DetailsViewModel", "Error collecting property by id", exception)
-                _uiState.value = EditPropertyUiState.Error(EditPropertyError.GeneralError(exception))
-            }
-        }
-    }
-
     private fun validatePropertyData(currentState: EditPropertyUiState.Editing): ValidationResult {
         // Ensure all required fields are filled
         if (currentState.type.value.isBlank() ||
