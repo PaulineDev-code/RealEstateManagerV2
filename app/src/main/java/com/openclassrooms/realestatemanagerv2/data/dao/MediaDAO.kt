@@ -19,5 +19,8 @@ interface MediaDAO {
     @Query("SELECT * FROM medias WHERE propertyLocalId = :propertyLocalId")
     suspend fun getMedias(propertyLocalId: Long): List<MediaEntity>?
 
+    @Query("DELETE FROM medias WHERE propertyLocalId = :propertyId")
+    suspend fun deleteByPropertyId(propertyId: String)
+
 }
 

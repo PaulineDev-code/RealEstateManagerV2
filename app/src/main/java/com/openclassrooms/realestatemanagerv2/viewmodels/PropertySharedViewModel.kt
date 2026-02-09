@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
@@ -56,7 +57,7 @@ class PropertySharedViewModel @Inject constructor
 
     private fun observeNetworkChanges() {
         viewModelScope.launch {
-            networkMonitor.networkStatus.collectLatest { status ->
+            networkMonitor.networkStatus.distinctUntilChanged().collectLatest { status ->
                 if (status == NetworkStatus.Available) {
                     Log.d("LocationUpdateVM", "Network available. Processing pending location updates.")
                     updateMissingLocationUseCase()
@@ -172,7 +173,6 @@ class PropertySharedViewModel @Inject constructor
         return Property(id, type, price, area, numberOfRooms, description, photos, videoUrl,
             address, nearbyPointsOfInterest, status, entryDate, saleDate, agent)
     }*/
-
 
 
 

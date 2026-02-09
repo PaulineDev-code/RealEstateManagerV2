@@ -1,5 +1,6 @@
 package com.openclassrooms.realestatemanagerv2.ui
 
+import android.app.Activity
 import android.content.res.Resources.Theme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -51,6 +53,7 @@ import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
 import com.openclassrooms.realestatemanagerv2.ui.composables.CustomDatePicker
 import com.openclassrooms.realestatemanagerv2.ui.composables.CustomRangeSlider
 import com.openclassrooms.realestatemanagerv2.ui.composables.CustomTextField
+import com.openclassrooms.realestatemanagerv2.ui.composables.DoubleBackToExitHandler
 import com.openclassrooms.realestatemanagerv2.ui.composables.PointsOfInterestDropdown
 import com.openclassrooms.realestatemanagerv2.ui.composables.PropertyTypeCheckBox
 import com.openclassrooms.realestatemanagerv2.ui.composables.SearchContentOnePane
@@ -88,6 +91,14 @@ fun SearchScreen(
             }
         }
     }
+
+    val activity = LocalContext.current as? Activity
+
+    DoubleBackToExitHandler(
+        enabled = true,
+        message = stringResource(R.string.press_again_to_exit),
+        exit = { activity?.finish() }
+    )
 
     AppTopBar(
         onNavigationClick = { /*TODO*/ },

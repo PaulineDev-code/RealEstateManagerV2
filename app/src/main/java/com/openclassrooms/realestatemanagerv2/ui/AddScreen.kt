@@ -86,7 +86,6 @@ fun AddScreen(
                 // Vous pouvez afficher un message générique ou utiliser le message de l'exception
                 errorMessage = error.exception.message ?: "unknown error"
             }
-
             is AddPropertyViewModel.AddPropertyError.FieldError -> TODO()
             null -> TODO()
         }
@@ -112,6 +111,7 @@ fun AddScreen(
         if (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
             AddContentTwoPane(
                 paddingValues = paddingValues,
+                title = stringResource(id = R.string.add_a_new_property),
                 onCreatePropertyClick = { addViewModel.createProperty() },
                 errorMessage = errorMessage,
                 onDismissError = {
@@ -128,19 +128,14 @@ fun AddScreen(
                     )
                 },
                 onPhotoDeleteClick = { photoToRemove ->
-                    addViewModel.handleAction(
-                        AddScreenUiAction.OnPhotoDeleteClick(
-                            photoToRemove
-                        )
-                    )
+                    addViewModel.deleteMedia(photoToRemove)
                 },
 
                 onAddPhotoDescriptionClick = { addViewModel.addPhoto() },
                 onDismissAddPhotoDescriptionDialog = {
                     addViewModel.updatePhotoUri("")
                     addViewModel.updatePhotoDescription("")
-                                                     },
-
+                },
                 onVideoUriChange = { newVideoUri -> addViewModel.updateVideoUri(newVideoUri) },
                 onVideoAdded = { videoToAdd -> addViewModel.addVideo(videoToAdd) },
                 onVideoDeleteClick = { videoToDelete -> addViewModel.deleteMedia(videoToDelete) },
@@ -205,6 +200,7 @@ fun AddScreen(
             AddContentOnePane(
                 paddingValues = paddingValues,
 
+                title = stringResource(id = R.string.add_a_new_property),
                 onCreatePropertyClick = { addViewModel.createProperty() },
                 errorMessage = errorMessage,
                 onDismissError = {
@@ -221,11 +217,7 @@ fun AddScreen(
                     )
                 },
                 onPhotoDeleteClick = { photoToRemove ->
-                    addViewModel.handleAction(
-                        AddScreenUiAction.OnPhotoDeleteClick(
-                            photoToRemove
-                        )
-                    )
+                    addViewModel.deleteMedia(photoToRemove)
                 },
 
                 onAddPhotoDescriptionClick = { addViewModel.addPhoto() },
@@ -305,6 +297,7 @@ fun AddScreen(
 fun AddScreenPreview() {
     AddContentOnePane(
         paddingValues = PaddingValues(0.dp),
+        title = stringResource(id = R.string.add_a_new_property),
         address = "address",
         agent = Agent("1", "Smith", "6666666666", "smith@gmail.com"),
         agentList = emptyList(),
@@ -367,7 +360,6 @@ fun AddScreenPreview() {
         onVideoDeleteClick = {},
 
         onCreatePropertyClick = {}
-
     )
 }
 /*

@@ -221,7 +221,7 @@ fun AppTopBarPreview() {
         onNavigationClick = { /*TODO*/ },
         onAddClick = { /*TODO*/ },
         onModifyClick = { /*TODO*/ },
-        showModifyButton = false
+        showModifyButton = true
     ) {
 
     }

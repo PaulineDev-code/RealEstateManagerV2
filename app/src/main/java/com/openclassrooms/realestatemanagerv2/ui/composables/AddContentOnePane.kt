@@ -47,6 +47,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Video
 fun AddContentOnePane(
     paddingValues: PaddingValues,
 
+    title: String,
     onCreatePropertyClick: () -> Unit,
     errorMessage: String?,
     onDismissError: () -> Unit,
@@ -136,7 +137,7 @@ fun AddContentOnePane(
         AddPropertyAnimation(modifier = Modifier, iterations = 1)
 
         Text(
-            text = stringResource(id = R.string.add_a_new_property),
+            text = title,
             fontSize = androidx.compose.material3.MaterialTheme.typography.titleLarge.fontSize,
             fontWeight = FontWeight.ExtraBold,
             color = MaterialTheme.colorScheme.primary,
@@ -162,10 +163,11 @@ fun AddContentOnePane(
         )
 
         Row(
-            horizontalArrangement = Arrangement.SpaceAround,
+            horizontalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier
-                .padding(bottom = 8.dp)
+                .padding(top = 16.dp, bottom = 8.dp)
                 .align(CenterHorizontally)
+                .fillMaxWidth()
         ) {
             CameraGalleryChooser(onPhotoSelected = onPhotoUriChange)
 
@@ -277,7 +279,9 @@ fun AddContentOnePane(
 fun AddContentOnePanePreview() {
     var photoUri = "8"
 
-    AddContentOnePane(paddingValues = PaddingValues(0.dp),
+    AddContentOnePane(
+        paddingValues = PaddingValues(0.dp),
+        title = stringResource(id = R.string.edit_property),
         address = "address",
         agent = Agent("1", "Smith", "6666666666", "smith@gmail.com"),
         agentList = emptyList(),

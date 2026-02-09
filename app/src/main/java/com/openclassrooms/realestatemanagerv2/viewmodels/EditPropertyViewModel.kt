@@ -1,6 +1,7 @@
 package com.openclassrooms.realestatemanagerv2.viewmodels
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
@@ -13,6 +14,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Video
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllAgentsUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetPropertyByIdUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.UpdatePropertyUseCase
+import com.openclassrooms.realestatemanagerv2.ui.BottomNavItem
 import com.openclassrooms.realestatemanagerv2.ui.models.FormField
 import com.openclassrooms.realestatemanagerv2.utils.validateLength
 import com.openclassrooms.realestatemanagerv2.utils.validateNonEmpty
@@ -31,7 +33,8 @@ class EditPropertyViewModel @Inject constructor
     (
     private val updatePropertyUseCase: UpdatePropertyUseCase,
     private val getAllAgentsUseCase: GetAllAgentsUseCase,
-    private val getPropertyByIdUseCase: GetPropertyByIdUseCase
+    private val getPropertyByIdUseCase: GetPropertyByIdUseCase,
+    private val savedState: SavedStateHandle
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<EditPropertyUiState>(EditPropertyUiState.Editing())
@@ -41,13 +44,35 @@ class EditPropertyViewModel @Inject constructor
     val allPointOfInterestList: List<PointOfInterest> = PointOfInterest.entries
 
     init {
+        val propertyId = savedState.get<String>("propertyId")
         viewModelScope.launch {
             try {
-                val agents = getAllAgentsUseCase()
-                Log.d("EditViewModel", "Collected agents: $agents")
-                updateState {
-                    copy(agentList = agents)
+                if( propertyId != null) {
+                    val property = getPropertyByIdUseCase(propertyId)
+
+                    val agents = getAllAgentsUseCase()
+                    Log.d("EditViewModel", "Collected agents: $agents")
+                    _uiState.value = EditPropertyUiState.Editing(
+                        id = property.id,
+                        description = FormField(value = property.description),
+                        type = FormField(value = property.type),
+                        price = FormField(value = property.price.toString()),
+                        area = FormField(value = property.area.toString()),
+                        numberOfRooms = FormField(value = property.numberOfRooms.toString()),
+                        mediaLists = property.media,
+                        videoUri = property.media.find { it is Video }?.mediaUrl,
+                        address = FormField(value = property.address),
+                        nearbyPointSet = property.nearbyPointsOfInterest.toSet(),
+                        entryDate = property.entryDate,
+                        saleDate = property.saleDate,
+                        agent = property.agent,
+                        agentList = agents,
+                        isFormValid = false,
+                    )
+
+                    savedState.remove<String>("propertyId")
                 }
+
             } catch (exception: Exception) {
                 Log.e("ViewModel", "Error collecting agents", exception)
                 handleError(exception)
@@ -138,9 +163,7 @@ class EditPropertyViewModel @Inject constructor
                     viewModelScope.launch {
                         try {
                             val propertyId = validationResult.property.id
-
                             updatePropertyUseCase(validationResult.property)
-
                             //Pass the property id to the UI in order to navigate
                             _uiState.value = EditPropertyUiState.Success(propertyId)
                         } catch (e: Exception) {
@@ -229,7 +252,7 @@ class EditPropertyViewModel @Inject constructor
     }
 
     fun updateDescription(newDescription: String) {
-        val error = newDescription.validateNonEmpty() + newDescription.validateLength()
+        val error = newDescription.validateNonEmpty() + " " + newDescription.validateLength()
         updateState {
             copy(
                 description = description.copy(value = newDescription, error = error)
@@ -247,7 +270,7 @@ class EditPropertyViewModel @Inject constructor
     }
 
     fun updatePrice(newPrice: String) {
-        val error = newPrice.validatePositiveNumber() + newPrice.validateNonEmpty()
+        val error = newPrice.validatePositiveNumber() + " " + newPrice.validateNonEmpty()
         updateState {
             copy(
                 price = price.copy(value = newPrice, error = error)
@@ -256,7 +279,7 @@ class EditPropertyViewModel @Inject constructor
     }
 
     fun updateArea(newArea: String) {
-        val error = newArea.validatePositiveNumber() + newArea.validateNonEmpty()
+        val error = newArea.validatePositiveNumber() + " " + newArea.validateNonEmpty()
         updateState {
             copy(
                 area = area.copy(value = newArea, error = error)
@@ -265,7 +288,7 @@ class EditPropertyViewModel @Inject constructor
     }
 
     fun updateNumberOfRooms(newNumberOfRooms: String) {
-        val error = newNumberOfRooms.validateNonEmpty() + newNumberOfRooms.validatePositiveNumber()
+        val error = newNumberOfRooms.validateNonEmpty() + " " + newNumberOfRooms.validatePositiveNumber()
         updateState {
             copy(numberOfRooms = numberOfRooms.copy(value = newNumberOfRooms, error = error))
         }
@@ -325,7 +348,10 @@ class EditPropertyViewModel @Inject constructor
     private fun updateState(update: EditPropertyUiState.Editing.() -> EditPropertyUiState.Editing) {
         val currentState = _uiState.value
         if (currentState is EditPropertyUiState.Editing) {
-            _uiState.value = currentState.update()
+            previousEditingState = currentState
+            val newState = currentState.update()
+            _uiState.value = newState.copy(
+                isFormValid = isFormValid(newState))
         }
     }
 
@@ -344,7 +370,7 @@ class EditPropertyViewModel @Inject constructor
             state.address.error,
             state.area.error,
             state.numberOfRooms.error,
-        ).all { it.isNullOrBlank() && state.agent != null && state.mediaLists.isNotEmpty()
+        ).all { it.isNullOrBlank() && state.agent != null && state.mediaLists.filterIsInstance<Photo>().isNotEmpty()
                 && state.nearbyPointSet.isNotEmpty() && state.entryDate != null}
     }
 

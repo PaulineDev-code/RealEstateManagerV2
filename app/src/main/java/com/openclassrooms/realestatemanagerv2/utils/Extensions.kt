@@ -2,7 +2,7 @@ package com.openclassrooms.realestatemanagerv2.utils
 
 import com.openclassrooms.realestatemanagerv2.data.entity.AgentEntity
 import com.openclassrooms.realestatemanagerv2.data.entity.MediaEntity
-import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestEntity
+import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestCrossRef
 import com.openclassrooms.realestatemanagerv2.data.entity.PropertyLocalEntity
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.Media
@@ -22,7 +22,7 @@ import java.util.Locale
 
 
 //For better architecture, Entities should not have access to Model, so Model has companion objects
-//to convert entities to model
+//to convert entities to model and extension functions to convert model to entities
 //Features Model to entity, String to property status and points of interest to selectable conversions
 // + field validations for properties
 fun List<Property>.mapToPropertyLocalEntities(): List<PropertyLocalEntity> {
@@ -66,15 +66,13 @@ private fun Media.toMediaEntity(propertyLocalId: String): MediaEntity {
     )
 }
 
-fun Property.mapToPointOfInterestEntities(): List<PointOfInterestEntity> {
-    return nearbyPointsOfInterest.map { it.toPointOfInterestEntity() }
-}
-
-private fun PointOfInterest.toPointOfInterestEntity(): PointOfInterestEntity {
-    return PointOfInterestEntity(
-        id = this.serialName,
-        displayNameResId = this.displayNameResId
-    )
+fun Property.mapToPointOfInterestCrossRefs(): List<PointOfInterestCrossRef> {
+    return nearbyPointsOfInterest.map { poi ->
+        PointOfInterestCrossRef(
+            propertyId = id,
+            pointOfInterestId = poi.serialName
+        )
+    }
 }
 
 fun Agent.toAgentEntity(): AgentEntity {
@@ -171,7 +169,7 @@ fun Double.convertToLocalCurrency(): String {
         "FR" -> this * 0.91  // EUR (France)
         "GB" -> this * 0.78  // GBP (United Kingdom)
         "JP" -> this * 145.30  // JPY (Japan)
-        "de-CH" -> this * 0.90  // CHF (Switzerland)
+        "CH" -> this * 0.90  // CHF (Switzerland)
         "CA" -> this * 1.35  // CAD (Canada)
         "AU" -> this * 1.52  // AUD (Australia)
         "CN" -> this * 7.19  // CNY (China)

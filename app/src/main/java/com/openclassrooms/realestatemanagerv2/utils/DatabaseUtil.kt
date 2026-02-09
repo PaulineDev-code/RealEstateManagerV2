@@ -145,12 +145,7 @@ class DatabaseUtil(propertyDAO: PropertyLocalDAO, agentDAO: AgentDAO,
             val propertyLocalEntity = property.toPropertyLocalEntity()
             val agentEntity = property.agent.toAgentEntity()
             val photosEntities = property.mapToMediaEntities()
-            val crossRefs = property.nearbyPointsOfInterest.map { poi ->
-                PointOfInterestCrossRef(
-                    propertyId = propertyLocalEntity.id,
-                    pointOfInterestId = poi.serialName  // ids stables
-                )
-            }
+            val crossRefs = property.mapToPointOfInterestCrossRefs()
 
             //Insert order to ensure no foreign-Keys violation
             agentDao.insertAgent(agentEntity)

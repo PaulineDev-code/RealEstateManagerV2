@@ -100,10 +100,17 @@ class DatabaseModule {
 
     @Provides
     @Singleton
-    fun providePropertyRepository(database: MyDatabase, propertyLocalDAO: PropertyLocalDAO, agentDAO: AgentDAO,
-                                  mediaDAO: MediaDAO, pointOfInterestDAO: PointOfInterestDAO
+    fun providePropertyRepository(
+        database: MyDatabase, propertyLocalDAO: PropertyLocalDAO, agentDAO: AgentDAO,
+        mediaDAO: MediaDAO, pointOfInterestCrossRefDAO: PointOfInterestCrossRefDAO
     ): PropertyRepository {
-        return PropertyRepository( database, propertyLocalDAO, agentDAO, mediaDAO, pointOfInterestDAO)
+        return PropertyRepository(
+            database,
+            propertyLocalDAO,
+            agentDAO,
+            mediaDAO,
+            pointOfInterestCrossRefDAO
+        )
     }
 
 }

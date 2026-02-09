@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -47,6 +48,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Video
 fun AddContentTwoPane(
     paddingValues: PaddingValues,
 
+    title: String,
     onCreatePropertyClick: () -> Unit,
     errorMessage: String?,
     onDismissError: () -> Unit,
@@ -141,7 +143,7 @@ fun AddContentTwoPane(
             AddPropertyAnimation(modifier = Modifier, iterations = 1)
 
             Text(
-                text = stringResource(id = R.string.add_a_new_property),
+                text = title,
                 fontSize = androidx.compose.material3.MaterialTheme.typography.titleLarge.fontSize,
                 fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.primary,
@@ -169,7 +171,9 @@ fun AddContentTwoPane(
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier
-                    .padding(bottom = 8.dp).fillMaxWidth()
+                    .padding(top = 16.dp, bottom = 8.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
             ) {
                 CameraGalleryChooser(onPhotoSelected = onPhotoUriChange)
 
@@ -287,6 +291,7 @@ fun AddContentTwoPane(
 fun AddContentTwoPanePreview() {
     AddContentTwoPane(
         paddingValues = PaddingValues(0.dp),
+        title = stringResource(id = R.string.add_a_new_property),
         address = "address",
         agent = Agent("1", "Smith", "6666666666", "smith@gmail.com"),
         agentList = emptyList(),

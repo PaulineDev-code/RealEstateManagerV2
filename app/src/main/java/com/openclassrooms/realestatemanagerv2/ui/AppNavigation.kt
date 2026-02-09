@@ -24,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.ui.composables.DoubleBackToExitHandler
+import com.openclassrooms.realestatemanagerv2.viewmodels.EditPropertyViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
 
@@ -36,7 +37,6 @@ fun AppNavigation(windowAdaptiveInfo: WindowAdaptiveInfo) {
 
     // Define your primary navigation destinations
     val primaryDestinations = listOf(BottomNavItem.List, BottomNavItem.Search, BottomNavItem.Map)
-
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -105,22 +105,6 @@ fun AppNavHost(
     windowAdaptiveInfo: WindowAdaptiveInfo,
     modifier: Modifier = Modifier
 ) {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route?.substringBefore("?")
-
-    val isPrimaryDestination = currentRoute in listOf(
-        BottomNavItem.List.route,   // "home_screen"
-        BottomNavItem.Map.route,    // "map_screen"
-        BottomNavItem.Search.route  // "search_screen"
-    )
-
-    val activity = LocalContext.current as? Activity
-
-    DoubleBackToExitHandler(
-        enabled = isPrimaryDestination,
-        message = stringResource(R.string.press_again_to_exit),
-        exit = { activity?.finish() }
-    )
 
     NavHost(
         navController = navController,
@@ -146,7 +130,7 @@ fun AppNavHost(
             LaunchedEffect(newId, uiState) {
                 if (newId != null && uiState is PropertySharedViewModel.PropertyUiState.Success) {
                     sharedViewModel.updateAddedProperty(newId)
-                    backStackEntry.savedStateHandle.remove<String>(BottomNavItem.List.ARG_NEW_ID)
+                    backStackEntry.arguments?.remove(BottomNavItem.List.ARG_NEW_ID)
                 }
             }
 
@@ -170,6 +154,9 @@ fun AppNavHost(
                 windowAdaptiveInfo = windowAdaptiveInfo,
                 navController = navController,
                 onNavigateToAdd = { navController.navigate("add_screen") },
+                onNavigateToEdit = { propertyId ->
+                    navController.navigate("edit_estate/$propertyId")
+                },
                 propertiesViewModel = sharedViewModel,
                 detailsViewModel = detailsViewModel
             )
@@ -188,15 +175,18 @@ fun AppNavHost(
                 onBackClicked = { navController.popBackStack() }
             )
         }
-        /*composable("edit_estate/{propertyId}") { backStackEntry ->
-        val propertyId = backStackEntry.arguments?.getString("propertyId")
-        EditScreen(
-            propertyId = propertyId,
-            navController = navController,
-            windowAdaptiveInfo = windowAdaptiveInfo,
-            onBack = { navController.popBackStack() }
+        composable("edit_estate/{propertyId}") { backStackEntry ->
+
+            val editViewModel = hiltViewModel<EditPropertyViewModel>(backStackEntry)
+
+            EditScreen(
+                navController = navController,
+                windowAdaptiveInfo = windowAdaptiveInfo,
+                onBackClicked = { navController.popBackStack() },
+                onNavigateToAdd = { navController.navigate("add_screen") },
+                editViewModel = editViewModel
         )
-    }*/
+    }
     }
 }
 

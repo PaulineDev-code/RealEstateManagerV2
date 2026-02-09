@@ -1,5 +1,6 @@
 package com.openclassrooms.realestatemanagerv2.ui
 
+import android.app.Activity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,6 +31,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,6 +47,7 @@ import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
 import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsContent
+import com.openclassrooms.realestatemanagerv2.ui.composables.DoubleBackToExitHandler
 import com.openclassrooms.realestatemanagerv2.utils.convertToLocalCurrency
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
@@ -56,6 +59,7 @@ fun MapScreen(
     windowAdaptiveInfo: WindowAdaptiveInfo,
     navController: NavController,
     onNavigateToAdd: () -> Unit,
+    onNavigateToEdit: (propertyId: String) -> Unit,
     propertiesViewModel: PropertySharedViewModel,
     detailsViewModel: PropertyDetailsViewModel
 ) {
@@ -83,6 +87,8 @@ fun MapScreen(
     val closeVersion = successListState?.detailPaneCloseVersion ?: 0
     var lastHandledVersion by rememberSaveable { mutableIntStateOf(0) }
 
+    val activity = LocalContext.current as? Activity
+
     LaunchedEffect(closeVersion) {
         if (closeVersion > lastHandledVersion) {
             if (navigator.canNavigateBack(BackNavigationBehavior.PopUntilCurrentDestinationChange)) {
@@ -108,11 +114,21 @@ fun MapScreen(
         MaterialTheme.colorScheme.primaryContainer
     }
 
+    DoubleBackToExitHandler(
+        enabled = !navigator.canNavigateBack(),
+        message = stringResource(R.string.press_again_to_exit),
+        exit = { activity?.finish() }
+    )
+
+
+
     AppTopBar(
         onNavigationClick = { TODO() },
         onAddClick = onNavigateToAdd,
-        onModifyClick = { TODO() },
-        showModifyButton = false,
+        onModifyClick = { navigator.currentDestination?.contentKey?.let { onNavigateToEdit(it) } },
+        showModifyButton = if (navigator.currentDestination?.contentKey != null) {
+            true
+        } else false,
         navBarsColor = navBarsColor
     ) { innerPadding ->
 

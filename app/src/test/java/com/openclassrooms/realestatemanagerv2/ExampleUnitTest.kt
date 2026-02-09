@@ -93,7 +93,12 @@ class ExampleUnitTest {
 
     @Test
     fun `convertToLocalCurrency keeps USD for unsupported locale`() {
-        Locale.setDefault(Locale.of("ar", "SA")) // Arabie Saoudite (non supportée)
+        val saudiLocale = Locale.Builder()
+            .setLanguage("ar")
+            .setRegion("SA")
+            .build()
+
+        Locale.setDefault(saudiLocale)
         val usdPrice = 100000.0
         val result = usdPrice.convertToLocalCurrency()
 
@@ -154,7 +159,12 @@ class ExampleUnitTest {
 
     @Test
     fun `convertFromLocalCurrency keeps value for unsupported locale`() {
-        Locale.setDefault(Locale.of("pt", "PT")) // Portugal (non supporté)
+        val portugalLocale = Locale.Builder()
+            .setLanguage("pt")
+            .setRegion("PT")
+            .build()
+
+        Locale.setDefault(portugalLocale) // Portugal (non supporté)
         val price = 50000.0
         val result = price.convertFromLocalCurrency()
 

@@ -15,7 +15,6 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Video
 import com.openclassrooms.realestatemanagerv2.domain.usecases.AddPropertyUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllAgentsUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetLocationUseCase
-import com.openclassrooms.realestatemanagerv2.ui.AddScreenUiAction
 import com.openclassrooms.realestatemanagerv2.ui.models.FormField
 import com.openclassrooms.realestatemanagerv2.utils.convertFromLocalCurrency
 import com.openclassrooms.realestatemanagerv2.utils.formatToLocalCurrency
@@ -49,7 +48,6 @@ class AddPropertyViewModel @Inject constructor
             try {
                 //Make allAgentList out of Editing state ? Keep useCase here and expose val through viewmodel?
                 //Error management ok
-                //Interactor to move out logic?
                 val agents = getAllAgentsUseCase()
                 Log.d("AddViewModel", "Collected agents: $agents")
                 updateState {
@@ -167,32 +165,6 @@ class AddPropertyViewModel @Inject constructor
         }
     }
 
-    fun handleAction(action: AddScreenUiAction) {
-        when(action) {
-            is AddScreenUiAction.OnCreatePropertyClick -> { createProperty() }
-            is AddScreenUiAction.OnPhotoDeleteClick -> { deleteMedia(action.mediaToRemove) }
-            is AddScreenUiAction.OnAddPhotoDescriptionClick -> {}
-            is AddScreenUiAction.OnVideoDeleteClick -> {}
-            is AddScreenUiAction.OnAddNearbyPoint -> {}
-            is AddScreenUiAction.OnDeleteNearbyPoint -> {}
-            is AddScreenUiAction.OnPhotoUriChange -> {}
-            is AddScreenUiAction.OnPhotoDescriptionChange -> {}
-            is AddScreenUiAction.OnVideoUriChange -> {}
-            is AddScreenUiAction.OnDescriptionChange -> {}
-            is AddScreenUiAction.OnTypeChange -> {}
-            is AddScreenUiAction.OnAreaChange -> {}
-            is AddScreenUiAction.OnPriceChange -> {}
-            is AddScreenUiAction.OnNumberOfRoomsChange -> {}
-            is AddScreenUiAction.OnAddressChange -> {}
-            is AddScreenUiAction.OnPointOfInterestSelectionChange -> {
-                updatePointOfInterestSelection(action.pointOfInterest, action.isSelected)}
-            is AddScreenUiAction.OnEntryDateChange -> {}
-            is AddScreenUiAction.OnSaleDateChange -> {}
-            is AddScreenUiAction.OnAgentSelected -> {}
-
-        }
-    }
-
     private fun handleError(error: AddPropertyError) {
 /*
         val currentState = _uiState.value as? AddPropertyUiState.Editing
@@ -264,7 +236,7 @@ class AddPropertyViewModel @Inject constructor
     }
 
     fun updateDescription(newDescription: String) {
-        val error = newDescription.validateNonEmpty() + newDescription.validateLength()
+        val error = newDescription.validateNonEmpty() + " " + newDescription.validateLength()
         updateState {
             copy(
                 description = description.copy(value = newDescription, error = error)
@@ -282,7 +254,7 @@ class AddPropertyViewModel @Inject constructor
     }
 
     fun updatePrice(newPrice: String) {
-        val error = newPrice.validatePositiveNumber() + newPrice.validateNonEmpty()
+        val error = newPrice.validatePositiveNumber() + " " + newPrice.validateNonEmpty()
         updateState {
             copy(
                 price = price.copy(value = newPrice, error = error)
@@ -291,7 +263,7 @@ class AddPropertyViewModel @Inject constructor
     }
 
     fun updateArea(newArea: String) {
-        val error = newArea.validatePositiveNumber() + newArea.validateNonEmpty()
+        val error = newArea.validatePositiveNumber() + " " + newArea.validateNonEmpty()
         updateState {
             copy(
                 area = area.copy(value = newArea, error = error)
@@ -300,7 +272,7 @@ class AddPropertyViewModel @Inject constructor
     }
 
     fun updateNumberOfRooms(newNumberOfRooms: String) {
-        val error = newNumberOfRooms.validateNonEmpty() + newNumberOfRooms.validatePositiveNumber()
+        val error = newNumberOfRooms.validateNonEmpty() + " " + newNumberOfRooms.validatePositiveNumber()
         updateState {
             copy(numberOfRooms = numberOfRooms.copy(value = newNumberOfRooms, error = error))
         }
