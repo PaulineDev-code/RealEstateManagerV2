@@ -161,12 +161,12 @@ fun String.formatToLocalCurrency(): String {
 * @receiver String representing a price in USD (e.g., "300000")
 * @return Formatted string in local currency (e.g., "273 000 €" for France)
 */
-fun Double.convertToLocalCurrency(): String {
+fun Double.convertToLocalCurrency(): Double {
     //To use in screens convert from dollar to local currency
     val locale = Locale.getDefault()
 
     val convertedAmount = when (locale.country) {
-        "FR" -> this * 0.91  // EUR (France)
+        "FR", "ES", "DE", "IT" -> this * 0.91  // EUR (France)
         "GB" -> this * 0.78  // GBP (United Kingdom)
         "JP" -> this * 145.30  // JPY (Japan)
         "CH" -> this * 0.90  // CHF (Switzerland)
@@ -181,7 +181,7 @@ fun Double.convertToLocalCurrency(): String {
         else -> this  // Default: keep USD
     }
 
-    return convertedAmount.toString()
+    return convertedAmount
 
 }
 
@@ -191,11 +191,11 @@ fun Double.convertToLocalCurrency(): String {
 * Note: This returns a Double (not a formatted String) because it's typically
 * used to store values in the database, which expects raw USD amounts.
 */
-fun Double.convertFromLocalCurrency(): String {
+fun Double.convertFromLocalCurrency(): Double {
     //To use in AddScreen & SearchScreen convert from local currency to dollar
     val locale = Locale.getDefault()
     val toUSD = when (locale.country) {
-        "FR" -> this / 0.91      // EUR → USD
+        "FR", "ES", "DE", "IT" -> this / 0.91      // EUR → USD
         "GB" -> this / 0.78      // GBP → USD
         "JP" -> this / 145.30    // JPY → USD
         "CH" -> this / 0.90      // CHF → USD
@@ -209,7 +209,7 @@ fun Double.convertFromLocalCurrency(): String {
         "MX" -> this / 17.3      // MXN → USD
         else -> this             // if already USD or unknown
     }
-    return toUSD.toString()
+    return toUSD
 }
 
 

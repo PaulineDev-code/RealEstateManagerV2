@@ -107,7 +107,7 @@ fun PropertyListItem(property: Property, isItemSelected: Boolean, onItemClick: (
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = property.price.convertToLocalCurrency().formatToLocalCurrency(),
+                    text = property.price.convertToLocalCurrency().toString().formatToLocalCurrency(),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.align(Alignment.End),
                     color = MaterialTheme.colorScheme.outlineVariant

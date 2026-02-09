@@ -49,6 +49,7 @@ import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
 import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsContent
 import com.openclassrooms.realestatemanagerv2.ui.composables.DoubleBackToExitHandler
 import com.openclassrooms.realestatemanagerv2.utils.convertToLocalCurrency
+import com.openclassrooms.realestatemanagerv2.utils.formatToLocalCurrency
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
 import kotlinx.coroutines.launch
@@ -273,7 +274,10 @@ fun MapContent(
                                     position = LatLng(property.latitude, property.longitude)
                                 ),
                                 title = property.address,
-                                snippet = property.type + " - " + "${property.price.convertToLocalCurrency()}",
+                                snippet = property.type + " - " + "${
+                                    property.price.convertToLocalCurrency().toString()
+                                        .formatToLocalCurrency()
+                                }",
                                 onInfoWindowClick = { onInfoWindowClick(property.id) }
                             )
                         }

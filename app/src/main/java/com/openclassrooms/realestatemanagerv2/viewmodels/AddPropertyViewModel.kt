@@ -17,7 +17,6 @@ import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllAgentsUseCas
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetLocationUseCase
 import com.openclassrooms.realestatemanagerv2.ui.models.FormField
 import com.openclassrooms.realestatemanagerv2.utils.convertFromLocalCurrency
-import com.openclassrooms.realestatemanagerv2.utils.formatToLocalCurrency
 import com.openclassrooms.realestatemanagerv2.utils.validateLength
 import com.openclassrooms.realestatemanagerv2.utils.validateNonEmpty
 import com.openclassrooms.realestatemanagerv2.utils.validatePositiveNumber
@@ -110,8 +109,8 @@ class AddPropertyViewModel @Inject constructor
             ValidationResult.Success()
         } else {
             ValidationResult.Error(
-                    Exception
-                        ("Invalid property data")
+                Exception
+                    ("Invalid property data")
             )
         }
     }
@@ -130,7 +129,7 @@ class AddPropertyViewModel @Inject constructor
                         val newProperty = Property(
                             id = UUID.randomUUID().toString(),
                             type = currentState.type.value,
-                            price = currentState.price.value.toDouble(),
+                            price = currentState.price.value.toDouble().convertFromLocalCurrency(),
                             area = currentState.area.value.toDouble(),
                             numberOfRooms = currentState.numberOfRooms.value.toInt(),
                             description = currentState.description.value,

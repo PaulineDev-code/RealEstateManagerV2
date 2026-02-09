@@ -17,15 +17,12 @@ import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllAgentsUseCas
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetLocationUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetPropertyByIdUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.UpdatePropertyUseCase
-import com.openclassrooms.realestatemanagerv2.ui.BottomNavItem
 import com.openclassrooms.realestatemanagerv2.ui.models.FormField
+import com.openclassrooms.realestatemanagerv2.utils.convertFromLocalCurrency
+import com.openclassrooms.realestatemanagerv2.utils.convertToLocalCurrency
 import com.openclassrooms.realestatemanagerv2.utils.validateLength
 import com.openclassrooms.realestatemanagerv2.utils.validateNonEmpty
 import com.openclassrooms.realestatemanagerv2.utils.validatePositiveNumber
-import com.openclassrooms.realestatemanagerv2.viewmodels.AddPropertyViewModel.AddPropertyError
-import com.openclassrooms.realestatemanagerv2.viewmodels.AddPropertyViewModel.AddPropertyUiState
-import com.openclassrooms.realestatemanagerv2.viewmodels.AddPropertyViewModel.ValidationResult
-import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel.PropertyDetailsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,6 +41,7 @@ class EditPropertyViewModel @Inject constructor
 
     private val _uiState = MutableStateFlow<EditPropertyUiState>(EditPropertyUiState.Editing())
     private var previousEditingState: EditPropertyUiState.Editing? = null
+    private var initialProperty: Property? = null
 
     val uiState: StateFlow<EditPropertyUiState> = _uiState
     val allPointOfInterestList: List<PointOfInterest> = PointOfInterest.entries
@@ -61,7 +59,7 @@ class EditPropertyViewModel @Inject constructor
                         id = property.id,
                         description = FormField(value = property.description),
                         type = FormField(value = property.type),
-                        price = FormField(value = property.price.toString()),
+                        price = FormField(value = property.price.convertToLocalCurrency().toString()),
                         area = FormField(value = property.area.toString()),
                         numberOfRooms = FormField(value = property.numberOfRooms.toString()),
                         mediaLists = property.media,
@@ -76,6 +74,7 @@ class EditPropertyViewModel @Inject constructor
                     )
 
                     savedState.remove<String>("propertyId")
+                    initialProperty = property
                 }
 
             } catch (exception: Exception) {
@@ -146,15 +145,22 @@ class EditPropertyViewModel @Inject constructor
             when (val validationResult = validatePropertyData(currentState)) {
                 is ValidationResult.Success -> {
                     viewModelScope.launch {
-                        val coordinates: LatLng? = try {
-                            getLocationUseCase(currentState.address.value)
-                        }catch (e: Exception){
-                            null
+                        val coordinates: LatLng?
+                        if(initialProperty?.address != currentState.address.value) {
+                            coordinates = try {
+                                getLocationUseCase(currentState.address.value)
+                            } catch (e: Exception) {
+                                null
+                            }
+                        } else {
+                            coordinates = initialProperty?.let {
+                                LatLng(it.latitude ?: 0.0, it.longitude ?: 0.0)
+                            }
                         }
                         val newProperty = Property(
                             id = currentState.id,
                             type = currentState.type.value,
-                            price = currentState.price.value.toDouble(),
+                            price = currentState.price.value.toDouble().convertFromLocalCurrency(),
                             area = currentState.area.value.toDouble(),
                             numberOfRooms = currentState.numberOfRooms.value.toInt(),
                             description = currentState.description.value,

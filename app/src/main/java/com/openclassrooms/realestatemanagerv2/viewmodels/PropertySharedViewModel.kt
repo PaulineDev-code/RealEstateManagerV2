@@ -2,7 +2,6 @@ package com.openclassrooms.realestatemanagerv2.viewmodels
 
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

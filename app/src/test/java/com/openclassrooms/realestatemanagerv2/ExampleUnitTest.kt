@@ -88,7 +88,7 @@ class ExampleUnitTest {
 
         // 100000 USD * 0.91 = 91000 EUR
         // Format français: "91 000,00 €" (avec espace insécable \u00A0)
-        assertEquals("91000.0", result)
+        assertEquals(91000.0, result, 0.001)
     }
 
     @Test
@@ -103,7 +103,7 @@ class ExampleUnitTest {
         val result = usdPrice.convertToLocalCurrency()
 
         // Devrait rester en USD sans conversion
-        assertEquals("100000.0", result)
+        assertEquals(100000.0, result, 0.001)
     }
 
     /**
@@ -153,8 +153,7 @@ class ExampleUnitTest {
 
         // 91000 EUR / 0.91 = 100000.0 USD
         // Retourne un String du Double brut: "100000.0"
-        val resultDouble = result.toDouble()
-        assertEquals(100000.0, resultDouble, 0.01) // Tolérance pour arrondis
+        assertEquals(100000.0, result, 0.01) // Tolérance pour arrondis
     }
 
     @Test
@@ -168,8 +167,8 @@ class ExampleUnitTest {
         val price = 50000.0
         val result = price.convertFromLocalCurrency()
 
-        // Devrait retourner la même valeur: "50000.0"
-        assertEquals("50000.0", result)
+        // Devrait retourner la même valeur: 50000.0
+        assertEquals(50000.0, result, 0.001)
     }
 
     /**
@@ -181,7 +180,7 @@ class ExampleUnitTest {
         val originalUSD = 100000.0
 
         // USD → EUR (formatted): 100000 * 0.91 = "91 000,00 €"
-        val eurString = originalUSD.convertToLocalCurrency()
+        val eurDouble = originalUSD.convertToLocalCurrency()
 
         // Parse le montant EUR: "91 000,00 €" → 91000.0
         /*val eurValue = eurString
@@ -193,10 +192,9 @@ class ExampleUnitTest {
             .toDoubleOrNull() ?: 0.0*/
 
         // EUR → USD (raw): 91000 / 0.91 = "100000.0"
-        val backToUsdString = eurString.toDouble().convertFromLocalCurrency()
-        val finalUSD = backToUsdString.toDouble()
+        val finalUSD = eurDouble.convertFromLocalCurrency()
 
         // Devrait être très proche de l'original (tolérance 0.1% pour arrondis)
-        assertEquals(originalUSD, finalUSD, 100.0)
+        assertEquals(originalUSD, finalUSD, 10.0)
     }
 }

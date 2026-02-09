@@ -53,7 +53,7 @@ fun DetailsInformationsContent(property: Property) {
             IndividualDetailsContent(
                 title = stringResource(id = R.string.price),
                 icon = R.drawable.ic_money,
-                data = property.price.convertToLocalCurrency().formatToLocalCurrency()
+                data = property.price.convertToLocalCurrency().toString().formatToLocalCurrency()
             )
             IndividualDetailsContent(
                 title = stringResource(id = R.string.type),
