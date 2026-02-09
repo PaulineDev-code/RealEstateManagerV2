@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.LatLng
+import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.Media
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
@@ -12,6 +14,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.domain.model.Video
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllAgentsUseCase
+import com.openclassrooms.realestatemanagerv2.domain.usecases.GetLocationUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetPropertyByIdUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.UpdatePropertyUseCase
 import com.openclassrooms.realestatemanagerv2.ui.BottomNavItem
@@ -21,6 +24,7 @@ import com.openclassrooms.realestatemanagerv2.utils.validateNonEmpty
 import com.openclassrooms.realestatemanagerv2.utils.validatePositiveNumber
 import com.openclassrooms.realestatemanagerv2.viewmodels.AddPropertyViewModel.AddPropertyError
 import com.openclassrooms.realestatemanagerv2.viewmodels.AddPropertyViewModel.AddPropertyUiState
+import com.openclassrooms.realestatemanagerv2.viewmodels.AddPropertyViewModel.ValidationResult
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel.PropertyDetailsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +38,7 @@ class EditPropertyViewModel @Inject constructor
     private val updatePropertyUseCase: UpdatePropertyUseCase,
     private val getAllAgentsUseCase: GetAllAgentsUseCase,
     private val getPropertyByIdUseCase: GetPropertyByIdUseCase,
+    private val getLocationUseCase: GetLocationUseCase,
     private val savedState: SavedStateHandle
 ) : ViewModel() {
 
@@ -82,43 +87,57 @@ class EditPropertyViewModel @Inject constructor
 
     private fun validatePropertyData(currentState: EditPropertyUiState.Editing): ValidationResult {
         // Ensure all required fields are filled
-        if (currentState.type.value.isBlank() ||
-            currentState.price.value.toDoubleOrNull() == null ||
-            currentState.area.value.toDoubleOrNull() == null ||
-            currentState.numberOfRooms.value.toIntOrNull() == null ||
-            currentState.description.value.isBlank() ||
-            currentState.mediaLists.isEmpty() ||
-            currentState.address.value.isBlank() ||
-            currentState.nearbyPointSet.toList().isEmpty() ||
-            currentState.entryDate == null ||
-            currentState.agent == null
-        ) {
-            return ValidationResult.Error(
-                "Please fill all required fields and make sure lists are not empty"
-            )
+        val invalidFields = mutableListOf<Int>()
+
+        if (currentState.type.value.isBlank()) {
+            invalidFields.add(R.string.type)
         }
 
-        val newProperty = Property(
-            id = currentState.id,
-            type = currentState.type.value,
-            price = currentState.price.value.toDouble(),
-            area = currentState.area.value.toDouble(),
-            numberOfRooms = currentState.numberOfRooms.value.toInt(),
-            description = currentState.description.value,
-            media = currentState.mediaLists,
-            address = currentState.address.value,
-            latitude = null,
-            longitude = null,
-            nearbyPointsOfInterest = currentState.nearbyPointSet.toList(),
-            status = if (currentState.saleDate != null) PropertyStatus.Sold
-            else PropertyStatus.Available,
-            entryDate = requireNotNull(currentState.entryDate) { "Entry date cannot be null" },
-            saleDate = if (currentState.saleDate != null) currentState.saleDate
-            else null,
-            agent = currentState.agent
-        )
+        if (currentState.price.value.toDoubleOrNull() == null) {
+            invalidFields.add(R.string.price)
+        }
 
-        return ValidationResult.Success(newProperty)
+        if (currentState.area.value.toDoubleOrNull() == null) {
+            invalidFields.add(R.string.area)
+        }
+
+        if (currentState.numberOfRooms.value.toIntOrNull() == null) {
+            invalidFields.add(R.string.number_of_rooms)
+        }
+
+        if (currentState.description.value.isBlank()) {
+            invalidFields.add(R.string.description)
+        }
+
+        if (currentState.mediaLists.isEmpty()) {
+            invalidFields.add(R.string.media)
+        }
+
+        if (currentState.address.value.isBlank()) {
+            invalidFields.add(R.string.location)
+        }
+
+        if (currentState.nearbyPointSet.isEmpty()) {
+            invalidFields.add(R.string.nearby_points_of_interest)
+        }
+
+        if (currentState.entryDate == null) {
+            invalidFields.add(R.string.entry_date)
+        }
+
+        if (currentState.agent == null) {
+            invalidFields.add(R.string.agent)
+        }
+        return if (invalidFields.isEmpty()) {
+
+
+            ValidationResult.Success()
+        } else {
+            ValidationResult.Error(
+                Exception
+                    ("Invalid property data")
+            )
+        }
     }
 
     fun updateProperty() {
@@ -127,9 +146,33 @@ class EditPropertyViewModel @Inject constructor
             when (val validationResult = validatePropertyData(currentState)) {
                 is ValidationResult.Success -> {
                     viewModelScope.launch {
+                        val coordinates: LatLng? = try {
+                            getLocationUseCase(currentState.address.value)
+                        }catch (e: Exception){
+                            null
+                        }
+                        val newProperty = Property(
+                            id = currentState.id,
+                            type = currentState.type.value,
+                            price = currentState.price.value.toDouble(),
+                            area = currentState.area.value.toDouble(),
+                            numberOfRooms = currentState.numberOfRooms.value.toInt(),
+                            description = currentState.description.value,
+                            media = currentState.mediaLists,
+                            address = currentState.address.value,
+                            latitude = coordinates?.latitude,
+                            longitude = coordinates?.longitude,
+                            nearbyPointsOfInterest = currentState.nearbyPointSet.toList(),
+                            status = if (currentState.saleDate != null) PropertyStatus.Sold
+                            else PropertyStatus.Available,
+                            entryDate = requireNotNull(currentState.entryDate) { "Entry date cannot be null" },
+                            saleDate = if (currentState.saleDate != null) currentState.saleDate
+                            else null,
+                            agent = currentState.agent!!
+                        )
                         try {
-                            val propertyId = validationResult.property.id
-                            updatePropertyUseCase(validationResult.property)
+                            val propertyId = newProperty.id
+                            updatePropertyUseCase(newProperty)
                             //Pass the property id to the UI in order to navigate
                             _uiState.value = EditPropertyUiState.Success(propertyId)
                         } catch (e: Exception) {
@@ -138,7 +181,7 @@ class EditPropertyViewModel @Inject constructor
                     }
                 }
                 is ValidationResult.Error -> {
-                    handleError(Exception(validationResult.errorMessage))
+                    handleError(Exception(validationResult.exception))
                 }
             }
         }
@@ -346,8 +389,8 @@ class EditPropertyViewModel @Inject constructor
     }
 
     sealed class ValidationResult {
-        data class Success(val property: Property) : ValidationResult()
-        data class Error(val errorMessage: String) : ValidationResult()
+        class Success() : ValidationResult()
+        data class Error(val exception: Exception) : ValidationResult()
     }
 
     sealed interface EditPropertyUiState {
