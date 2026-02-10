@@ -1,6 +1,5 @@
 package com.openclassrooms.realestatemanagerv2.ui
 
-import android.app.Activity
 import android.net.Uri
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.Icon
@@ -18,8 +17,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -28,8 +25,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.openclassrooms.realestatemanagerv2.R
-import com.openclassrooms.realestatemanagerv2.ui.composables.DoubleBackToExitHandler
 import com.openclassrooms.realestatemanagerv2.viewmodels.EditPropertyViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
@@ -164,7 +159,6 @@ fun AppNavHost(
                 navController = navController,
                 listViewModel = sharedViewModel,
                 detailsViewModel = detailsViewModel,
-                onBackClicked = { navController.popBackStack() },
                 onNavigateToAdd = { navController.navigate("add_screen") },
                 onNavigateToEdit = { propertyId ->
                     navController.navigate("edit_estate/$propertyId")
@@ -197,7 +191,7 @@ fun AppNavHost(
             AddScreen(
                 navController = navController,
                 windowAdaptiveInfo = windowAdaptiveInfo,
-                onBackClicked = { navController.popBackStack() }
+                onUpClicked = { navController.popBackStack() }
             )
         }
         composable("edit_estate/{propertyId}") { backStackEntry ->
@@ -207,57 +201,9 @@ fun AppNavHost(
             EditScreen(
                 navController = navController,
                 windowAdaptiveInfo = windowAdaptiveInfo,
-                onBackClicked = { navController.popBackStack() },
-                onNavigateToAdd = { navController.navigate("add_screen") },
+                onUpClicked = { navController.popBackStack() },
                 editViewModel = editViewModel
             )
         }
     }
 }
-
-
-
-/*NavHost(navController = navController, startDestination = "shared_properties_graph"){
-
-    navigation(
-        startDestination = "home_screen",
-        route = "shared_properties_graph"){
-
-        composable(route = "home_screen") { backStackEntry ->
-            val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry("shared_properties_graph")
-            }
-            val sharedViewModel = hiltViewModel<PropertySharedViewModel>(parentEntry)
-            HomeScreen(navController = navController, sharedViewModel)
-        }
-
-        composable(route = "map_screen") { backStackEntry ->
-            val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry("shared_properties_graph")
-            }
-            val sharedViewModel = hiltViewModel<PropertySharedViewModel>(parentEntry)
-            MapScreen(navController = navController, sharedViewModel)
-        }
-    }
-    composable(route = "search_screen") {
-        SearchScreen(navController)
-    }
-    composable(route = "details_screen/{propertyId}",
-    arguments = listOf(
-        navArgument("propertyId") {
-            type = NavType.StringType
-        }
-    )) {
-        DetailsScreen(
-            navController = navController,
-            propertyId = it.arguments?.getString("propertyId")!!
-        )
-        Log.d("DetailsScreen", "Property ID: ${it.arguments?.getString("propertyId")}")
-    }
-    composable(route = "add_screen") {
-        AddScreen(navController)
-    }
-
-}
-
-}*/

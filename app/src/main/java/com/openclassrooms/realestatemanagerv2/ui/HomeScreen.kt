@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -62,7 +63,6 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     windowAdaptiveInfo: WindowAdaptiveInfo,
     navController: NavController,
-    onBackClicked: () -> Unit,
     onNavigateToAdd: () -> Unit,
     onNavigateToEdit: (propertyId: String) -> Unit,
     listViewModel: PropertySharedViewModel,
@@ -89,6 +89,15 @@ fun HomeScreen(
     val isListAndDetailVisible =
         navigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail] == PaneAdaptedValue.Expanded &&
                 navigator.scaffoldValue[ListDetailPaneScaffoldRole.List] == PaneAdaptedValue.Expanded
+
+    val topBarTitle = when {
+        (navigator.currentDestination?.contentKey == null
+                || isListAndDetailVisible)
+                && successListState?.isFiltered == true -> stringResource(R.string.filtered_list)
+        navigator.currentDestination?.contentKey == null
+                || isListAndDetailVisible -> stringResource(R.string.list)
+        else -> stringResource(R.string.property_details)
+    }
 
     //Track latest close version of the detail pane
     val closeVersion = successListState?.detailPaneCloseVersion ?: 0
@@ -142,12 +151,15 @@ fun HomeScreen(
     )
 
     AppTopBar(
-        onNavigationClick = { },
+        title = topBarTitle,
+        showEraseFiltersButton = successListState?.isFiltered == true
+                && (navigator.currentDestination?.contentKey == null || isListAndDetailVisible),
+        onEraseFiltersClick = { listViewModel.resetProperties() },
+        showUpButton = navigator.currentDestination?.contentKey != null && !isListAndDetailVisible,
+        onUpClick = { scope.launch { navigator.navigateBack() } },
         onAddClick = onNavigateToAdd,
+        showModifyButton = navigator.currentDestination?.contentKey != null,
         onModifyClick = { navigator.currentDestination?.contentKey?.let { onNavigateToEdit(it) } },
-        showModifyButton = if (navigator.currentDestination?.contentKey != null) {
-            true
-        } else false,
         navBarsColor = navBarsColor
     ) { innerPadding ->
 
@@ -173,19 +185,19 @@ fun HomeScreen(
                                     propertyId
                                 )
                             }
-                        },
-                        onResetFiltersClick = {
-                            listViewModel.resetProperties()
                         }
                     )
                 }
             },
             detailPane = {
                 AnimatedPane(modifier = Modifier) {
-                    navigator.currentDestination?.contentKey?.let { propertyId ->
-                        detailsViewModel.getPropertyById(propertyId)
+                    val propertyId = navigator.currentDestination?.contentKey
+                    LaunchedEffect(propertyId) {
+                        propertyId?.let { id ->
+                            detailsViewModel.getPropertyById(id)
+                        }
                     }
-                    if (navigator.currentDestination?.contentKey != null) {
+                    if (propertyId != null) {
                         DetailsContent(
                             uiState = detailsUiState,
                             innerPadding = PaddingValues(0.dp),
@@ -237,8 +249,7 @@ fun HomeContent(
     uiState: PropertySharedViewModel.PropertyUiState,
     innerPadding: PaddingValues, // Padding from AppTopBar
     itemIdSelected: String,
-    onPropertyItemClick: (propertyId: String) -> Unit,
-    onResetFiltersClick: () -> Unit
+    onPropertyItemClick: (propertyId: String) -> Unit
 ) {
 
     Box(modifier = Modifier
@@ -252,13 +263,23 @@ fun HomeContent(
             }
 
             is PropertySharedViewModel.PropertyUiState.Success ->
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    itemsIndexed(items = uiState.properties) { _, item ->
-                        PropertyListItem(
-                            property = item,
-                            isItemSelected = itemIdSelected == item.id,
-                            onItemClick = { onPropertyItemClick(item.id) }
-                        )
+                if(uiState.properties.isEmpty() && uiState.isFiltered == true) {
+                    Text(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.Center),
+                        text = stringResource(id = R.string.no_property_found),
+                        fontStyle = FontStyle.Italic
+                    )
+                } else {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        itemsIndexed(items = uiState.properties) { _, item ->
+                            PropertyListItem(
+                                property = item,
+                                isItemSelected = itemIdSelected == item.id,
+                                onItemClick = { onPropertyItemClick(item.id) }
+                            )
+                        }
                     }
                 }
 
@@ -273,22 +294,6 @@ fun HomeContent(
                         .align(Alignment.Center)
                 )
                 Log.e("HomeScreenContent", "PropertyUiState.Error: ${e.message}")
-            }
-        }
-
-        if (uiState is PropertySharedViewModel.PropertyUiState.Success && uiState.isFiltered) {
-            TextButton(
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                onClick = onResetFiltersClick,
-                colors = ButtonDefaults.textButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(start = 8.dp, top = 8.dp)
-            ) {
-                Text(text = stringResource(id = R.string.erase_filters))
             }
         }
     }
@@ -361,7 +366,6 @@ fun HomeScreenPreview() {
         uiState = PropertySharedViewModel.PropertyUiState.Success(sampleProperties, "", isFiltered = false),
         innerPadding = PaddingValues(all = 8.dp),
         itemIdSelected = "",
-        onPropertyItemClick = {},
-        onResetFiltersClick = {}
+        onPropertyItemClick = {}
         )
 }

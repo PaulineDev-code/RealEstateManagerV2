@@ -76,7 +76,7 @@
     <string name="min_and_max_area">Min and/or Max area</string>
     <string name="search_for_properties">Search for properties</string>
     //EditScreen
-    <string name="edit_property">Edit this Property</string>
+    <string name="edit_this_property">Edit this Property</string>
     <string name="fill_all_fields">Save this property by providing at least one photo and filling all non optional fields</string>
     //StaticMapView
     <string name="location_not_available">Location not available for this property. If connected to the internet, please check address informations</string>
@@ -87,15 +87,20 @@
     <string name="error_loading_properties">error loading properties:</string>
     //Navigation
     <string name="list">List</string>
+    <string name="filtered_list">Filtered List</string>
     <string name="search">Search</string>
     <string name="map">Map</string>
+    <string name="filtered_map">Filtered Map</string>
+    <string name="property_details">Property Details</string>
     <string name="add_property">Add Property</string>
+    <string name="edit_property">Edit Property</string>
     <string name="press_again_to_exit">Press again to exit application</string>
     //App utils
     <string name="add_a_new_property">Add a new Property</string>
-    <string name="erase_filters">Erase Filters</string>
     <string name="add_proprety_validation_error">Fields are missing: </string>
     <string name="select_an_agent">Select an agent</string>
+    <string name="erase_filters">Erase Filters</string>
+    <string name="no_property_found">Couldn\'t find any property matching the given criterias</string>
     //Photo Viewer
     <string name="next_photo">Next photo</string>
     <string name="previous_photo">Previous photo</string>
@@ -103,7 +108,4 @@
     <string name="photo_count">Photo %1$d of %2$d</string>
     <string name="image_load_error">Failed to load image</string>
     <string name="no_photos_available">No photos available</string>
-
-
-
 </resources>

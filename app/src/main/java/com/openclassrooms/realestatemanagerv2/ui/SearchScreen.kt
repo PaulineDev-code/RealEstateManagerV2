@@ -1,68 +1,34 @@
 package com.openclassrooms.realestatemanagerv2.ui
 
 import android.app.Activity
-import android.content.res.Resources.Theme
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import androidx.window.core.layout.WindowWidthSizeClass
 import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
-import com.openclassrooms.realestatemanagerv2.ui.composables.AgentSpinner
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
-import com.openclassrooms.realestatemanagerv2.ui.composables.CustomDatePicker
-import com.openclassrooms.realestatemanagerv2.ui.composables.CustomRangeSlider
-import com.openclassrooms.realestatemanagerv2.ui.composables.CustomTextField
 import com.openclassrooms.realestatemanagerv2.ui.composables.DoubleBackToExitHandler
-import com.openclassrooms.realestatemanagerv2.ui.composables.PointsOfInterestDropdown
-import com.openclassrooms.realestatemanagerv2.ui.composables.PropertyTypeCheckBox
 import com.openclassrooms.realestatemanagerv2.ui.composables.SearchContentOnePane
 import com.openclassrooms.realestatemanagerv2.ui.composables.SearchContentTwoPane
-import com.openclassrooms.realestatemanagerv2.ui.composables.SearchHeaderAnimation
-import com.openclassrooms.realestatemanagerv2.ui.composables.SearchMinMaxElement
-import com.openclassrooms.realestatemanagerv2.ui.composables.TitleText
-import com.openclassrooms.realestatemanagerv2.ui.composables.TypewriterText
-import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.SearchPropertiesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -101,10 +67,8 @@ fun SearchScreen(
     )
 
     AppTopBar(
-        onNavigationClick = { /*TODO*/ },
-        onModifyClick = { /*TODO*/ },
+        title = stringResource(R.string.search),
         onAddClick = onNavigateToAdd,
-        showModifyButton = false,
         navBarsColor = MaterialTheme.colorScheme.surfaceVariant
     ) { paddingValues ->
 
@@ -173,7 +137,7 @@ fun SearchScreen(
                         newMinVideo
                     )
                 },
-                //date Picker for entry and sale
+                //date Picker for entry and sale date
                 selectedEntryDate = editingState?.entryDate,
                 onEntryDateSelected = { newEntryDate ->
                     searchPropertiesViewModel.updateEntryDate(
@@ -279,7 +243,7 @@ fun SearchScreen(
                         newMinVideo
                     )
                 },
-                //date Picker for entry and sale
+                //date Picker for entry and sale date
                 selectedEntryDate = editingState?.entryDate,
                 onEntryDateSelected = { newEntryDate ->
                     searchPropertiesViewModel.updateEntryDate(

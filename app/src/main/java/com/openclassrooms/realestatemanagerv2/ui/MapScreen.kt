@@ -80,6 +80,15 @@ fun MapScreen(
         navigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail] == PaneAdaptedValue.Expanded &&
                 navigator.scaffoldValue[ListDetailPaneScaffoldRole.List] == PaneAdaptedValue.Expanded
 
+    val topBarTitle = when {
+        (navigator.currentDestination?.contentKey == null
+                || isListAndDetailVisible)
+                && successListState?.isFiltered == true -> stringResource(R.string.filtered_map)
+        navigator.currentDestination?.contentKey == null
+                || isListAndDetailVisible -> stringResource(R.string.list)
+        else -> stringResource(R.string.property_details)
+    }
+
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
     val criterias =
         savedStateHandle?.get<PropertySearchCriteria>("Criterias")
@@ -124,7 +133,11 @@ fun MapScreen(
 
 
     AppTopBar(
-        onNavigationClick = { TODO() },
+        title = topBarTitle,
+        showEraseFiltersButton = successListState?.isFiltered == true,
+        onEraseFiltersClick = { propertiesViewModel.resetProperties() },
+        showUpButton = navigator.currentDestination?.contentKey != null && !isListAndDetailVisible,
+        onUpClick = { scope.launch { navigator.navigateBack() } },
         onAddClick = onNavigateToAdd,
         onModifyClick = { navigator.currentDestination?.contentKey?.let { onNavigateToEdit(it) } },
         showModifyButton = if (navigator.currentDestination?.contentKey != null) {
@@ -153,9 +166,6 @@ fun MapScreen(
                                     propertyId
                                 )
                             }
-                        },
-                        onEraseFiltersClick = {
-                            propertiesViewModel.resetProperties()
                         }
                     )
                 }
@@ -211,25 +221,10 @@ fun MapScreen(
     }
 }
 
-    /*MapContent(
-         innerPadding = innerPadding,
-         uiState = uiState,
-         onInfoWindowClick = { propertyId ->
-             navController
-                 .navigate("details_screen" + "/" + propertyId)
-         },
-         onEraseFiltersClick = {
-             viewModel.resetProperties()
-         }
-     )
- }*/
-
-
 @Composable
 fun MapContent(
     uiState: PropertySharedViewModel.PropertyUiState,
-    onInfoWindowClick: (propertyId: String) -> Unit,
-    onEraseFiltersClick: () -> Unit,
+    onInfoWindowClick: (propertyId: String) -> Unit
 ) {
 
     Box(
@@ -285,24 +280,6 @@ fun MapContent(
                 }
             }
         }
-
-        if (uiState is PropertySharedViewModel.PropertyUiState.Success &&
-            uiState.isFiltered
-        ) {
-            TextButton(
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                onClick = onEraseFiltersClick,
-                colors = ButtonDefaults.textButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(start = 8.dp, top = 8.dp)
-            ) {
-                Text(text = stringResource(id = R.string.erase_filters))
-            }
-        }
     }
 }
 
@@ -312,6 +289,5 @@ fun MapContentPreview() {
 
     MapContent(
         uiState = PropertySharedViewModel.PropertyUiState.Success(emptyList(), "", isFiltered = false),
-        onInfoWindowClick = {},
-        onEraseFiltersClick = {})
+        onInfoWindowClick = {})
 }

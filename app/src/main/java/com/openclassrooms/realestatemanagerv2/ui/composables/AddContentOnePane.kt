@@ -1,9 +1,6 @@
 package com.openclassrooms.realestatemanagerv2.ui.composables
 
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -288,7 +285,7 @@ fun AddContentOnePanePreview() {
 
     AddContentOnePane(
         paddingValues = PaddingValues(0.dp),
-        title = stringResource(id = R.string.edit_property),
+        title = stringResource(id = R.string.edit_this_property),
         address = "address",
         agent = Agent("1", "Smith", "6666666666", "smith@gmail.com"),
         agentList = emptyList(),

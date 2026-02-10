@@ -11,14 +11,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.window.core.layout.WindowWidthSizeClass
 import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.ui.composables.AddContentOnePane
 import com.openclassrooms.realestatemanagerv2.ui.composables.AddContentTwoPane
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
-import com.openclassrooms.realestatemanagerv2.viewmodels.AddPropertyViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.EditPropertyViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,8 +24,7 @@ import com.openclassrooms.realestatemanagerv2.viewmodels.EditPropertyViewModel
 fun EditScreen(
     navController: NavController,
     windowAdaptiveInfo: WindowAdaptiveInfo,
-    onBackClicked: () -> Unit,
-    onNavigateToAdd: () -> Unit,
+    onUpClicked: () -> Unit,
     editViewModel: EditPropertyViewModel
 ) {
     val state = editViewModel.uiState.collectAsState().value
@@ -61,16 +58,17 @@ fun EditScreen(
     }
 
     AppTopBar(
-        onNavigationClick = onBackClicked,
-        onAddClick = onNavigateToAdd,
-        onModifyClick = {},
-        showModifyButton = false,
+        title = stringResource(id = R.string.edit_property),
+        showUpButton = true,
+        onUpClick = onUpClicked,
+        showAddButton = false,
+        onAddClick = {},
     ) { paddingValues ->
 
         if (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
             AddContentTwoPane(
                 paddingValues = paddingValues,
-                title = stringResource(id = R.string.edit_property),
+                title = stringResource(id = R.string.edit_this_property),
                 onCreatePropertyClick = { editViewModel.updateProperty() },
                 errorMessage = errorMessage,
                 onDismissError = {
@@ -160,7 +158,7 @@ fun EditScreen(
             AddContentOnePane(
                 paddingValues = paddingValues,
 
-                title = stringResource(id = R.string.edit_property),
+                title = stringResource(id = R.string.edit_this_property),
                 onCreatePropertyClick = { editViewModel.updateProperty() },
                 errorMessage = errorMessage,
                 onDismissError = {
