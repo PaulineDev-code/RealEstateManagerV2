@@ -1,12 +1,17 @@
 package com.openclassrooms.realestatemanagerv2.ui
 
 import android.app.Activity
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuite
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldLayout
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -53,30 +58,60 @@ fun AppNavigation(windowAdaptiveInfo: WindowAdaptiveInfo) {
     //TODO: Compose back pressed handler plutôt que primary destinations
 
     if (showNavSuite) {
-        NavigationSuiteScaffold(
-            navigationSuiteItems = {
-                primaryDestinations.forEach { screen ->
-                    item(
-                        selected = currentRoute == screen.route,
-                        onClick = {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = {
-                            Icon(
-                                screen.icon,
-                                contentDescription = screen.title
+        NavigationSuiteScaffoldLayout(
+            navigationSuite = {
+                if (navigationSuiteType == NavigationSuiteType.NavigationRail) {
+                    NavigationRail {
+                        Spacer(Modifier.weight(1f))
+                        primaryDestinations.forEach { screen ->
+                            NavigationRailItem(
+                                selected = currentRoute == screen.route,
+                                onClick = {
+                                    navController.navigate(screen.route) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = {
+                                    Icon(
+                                        screen.icon,
+                                        contentDescription = screen.title
+                                    )
+                                },
+                                label = { Text(screen.title) }
                             )
-                        },
-                        label = { Text(screen.title) }
-                    )
+                        }
+                        Spacer(Modifier.weight(1f))
+                    }
+                } else {
+                    NavigationSuite {
+                        primaryDestinations.forEach { screen ->
+                            item(
+                                selected = currentRoute == screen.route,
+                                onClick = {
+                                    navController.navigate(screen.route) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = {
+                                    Icon(
+                                        screen.icon,
+                                        contentDescription = screen.title
+                                    )
+                                },
+                                label = { Text(screen.title) }
+                            )
+                        }
+                    }
                 }
-            },
+            }
             // layoutType = navigationSuiteType, // This is applied by default
             // You can customize colors and other properties of the navigation suite here
         ) {

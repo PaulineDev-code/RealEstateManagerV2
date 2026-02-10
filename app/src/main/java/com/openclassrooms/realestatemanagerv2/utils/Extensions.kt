@@ -111,7 +111,7 @@ fun List<PointOfInterest>.toSelectableList(): List<SelectablePointOfInterest> {
 
 //validation functions
 fun String.validateLength(): String? {
-    return if (this.length < 5) "Title is too short." else ""
+    return if (this.length < 5) "Is too short." else ""
  }
 
 fun String.validateNonEmpty(): String? {
