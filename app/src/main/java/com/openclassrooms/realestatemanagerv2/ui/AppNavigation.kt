@@ -1,6 +1,7 @@
 package com.openclassrooms.realestatemanagerv2.ui
 
 import android.app.Activity
+import android.net.Uri
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationRail
@@ -55,11 +56,10 @@ fun AppNavigation(windowAdaptiveInfo: WindowAdaptiveInfo) {
     // Determine the type of navigation suite based on window size
     val navigationSuiteType =
         NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(windowAdaptiveInfo)
-    //TODO: Compose back pressed handler plutôt que primary destinations
 
-    if (showNavSuite) {
-        NavigationSuiteScaffoldLayout(
-            navigationSuite = {
+    NavigationSuiteScaffoldLayout(
+        navigationSuite = {
+            if (showNavSuite) {
                 if (navigationSuiteType == NavigationSuiteType.NavigationRail) {
                     NavigationRail {
                         Spacer(Modifier.weight(1f))
@@ -112,23 +112,13 @@ fun AppNavigation(windowAdaptiveInfo: WindowAdaptiveInfo) {
                     }
                 }
             }
-            // layoutType = navigationSuiteType, // This is applied by default
-            // You can customize colors and other properties of the navigation suite here
-        ) {
-            // Main content area for the NavigationSuiteScaffold
-            AppNavHost(
-                navController = navController,
-                windowAdaptiveInfo = windowAdaptiveInfo,
-                modifier = Modifier // This will get padding from NavigationSuiteScaffold
-            )
         }
-    } else {
-        // If not showing NavSuite, we are likely in a deeper screen like Add/Edit/Details (on compact)
-        // These screens might have their own TopAppBar and manage their own layout.
+    ) {
+        // Main content area for the NavigationSuiteScaffold
         AppNavHost(
             navController = navController,
             windowAdaptiveInfo = windowAdaptiveInfo,
-            modifier = Modifier
+            modifier = Modifier // This will get padding from NavigationSuiteScaffold
         )
     }
 }
@@ -160,7 +150,7 @@ fun AppNavHost(
             val sharedViewModel = hiltViewModel<PropertySharedViewModel>(backStackEntry)
             val detailsViewModel = hiltViewModel<PropertyDetailsViewModel>()
             val newId: String? =
-                backStackEntry.arguments?.getString(BottomNavItem.List.ARG_NEW_ID)
+                backStackEntry.arguments?.getString(BottomNavItem.List.ARG_NEW_ID)?.let(Uri::decode)
             val uiState by sharedViewModel.uiState.collectAsState()
             LaunchedEffect(newId, uiState) {
                 if (newId != null && uiState is PropertySharedViewModel.PropertyUiState.Success) {
@@ -220,8 +210,8 @@ fun AppNavHost(
                 onBackClicked = { navController.popBackStack() },
                 onNavigateToAdd = { navController.navigate("add_screen") },
                 editViewModel = editViewModel
-        )
-    }
+            )
+        }
     }
 }
 
