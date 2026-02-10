@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -151,6 +152,12 @@ fun AddContentTwoPane(
                 modifier = Modifier
                     .padding(8.dp)
                     .fillMaxWidth()
+            )
+
+            Text(
+                modifier = Modifier.padding(8.dp),
+                text = stringResource(id = R.string.fill_all_fields),
+                fontStyle = FontStyle.Italic
             )
 
             DetailsMediaContent(

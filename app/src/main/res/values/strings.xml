@@ -76,7 +76,8 @@
     <string name="min_and_max_area">Min and/or Max area</string>
     <string name="search_for_properties">Search for properties</string>
     //EditScreen
-    <string name="edit_property">Edit Property</string>
+    <string name="edit_property">Edit this Property</string>
+    <string name="fill_all_fields">To save this property make sure you provide at least one photo and fill all non optional fields</string>
     //StaticMapView
     <string name="location_not_available">Location not available for this property. If connected to the internet, please check address informations</string>
     <string name="maps_api_key_missing_static_map">Maps API Key is missing. Static map cannot be displayed.</string>
