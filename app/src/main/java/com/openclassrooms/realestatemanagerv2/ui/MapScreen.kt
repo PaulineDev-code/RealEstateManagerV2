@@ -85,7 +85,7 @@ fun MapScreen(
                 || isListAndDetailVisible)
                 && successListState?.isFiltered == true -> stringResource(R.string.filtered_map)
         navigator.currentDestination?.contentKey == null
-                || isListAndDetailVisible -> stringResource(R.string.list)
+                || isListAndDetailVisible -> stringResource(R.string.map)
         else -> stringResource(R.string.property_details)
     }
 
