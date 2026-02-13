@@ -75,11 +75,14 @@
     <string name="click_to_select_points_of_interest">Click here to select nearby points of interest : </string>
     <string name="min_and_max_area">Min and/or Max area</string>
     <string name="search_for_properties">Search for properties</string>
+    //AddScreen
+    <string name="add_a_new_property">Add a new Property</string>
+    <string name="add_proprety_validation_error">Fields are missing: </string>
     //EditScreen
     <string name="edit_this_property">Edit this Property</string>
     <string name="fill_all_fields">Save this property by providing at least one photo and filling all non optional fields</string>
     //StaticMapView
-    <string name="location_not_available">Location not available for this property. If connected to the internet, please check address informations</string>
+    <string name="location_not_available">Location not available for this property. You may not be connected to the internet or the address isn\' t valid</string>
     <string name="maps_api_key_missing_static_map">Maps API Key is missing. Static map cannot be displayed.</string>
     <string name="property_location_map">Map showing property location</string>
     <string name="error_loading_map_image">Could not load map image.</string>
@@ -96,8 +99,6 @@
     <string name="edit_property">Edit Property</string>
     <string name="press_again_to_exit">Press again to exit application</string>
     //App utils
-    <string name="add_a_new_property">Add a new Property</string>
-    <string name="add_proprety_validation_error">Fields are missing: </string>
     <string name="select_an_agent">Select an agent</string>
     <string name="erase_filters">Erase Filters</string>
     <string name="no_property_found">Couldn\'t find any property matching the given criterias</string>

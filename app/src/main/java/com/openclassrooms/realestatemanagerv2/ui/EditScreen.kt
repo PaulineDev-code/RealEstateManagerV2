@@ -1,5 +1,7 @@
 package com.openclassrooms.realestatemanagerv2.ui
 
+import android.health.connect.datatypes.units.Length
+import android.widget.Toast
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.rememberDatePickerState
@@ -10,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.window.core.layout.WindowWidthSizeClass
@@ -31,6 +34,7 @@ fun EditScreen(
     val editingState = state as? EditPropertyViewModel.EditPropertyUiState.Editing
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val updatedPropertyId = (state as? EditPropertyViewModel.EditPropertyUiState.Success)?.propertyId
+    val context = LocalContext.current
 
 
     if (state is EditPropertyViewModel.EditPropertyUiState.Error) {
@@ -55,6 +59,7 @@ fun EditScreen(
         }
         // 2. Clear local state
         editViewModel.returnToEditingState()
+        Toast.makeText(context, "Property edited succesfully", Toast.LENGTH_LONG).show()
     }
 
     AppTopBar(

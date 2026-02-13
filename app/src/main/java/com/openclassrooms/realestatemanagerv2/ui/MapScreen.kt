@@ -134,7 +134,8 @@ fun MapScreen(
 
     AppTopBar(
         title = topBarTitle,
-        showEraseFiltersButton = successListState?.isFiltered == true,
+        showEraseFiltersButton = successListState?.isFiltered == true
+                && (navigator.currentDestination?.contentKey == null || isListAndDetailVisible),
         onEraseFiltersClick = { propertiesViewModel.resetProperties() },
         showUpButton = navigator.currentDestination?.contentKey != null && !isListAndDetailVisible,
         onUpClick = { scope.launch { navigator.navigateBack() } },
