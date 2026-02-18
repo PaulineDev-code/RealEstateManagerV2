@@ -1,7 +1,7 @@
 package com.openclassrooms.realestatemanagerv2.domain.usecases
 
 import com.google.android.gms.maps.model.LatLng
-import com.openclassrooms.realestatemanagerv2.repositories.LocationRepository
+import com.openclassrooms.realestatemanagerv2.domain.repositories.LocationRepository
 import javax.inject.Inject
 
 interface GetLocationUseCase {

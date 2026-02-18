@@ -1,7 +1,7 @@
 package com.openclassrooms.realestatemanagerv2.domain.usecases
 
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
-import com.openclassrooms.realestatemanagerv2.repositories.AgentRepository
+import com.openclassrooms.realestatemanagerv2.domain.repositories.AgentRepository
 import javax.inject.Inject
 
 interface GetAllAgentsUseCase {
@@ -11,8 +11,5 @@ interface GetAllAgentsUseCase {
 class GetAllAgentsUseCaseImpl @Inject constructor(
     private val agentRepository: AgentRepository
 ) : GetAllAgentsUseCase {
-    override suspend operator fun invoke(): List<Agent> =
-        agentRepository.getAllAgents().map { agentEntity ->
-            Agent.fromAgentEntity(agentEntity)
-    }
+    override suspend operator fun invoke(): List<Agent> = agentRepository.getAllAgents()
 }

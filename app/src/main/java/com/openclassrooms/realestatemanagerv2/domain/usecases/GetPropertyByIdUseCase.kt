@@ -1,7 +1,7 @@
 package com.openclassrooms.realestatemanagerv2.domain.usecases
 
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
-import com.openclassrooms.realestatemanagerv2.repositories.PropertyRepository
+import com.openclassrooms.realestatemanagerv2.domain.repositories.PropertyRepository
 import javax.inject.Inject
 
 interface GetPropertyByIdUseCase {
@@ -13,7 +13,6 @@ class GetPropertyByIdUseCaseImpl @Inject constructor(
 ) : GetPropertyByIdUseCase {
 
     override suspend operator fun invoke(id: String): Property {
-        val propertyWithDetails = propertyRepository.getPropertyById(id)
-        return Property.fromPropertyWithDetails(propertyWithDetails)
+        return propertyRepository.getPropertyById(id)
     }
 }

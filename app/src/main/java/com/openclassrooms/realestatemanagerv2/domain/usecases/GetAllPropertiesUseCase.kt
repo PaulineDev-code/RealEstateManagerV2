@@ -1,7 +1,7 @@
 package com.openclassrooms.realestatemanagerv2.domain.usecases
 
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
-import com.openclassrooms.realestatemanagerv2.repositories.PropertyRepository
+import com.openclassrooms.realestatemanagerv2.domain.repositories.PropertyRepository
 import javax.inject.Inject
 
 interface GetAllPropertiesUseCase {
@@ -13,7 +13,5 @@ class GetAllPropertiesUseCaseImpl @Inject constructor(
 ) : GetAllPropertiesUseCase {
 
     override suspend operator fun invoke(): List<Property> =
-        propertyRepository.getAllProperties().map { propertyWithDetails ->
-            Property.fromPropertyWithDetails(propertyWithDetails)
-        }
+        propertyRepository.getAllProperties()
 }

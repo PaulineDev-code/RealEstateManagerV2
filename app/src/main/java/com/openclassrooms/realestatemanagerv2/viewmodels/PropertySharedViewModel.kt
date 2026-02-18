@@ -1,12 +1,12 @@
 package com.openclassrooms.realestatemanagerv2.viewmodels
 
+import NetworkMonitor
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.openclassrooms.realestatemanagerv2.data.network.NetworkMonitor
-import com.openclassrooms.realestatemanagerv2.data.network.NetworkStatus
+import com.openclassrooms.realestatemanagerv2.domain.model.NetworkStatus
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllPropertiesUseCase

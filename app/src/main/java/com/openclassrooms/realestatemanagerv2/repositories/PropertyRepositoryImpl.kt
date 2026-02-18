@@ -11,25 +11,31 @@ import com.openclassrooms.realestatemanagerv2.data.database.MyDatabase
 import com.openclassrooms.realestatemanagerv2.data.entity.AgentEntity
 import com.openclassrooms.realestatemanagerv2.data.entity.MediaEntity
 import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestCrossRef
+import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
+import com.openclassrooms.realestatemanagerv2.domain.repositories.PropertyRepository
+import com.openclassrooms.realestatemanagerv2.utils.mapToMediaEntities
+import com.openclassrooms.realestatemanagerv2.utils.mapToPointOfInterestCrossRefs
+import com.openclassrooms.realestatemanagerv2.utils.toAgentEntity
+import com.openclassrooms.realestatemanagerv2.utils.toPropertyLocalEntity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
-class PropertyRepository @Inject constructor(private val database: MyDatabase,
+class PropertyRepositoryImpl @Inject constructor(private val database: MyDatabase,
                                              private val propertyDao : PropertyLocalDAO,
                                              private val agentDao: AgentDAO,
                                              private val mediaDao: MediaDAO,
                                              private val pointOfInterestCrossRefDao: PointOfInterestCrossRefDAO
-) {
+) : PropertyRepository {
 
-    suspend fun insertProperty(agentEntity: AgentEntity,
-                               propertyEntity: PropertyLocalEntity,
-                               photosEntities: List<MediaEntity>,
-                               pointsOfInterestCrossRefs: List<PointOfInterestCrossRef> ) {
+    override suspend fun insertProperty(property: Property ) {
+        val propertyEntity = property.toPropertyLocalEntity()
+        val agentEntity = property.agent.toAgentEntity()
+        val photosEntities = property.mapToMediaEntities()
+        val pointsOfInterestCrossRefs = property.mapToPointOfInterestCrossRefs()
+
         database.withTransaction {
 
             agentDao.insertAgent(agentEntity)
@@ -37,15 +43,14 @@ class PropertyRepository @Inject constructor(private val database: MyDatabase,
             mediaDao.insertMedias(photosEntities)
             pointOfInterestCrossRefDao.insertAll(pointsOfInterestCrossRefs)
         }
-
     }
 
-    suspend fun updateProperty(
-        agentEntity: AgentEntity,
-        propertyEntity: PropertyLocalEntity,
-        photosEntities: List<MediaEntity>,
-        pointsOfInterestCrossRefs: List<PointOfInterestCrossRef>
-    ) {
+    override suspend fun updateProperty(property: Property) {
+        val propertyEntity = property.toPropertyLocalEntity()
+        val agentEntity = property.agent.toAgentEntity()
+        val photosEntities = property.mapToMediaEntities()
+        val pointsOfInterestCrossRefs = property.mapToPointOfInterestCrossRefs()
+
         database.withTransaction {
             agentDao.updateAgent(agentEntity)
             propertyDao.updateProperty(propertyEntity)
@@ -58,22 +63,26 @@ class PropertyRepository @Inject constructor(private val database: MyDatabase,
         }
     }
 
-    suspend fun getAllProperties(): List<PropertyWithDetails> = withContext(Dispatchers.IO) {
-        propertyDao.getAllProperties()
+    override suspend fun getAllProperties(): List<Property> = withContext(Dispatchers.IO) {
+        val propertyEntities = propertyDao.getAllProperties()
+        propertyEntities.map { propertyWithDetails ->
+            Property.fromPropertyWithDetails(propertyWithDetails)
+        }
     }
 
-    suspend fun getPropertyById(id: String): PropertyWithDetails = withContext(Dispatchers.IO) {
-        propertyDao.getPropertyById(id)
+    override suspend fun getPropertyById(id: String): Property = withContext(Dispatchers.IO) {
+        val propertyEntities = propertyDao.getPropertyById(id)
+        Property.fromPropertyWithDetails(propertyEntities)
     }
 
-    suspend fun getPropertyTypes(): List<String> = withContext(Dispatchers.IO){
+    override suspend fun getPropertyTypes(): List<String> = withContext(Dispatchers.IO){
         propertyDao.getDistinctTypes()
     }
 
-    suspend fun searchByCriteria(
+    override suspend fun searchByCriteria(
         criteria: PropertySearchCriteria
-    ): List<PropertyWithDetails> = withContext(Dispatchers.IO) {
-        propertyDao.searchByCriteria(
+    ): List<Property> = withContext(Dispatchers.IO) {
+        val propertyEntities = propertyDao.searchByCriteria(
             propertyTypes       = criteria.propertyType
                 ?.takeIf { it.isNotEmpty() },
             propertyTypesCount = criteria.propertyType?.size,
@@ -93,5 +102,9 @@ class PropertyRepository @Inject constructor(private val database: MyDatabase,
             minSaleDate         = criteria.minSaleDate,
             agentId             = criteria.agentId
         )
+        propertyEntities.map { propertyWithDetails ->
+            Property.fromPropertyWithDetails(propertyWithDetails)
+        }
     }
+
 }

@@ -3,11 +3,10 @@ package com.openclassrooms.realestatemanagerv2.repositories
 import android.content.Context
 import android.location.Address
 import android.location.Geocoder
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Build
 import com.google.android.gms.maps.model.LatLng
 import com.openclassrooms.realestatemanagerv2.data.dao.PropertyLocalDAO
+import com.openclassrooms.realestatemanagerv2.domain.repositories.LocationRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -16,16 +15,16 @@ import java.io.IOException
 import java.util.Locale
 import javax.inject.Inject
 
-class LocationRepository @Inject constructor(
+class LocationRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val propertyDAO: PropertyLocalDAO
-) {
+) : LocationRepository {
     private val geocoder by lazy { Geocoder(context, Locale.getDefault()) }
 
-    suspend fun getAddressesToGeocode(): List<String> =
+    override suspend fun getAddressesToGeocode(): List<String> =
         propertyDAO.getAddressesWithoutLatLng()
 
-    suspend fun updateLocationByAddress(
+    override suspend fun updateLocationByAddress(
         address: String,
         latitude: Double,
         longitude: Double
@@ -36,7 +35,7 @@ class LocationRepository @Inject constructor(
      * @return LatLng si trouvé, ou null si hors-ligne, adresse introuvable ou erreur.
      */
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    suspend fun geocodeNowOrNull(address: String): LatLng? = withContext(Dispatchers.IO) {
+    override suspend fun geocodeNowOrNull(address: String): LatLng? = withContext(Dispatchers.IO) {
         if (address.isBlank()) {
             return@withContext null
         }
