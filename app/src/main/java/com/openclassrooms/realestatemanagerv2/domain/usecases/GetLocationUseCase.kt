@@ -4,9 +4,14 @@ import com.google.android.gms.maps.model.LatLng
 import com.openclassrooms.realestatemanagerv2.repositories.LocationRepository
 import javax.inject.Inject
 
-class GetLocationUseCase @Inject constructor(
+interface GetLocationUseCase {
+    suspend operator fun invoke(address: String): LatLng?
+}
+
+class GetLocationUseCaseImpl @Inject constructor(
     private val locationRepository: LocationRepository
-) {
-    suspend operator fun invoke(address: String): LatLng? =
+) : GetLocationUseCase {
+
+    override suspend operator fun invoke(address: String): LatLng? =
         locationRepository.geocodeNowOrNull(address)
 }

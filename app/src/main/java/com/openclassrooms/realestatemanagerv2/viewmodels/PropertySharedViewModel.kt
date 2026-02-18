@@ -31,8 +31,7 @@ class PropertySharedViewModel @Inject constructor
     (private val getAllPropertiesUseCase: GetAllPropertiesUseCase,
      private val searchPropertiesUseCase: SearchPropertiesUseCase,
      private val updateMissingLocationUseCase: UpdateMissingLocationUseCase,
-     private val networkMonitor: NetworkMonitor,
-     private val savedState: SavedStateHandle
+     private val networkMonitor: NetworkMonitor
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PropertyUiState>(PropertyUiState.Loading)
@@ -134,45 +133,7 @@ class PropertySharedViewModel @Inject constructor
                            val addedPropertyId: String? = null,
                            val isFiltered: Boolean = false,
                            val detailPaneCloseVersion: Int = 0
-        ) : PropertyUiState() {
-            val hasPropertySelected:Boolean
-                get() = selectedPropertyId.isNotEmpty()
-        }
+        ) : PropertyUiState()
         data class Error(val exception: Throwable): PropertyUiState()
     }
-
 }
-
-
-
-        /*val propertyListLiveData: StateFlow<List<Property>> =
-            propertyRepository.getAllProperties().map { propertyLocalList ->
-                propertyLocalList.map { propertyLocal ->
-                    Property(
-                        id = propertyLocal.id,
-                        type = propertyLocal.type,
-                        price = propertyLocal.price,
-                        area = propertyLocal.area,
-                        numberOfRooms = propertyLocal.numberOfRooms,
-                        description = propertyLocal.description,
-                        photos = propertyLocal.photos,
-                        videoUrl = propertyLocal.videoUrl,
-                        address = propertyLocal.address,
-                        nearbyPointsOfInterest = propertyLocal.nearByPointsOfInterest,
-                        status = propertyLocal.status,
-                        entryDate = propertyLocal.entryDate,
-                        saleDate = propertyLocal.saleDate,
-                        agent = propertyLocal.agent
-                    )
-                }
-
-            }.stateIn(scope =  CoroutineScope(Context.))*/
-
-    /*fun PropertyLocal.toProperty(): Property {
-        return Property(id, type, price, area, numberOfRooms, description, photos, videoUrl,
-            address, nearbyPointsOfInterest, status, entryDate, saleDate, agent)
-    }*/
-
-
-
-

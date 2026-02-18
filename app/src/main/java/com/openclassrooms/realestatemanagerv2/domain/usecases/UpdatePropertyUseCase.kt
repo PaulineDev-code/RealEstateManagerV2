@@ -10,8 +10,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class UpdatePropertyUseCase @Inject constructor(private val propertyRepository: PropertyRepository) {
-    suspend operator fun invoke(property: Property) = withContext(Dispatchers.IO) {
+interface UpdatePropertyUseCase {
+    suspend operator fun invoke(property: Property): Unit
+}
+
+class UpdatePropertyUseCaseImpl @Inject constructor(
+    private val propertyRepository: PropertyRepository
+) : UpdatePropertyUseCase {
+
+    override suspend operator fun invoke(property: Property) = withContext(Dispatchers.IO) {
 
         val propertyEntity = property.toPropertyLocalEntity()
         val agentEntity = property.agent.toAgentEntity()

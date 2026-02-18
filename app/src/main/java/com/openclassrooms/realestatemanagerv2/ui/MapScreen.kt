@@ -1,6 +1,10 @@
 package com.openclassrooms.realestatemanagerv2.ui
 
+import android.Manifest
 import android.app.Activity
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,15 +39,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.openclassrooms.realestatemanagerv2.R
+import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
 import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsContent
@@ -98,6 +109,62 @@ fun MapScreen(
     var lastHandledVersion by rememberSaveable { mutableIntStateOf(0) }
 
     val activity = LocalContext.current as? Activity
+
+    val context = LocalContext.current
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    var isInitialCameraMoveDone by rememberSaveable { mutableStateOf(false) }
+
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(LatLng(48.85, 2.35), 5f)
+    }
+
+    var locationPermissionGranted by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(
+                        context, Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        locationPermissionGranted =
+            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) ||
+                    permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)
+    }
+
+    LaunchedEffect(Unit) {
+        if (!locationPermissionGranted) {
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (!locationPermissionGranted || isInitialCameraMoveDone) {
+            return@LaunchedEffect
+        }
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                val userLatLng = LatLng(location.latitude, location.longitude)
+                scope.launch {
+                    cameraPositionState.animate(
+                        CameraUpdateFactory.newLatLngZoom(userLatLng, 15f)
+                    )
+                    isInitialCameraMoveDone = true
+                }
+            }
+        }
+    }
 
     LaunchedEffect(closeVersion) {
         if (closeVersion > lastHandledVersion) {
@@ -158,17 +225,34 @@ fun MapScreen(
             modifier = Modifier.padding(innerPadding),
             listPane = {
                 AnimatedPane(modifier = Modifier) {
-                    MapContent(
-                        uiState = listUiState,
-                        onInfoWindowClick = { propertyId ->
-                            scope.launch {
-                                navigator.navigateTo(
-                                    ListDetailPaneScaffoldRole.Detail,
-                                    propertyId
-                                )
+                    when (val state = listUiState) {
+                        is PropertySharedViewModel.PropertyUiState.Loading -> {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator()
                             }
                         }
-                    )
+
+                        is PropertySharedViewModel.PropertyUiState.Error -> {
+                            val e = state.exception
+                            Text("Erreur : ${e.localizedMessage}")
+                        }
+
+                        is PropertySharedViewModel.PropertyUiState.Success -> {
+                            MapContent(
+                                properties = state.properties,
+                                locationPermissionGranted = locationPermissionGranted,
+                                cameraPositionState = cameraPositionState,
+                                onInfoWindowClick = { propertyId ->
+                                    scope.launch {
+                                        navigator.navigateTo(
+                                            ListDetailPaneScaffoldRole.Detail,
+                                            propertyId
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             },
             detailPane = {
@@ -218,13 +302,14 @@ fun MapScreen(
             paneExpansionDragHandle = {}
 
         )
-
     }
 }
 
 @Composable
 fun MapContent(
-    uiState: PropertySharedViewModel.PropertyUiState,
+    properties: List<Property>,
+    locationPermissionGranted: Boolean,
+    cameraPositionState: CameraPositionState,
     onInfoWindowClick: (propertyId: String) -> Unit
 ) {
 
@@ -232,52 +317,25 @@ fun MapContent(
         modifier = Modifier
             .fillMaxSize()
     ) {
-
-        when (uiState) {
-            is PropertySharedViewModel.PropertyUiState.Loading -> {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            is PropertySharedViewModel.PropertyUiState.Error -> {
-                val e = uiState.exception
-                Text("Erreur : ${e.localizedMessage}")
-            }
-
-            is PropertySharedViewModel.PropertyUiState.Success -> {
-                val properties =
-                    uiState.properties
-
-                val cameraPositionState = rememberCameraPositionState {
-                    position = CameraPosition.fromLatLngZoom(
-                        LatLng(
-                            properties.firstOrNull()?.latitude ?: 0.0,
-                            properties.firstOrNull()?.longitude ?: 0.0
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraPositionState,
+            properties = MapProperties(isMyLocationEnabled = locationPermissionGranted),
+            uiSettings = MapUiSettings(myLocationButtonEnabled = locationPermissionGranted)
+        ) {
+            properties.forEach { property ->
+                if (property.latitude != null && property.longitude != null) {
+                    Marker(
+                        state = MarkerState(
+                            position = LatLng(property.latitude, property.longitude)
                         ),
-                        12f
+                        title = property.address,
+                        snippet = property.type + " - " + "${
+                            property.price.convertToLocalCurrency().toString()
+                                .formatToLocalCurrency()
+                        }",
+                        onInfoWindowClick = { onInfoWindowClick(property.id) }
                     )
-                }
-
-                GoogleMap(
-                    modifier = Modifier.fillMaxSize(),
-                    cameraPositionState = cameraPositionState
-                ) {
-                    properties.forEach { property ->
-                        if (property.latitude != null && property.longitude != null) {
-                            Marker(
-                                state = MarkerState(
-                                    position = LatLng(property.latitude, property.longitude)
-                                ),
-                                title = property.address,
-                                snippet = property.type + " - " + "${
-                                    property.price.convertToLocalCurrency().toString()
-                                        .formatToLocalCurrency()
-                                }",
-                                onInfoWindowClick = { onInfoWindowClick(property.id) }
-                            )
-                        }
-                    }
                 }
             }
         }
@@ -289,6 +347,8 @@ fun MapContent(
 fun MapContentPreview() {
 
     MapContent(
-        uiState = PropertySharedViewModel.PropertyUiState.Success(emptyList(), "", isFiltered = false),
+        properties = emptyList(),
+        locationPermissionGranted = false,
+        cameraPositionState = rememberCameraPositionState(),
         onInfoWindowClick = {})
 }

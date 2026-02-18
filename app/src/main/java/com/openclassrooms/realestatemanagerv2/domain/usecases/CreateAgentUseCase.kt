@@ -7,16 +7,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class CreateAgentUseCase @Inject constructor(private val agentRepository: AgentRepository) {
-    suspend operator fun invoke(agent: Agent): Unit = withContext(Dispatchers.IO) {
+interface CreateAgentUseCase {
+    suspend operator fun invoke(agent: Agent): Unit
+}
 
+class CreateAgentUseCaseImpl @Inject constructor(
+    private val agentRepository: AgentRepository
+) : CreateAgentUseCase {
 
+    override suspend operator fun invoke(agent: Agent): Unit = withContext(Dispatchers.IO) {
         val agentEntity = agent.toAgentEntity()
-
-
-
-        agentRepository.insertAgent(
-            agent = agentEntity
-        )
+        agentRepository.insertAgent(agent = agentEntity)
     }
 }
