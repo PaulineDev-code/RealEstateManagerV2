@@ -6,18 +6,24 @@ import android.location.Geocoder
 import android.os.Build
 import com.google.android.gms.maps.model.LatLng
 import com.openclassrooms.realestatemanagerv2.data.dao.PropertyLocalDAO
+import com.openclassrooms.realestatemanagerv2.data.network.NetworkMonitor
+import com.openclassrooms.realestatemanagerv2.domain.model.NetworkStatus
 import com.openclassrooms.realestatemanagerv2.domain.repositories.LocationRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.util.Locale
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class LocationRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val propertyDAO: PropertyLocalDAO
+    private val propertyDAO: PropertyLocalDAO,
+    private val networkMonitor: NetworkMonitor
 ) : LocationRepository {
     private val geocoder by lazy { Geocoder(context, Locale.getDefault()) }
 
@@ -77,6 +83,10 @@ class LocationRepositoryImpl @Inject constructor(
             // toute autre erreur (adresse invalide, bug Geocoder…) → null
             null
         }
+    }
+
+    override fun observeNetworkStatus(): Flow<NetworkStatus> {
+        return networkMonitor.networkStatus
     }
 
 }

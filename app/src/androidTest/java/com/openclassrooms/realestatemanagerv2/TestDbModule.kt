@@ -20,7 +20,7 @@ import javax.inject.Singleton
 @Module
 @TestInstallIn(
     components = [SingletonComponent::class],
-    replaces = [DatabaseModule::class] // remplace ton module de prod qui fournit la DB
+    replaces = [DatabaseModule::class]
 )
 
 object TestDbModule {
@@ -31,7 +31,7 @@ object TestDbModule {
         @ApplicationContext context: Context
     ): MyDatabase =
         Room.inMemoryDatabaseBuilder(context, MyDatabase::class.java)
-            .allowMainThreadQueries() // OK en test
+            .allowMainThreadQueries()
             .build()
 
     @Provides fun providePropertyDao(db: MyDatabase): PropertyLocalDAO = db.propertyDAO()

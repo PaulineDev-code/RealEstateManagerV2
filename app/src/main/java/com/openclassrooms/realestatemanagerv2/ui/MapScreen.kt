@@ -54,6 +54,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.openclassrooms.realestatemanagerv2.R
+import com.openclassrooms.realestatemanagerv2.domain.model.NetworkStatus
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
@@ -208,9 +209,8 @@ fun MapScreen(
         onUpClick = { scope.launch { navigator.navigateBack() } },
         onAddClick = onNavigateToAdd,
         onModifyClick = { navigator.currentDestination?.contentKey?.let { onNavigateToEdit(it) } },
-        showModifyButton = if (navigator.currentDestination?.contentKey != null) {
-            true
-        } else false,
+        showModifyButton = navigator.currentDestination?.contentKey != null,
+        showNetworkWarning = successListState?.networkStatus == NetworkStatus.Unavailable,
         navBarsColor = navBarsColor
     ) { innerPadding ->
 

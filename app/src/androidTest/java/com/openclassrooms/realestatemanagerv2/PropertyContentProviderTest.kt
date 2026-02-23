@@ -2,10 +2,6 @@
 
 package com.openclassrooms.realestatemanagerv2
 
-import com.openclassrooms.realestatemanagerv2.data.entity.PropertyLocalEntity
-import com.openclassrooms.realestatemanagerv2.data.entity.MediaEntity
-import com.openclassrooms.realestatemanagerv2.data.entity.AgentEntity
-import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestCrossRef
 import android.content.Context
 import android.database.ContentObserver
 import android.net.Uri
@@ -15,14 +11,21 @@ import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.openclassrooms.realestatemanagerv2.data.database.MyDatabase
+import com.openclassrooms.realestatemanagerv2.data.entity.AgentEntity
+import com.openclassrooms.realestatemanagerv2.data.entity.MediaEntity
+import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestCrossRef
 import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestEntity
+import com.openclassrooms.realestatemanagerv2.data.entity.PropertyLocalEntity
 import com.openclassrooms.realestatemanagerv2.di.DatabaseModule
 import com.openclassrooms.realestatemanagerv2.provider.PropertyContentProvider
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.runBlocking
-import org.junit.*
+import org.junit.Assert
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit

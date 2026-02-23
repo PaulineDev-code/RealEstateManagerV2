@@ -8,7 +8,9 @@ import com.openclassrooms.realestatemanagerv2.utils.toAgentEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class AgentRepositoryImpl @Inject constructor(
     private val agentDao: AgentDAO
 ) : AgentRepository {

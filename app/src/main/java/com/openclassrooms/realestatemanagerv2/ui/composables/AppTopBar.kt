@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +42,7 @@ fun AppTopBar(
     onAddClick: () -> Unit,
     showModifyButton: Boolean = false,
     onModifyClick: () -> Unit = {},
+    showNetworkWarning: Boolean = false,
     navBarsColor: Color = MaterialTheme.colorScheme.primaryContainer,
     content: @Composable (PaddingValues) -> Unit
 ) {
@@ -85,6 +87,13 @@ fun AppTopBar(
                     }
                 },
                 actions = {
+                    if(showNetworkWarning) {
+                        Icon(
+                            imageVector = Icons.Default.CloudOff,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            contentDescription = "Network offline"
+                        )
+                    }
                     if (showAddButton) {
                         IconButton(onClick = onAddClick) {
                             Icon(

@@ -28,7 +28,7 @@ data class Property (
     val agent: Agent
 ) {
     companion object {
-        //All model to entities coversions are in the 'Extensions.kt' file in the package 'utils'
+        //All model to entities conversions are in the 'Extensions.kt' file in the package 'utils'
         fun fromPropertyWithDetails(propertyWithDetails: PropertyWithDetails): Property {
 
             return Property(

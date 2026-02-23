@@ -1,15 +1,15 @@
 package com.openclassrooms.realestatemanagerv2.di
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
-import com.openclassrooms.realestatemanagerv2.data.database.MyDatabase
+import androidx.room.withTransaction
 import com.openclassrooms.realestatemanagerv2.data.dao.AgentDAO
-import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.MediaDAO
+import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestCrossRefDAO
+import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.PropertyLocalDAO
-import com.openclassrooms.realestatemanagerv2.repositories.PropertyRepository
+import com.openclassrooms.realestatemanagerv2.data.database.MyDatabase
 import com.openclassrooms.realestatemanagerv2.utils.DatabaseUtil
 import dagger.Module
 import dagger.Provides
@@ -19,11 +19,6 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import android.util.Log
-import androidx.room.withTransaction
-import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestCrossRefDAO
-import kotlinx.coroutines.coroutineScope
 import javax.inject.Singleton
 
 @Module
@@ -91,26 +86,10 @@ class DatabaseModule {
     fun providePointOfInterestDao(myDatabase: MyDatabase): PointOfInterestDAO {
         return myDatabase.pointOfInterestDAO()
     }
-
     @Provides
     @Singleton
     fun providePoiXDao(myDatabase: MyDatabase): PointOfInterestCrossRefDAO {
         return myDatabase.pointOfInterestCrossRefDAO()
-    }
-
-    @Provides
-    @Singleton
-    fun providePropertyRepository(
-        database: MyDatabase, propertyLocalDAO: PropertyLocalDAO, agentDAO: AgentDAO,
-        mediaDAO: MediaDAO, pointOfInterestCrossRefDAO: PointOfInterestCrossRefDAO
-    ): PropertyRepository {
-        return PropertyRepository(
-            database,
-            propertyLocalDAO,
-            agentDAO,
-            mediaDAO,
-            pointOfInterestCrossRefDAO
-        )
     }
 
 }

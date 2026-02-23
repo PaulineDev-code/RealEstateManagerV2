@@ -44,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
+import com.openclassrooms.realestatemanagerv2.domain.model.NetworkStatus
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
@@ -160,6 +161,7 @@ fun HomeScreen(
         onAddClick = onNavigateToAdd,
         showModifyButton = navigator.currentDestination?.contentKey != null,
         onModifyClick = { navigator.currentDestination?.contentKey?.let { onNavigateToEdit(it) } },
+        showNetworkWarning = successListState?.networkStatus == NetworkStatus.Unavailable,
         navBarsColor = navBarsColor
     ) { innerPadding ->
 
@@ -363,7 +365,12 @@ fun HomeScreenPreview() {
     Agent("1", "Will", "911", "willagent@brooklyn.com")
     ))
     HomeContent(
-        uiState = PropertySharedViewModel.PropertyUiState.Success(sampleProperties, "", isFiltered = false),
+        uiState = PropertySharedViewModel.PropertyUiState.Success(
+            properties =  sampleProperties,
+            networkStatus = NetworkStatus.Available,
+            selectedPropertyId = "",
+            isFiltered = false
+        ),
         innerPadding = PaddingValues(all = 8.dp),
         itemIdSelected = "",
         onPropertyItemClick = {}

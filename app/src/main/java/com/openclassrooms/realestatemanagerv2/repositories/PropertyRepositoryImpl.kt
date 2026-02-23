@@ -21,8 +21,9 @@ import com.openclassrooms.realestatemanagerv2.utils.toPropertyLocalEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
-
+@Singleton
 class PropertyRepositoryImpl @Inject constructor(private val database: MyDatabase,
                                              private val propertyDao : PropertyLocalDAO,
                                              private val agentDao: AgentDAO,

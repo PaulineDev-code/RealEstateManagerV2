@@ -14,6 +14,8 @@ import com.openclassrooms.realestatemanagerv2.domain.usecases.GetPropertyByIdUse
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetPropertyByIdUseCaseImpl
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetPropertyTypesUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetPropertyTypesUseCaseImpl
+import com.openclassrooms.realestatemanagerv2.domain.usecases.ObserveNetworkStatusUseCase
+import com.openclassrooms.realestatemanagerv2.domain.usecases.ObserveNetworkStatusUseCaseImpl
 import com.openclassrooms.realestatemanagerv2.domain.usecases.SearchPropertiesUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.SearchPropertiesUseCaseImpl
 import com.openclassrooms.realestatemanagerv2.domain.usecases.UpdateMissingLocationUseCase
@@ -63,6 +65,11 @@ abstract class DomainModule {
     abstract fun bindGetPropertyTypesUseCase(
         impl: GetPropertyTypesUseCaseImpl
     ): GetPropertyTypesUseCase
+
+    @Binds
+    abstract fun bindObserveNetworkStatusUseCase(
+        impl: ObserveNetworkStatusUseCaseImpl
+    ): ObserveNetworkStatusUseCase
 
     @Binds
     abstract fun bindSearchPropertiesUseCase(
