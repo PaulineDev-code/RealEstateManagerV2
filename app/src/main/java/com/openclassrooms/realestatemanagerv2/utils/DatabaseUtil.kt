@@ -91,7 +91,7 @@ class DatabaseUtil(propertyDAO: PropertyLocalDAO, agentDAO: AgentDAO,
                 PropertyStatus.Available,
                 4477894998,
                 null,
-                Agent("1", "Will", "911", "willagent@brooklyn.com")
+                Agent("1", "Will Schmidt", "118", "william@agency.com")
             ), Property(
                 "2",
                 "Duplex",
@@ -136,7 +136,7 @@ class DatabaseUtil(propertyDAO: PropertyLocalDAO, agentDAO: AgentDAO,
                 PropertyStatus.Available,
                 4477894645,
                 null,
-                Agent("1", "Will", "911", "willagent@brooklyn.com")
+                Agent("2", "George Clowney", "218", "georgeschmitt@agency.com")
             )
         )
 

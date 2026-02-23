@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
@@ -46,7 +47,9 @@ class PropertySharedViewModel @Inject constructor
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), PropertyUiState.Loading)
 
     init {
-        loadProperties()
+        viewModelScope.launch {
+            loadProperties()
+        }
         triggerLocationSyncWhenNetworkIsBack()
     }
 
@@ -55,6 +58,7 @@ class PropertySharedViewModel @Inject constructor
             uiState.filterIsInstance<PropertyUiState.Success>()
                 .map { it.networkStatus }
                 .distinctUntilChanged()
+                .drop(1)
                 .filter { it == NetworkStatus.Available }
                 .collect {
                     Log.d("LocationUpdateVM", "Network is back. Triggering sync.")
@@ -64,40 +68,38 @@ class PropertySharedViewModel @Inject constructor
         }
     }
 
-    private fun loadProperties(
+    private suspend fun loadProperties(
         isSearch: Boolean = false,
         searchCriteria: PropertySearchCriteria? = null,
         incrementCloseVersion: Boolean = false
     ) {
-        viewModelScope.launch {
 
-            val previousState = _uiState.value as? PropertyUiState.Success
-            _uiState.value = PropertyUiState.Loading
+        val previousState = _uiState.value as? PropertyUiState.Success
+        _uiState.value = PropertyUiState.Loading
 
-            try {
-                val properties = if (isSearch && searchCriteria != null) {
-                    searchPropertiesUseCase(searchCriteria)
-                } else {
-                    getAllPropertiesUseCase()
-                }
-
-                val newCloseVersion = if (isSearch || incrementCloseVersion) {
-                    (previousState?.detailPaneCloseVersion ?: 0) + 1
-                } else {
-                    previousState?.detailPaneCloseVersion ?: 0
-                }
-
-                _uiState.value = PropertyUiState.Success(
-                    properties = properties,
-                    isFiltered = isSearch,
-                    detailPaneCloseVersion = newCloseVersion,
-                    addedPropertyId = previousState?.addedPropertyId
-                )
-                Log.d("ListViewModel", "Collected properties: $properties")
-            } catch (exception: Exception) {
-                Log.e("ListViewModel", "Error collecting properties", exception)
-                _uiState.value = PropertyUiState.Error(exception)
+        try {
+            val properties = if (isSearch && searchCriteria != null) {
+                searchPropertiesUseCase(searchCriteria)
+            } else {
+                getAllPropertiesUseCase()
             }
+
+            val newCloseVersion = if (isSearch || incrementCloseVersion) {
+                (previousState?.detailPaneCloseVersion ?: 0) + 1
+            } else {
+                previousState?.detailPaneCloseVersion ?: 0
+            }
+
+            _uiState.value = PropertyUiState.Success(
+                properties = properties,
+                isFiltered = isSearch,
+                detailPaneCloseVersion = newCloseVersion,
+                addedPropertyId = previousState?.addedPropertyId
+            )
+            Log.d("ListViewModel", "Collected properties: $properties")
+        } catch (exception: Exception) {
+            Log.e("ListViewModel", "Error collecting properties", exception)
+            _uiState.value = PropertyUiState.Error(exception)
         }
     }
 
@@ -120,16 +122,19 @@ class PropertySharedViewModel @Inject constructor
         )
     }
 
-
     fun searchProperties(searchCriterias: PropertySearchCriteria) {
-        loadProperties(isSearch = true, searchCriteria = searchCriterias)
+        viewModelScope.launch {
+            loadProperties(isSearch = true, searchCriteria = searchCriterias)
+        }
     }
 
     fun resetProperties() {
+        viewModelScope.launch {
         loadProperties(incrementCloseVersion = true)
+            }
     }
 
-    fun refreshProperties() {
+    suspend fun refreshProperties() {
         if ((uiState.value as? PropertySharedViewModel.PropertyUiState.Success)?.isFiltered != true) {
             loadProperties()
         }

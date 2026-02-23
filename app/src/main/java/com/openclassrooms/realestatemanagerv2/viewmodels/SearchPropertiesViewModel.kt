@@ -185,7 +185,13 @@ class SearchPropertiesViewModel @Inject constructor(
         }
     }
 
-
+    fun updateAgent(newAgent: Agent)  {
+        updateState {
+            copy(
+                agent = newAgent
+            )
+        }
+    }
 
     private fun updateState(update: SearchPropertiesUiState.Editing.() -> SearchPropertiesUiState.Editing) {
         val currentState = _uiState.value

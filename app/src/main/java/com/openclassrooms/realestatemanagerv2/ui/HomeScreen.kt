@@ -2,18 +2,15 @@ package com.openclassrooms.realestatemanagerv2.ui
 
 import android.app.Activity
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.layout.AnimatedPane
@@ -39,7 +36,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.openclassrooms.realestatemanagerv2.R
@@ -116,10 +112,8 @@ fun HomeScreen(
     }
 
     LaunchedEffect(propertyIdToDisplay) {
-        propertyIdToDisplay?.let { id ->
-            scope.launch {
-                navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, id)
-            }
+        if (propertyIdToDisplay != null) {
+            navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, propertyIdToDisplay)
             listViewModel.updateAddedProperty(null)
         }
     }
@@ -137,12 +131,6 @@ fun HomeScreen(
         MaterialTheme.colorScheme.surfaceVariant
     } else {
         MaterialTheme.colorScheme.primaryContainer
-    }
-
-    LifecycleResumeEffect(Unit) {
-        Log.d("HomeScreenDebug", "HomeScreen resumed, refreshing property list")
-        listViewModel.refreshProperties()
-        onPauseOrDispose {}
     }
 
     DoubleBackToExitHandler(

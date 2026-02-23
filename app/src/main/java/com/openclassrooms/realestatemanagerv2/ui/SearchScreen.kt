@@ -169,7 +169,7 @@ fun SearchScreen(
 
                 agent = editingState?.agent,
                 agentList = editingState?.agentList ?: emptyList(),
-                onAgentSelected = { },
+                onAgentSelected = { searchPropertiesViewModel.updateAgent(it) },
 
                 isSearchClickEnabled = editingState?.isFormValid ?: false,
                 onSearchClicked = {
@@ -275,7 +275,7 @@ fun SearchScreen(
 
                 agent = editingState?.agent,
                 agentList = editingState?.agentList ?: emptyList(),
-                onAgentSelected = { },
+                onAgentSelected = { searchPropertiesViewModel.updateAgent(it) },
 
                 isSearchClickEnabled = editingState?.isFormValid ?: false,
                 onSearchClicked = {
