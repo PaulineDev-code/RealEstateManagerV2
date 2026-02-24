@@ -9,6 +9,7 @@ import org.junit.Test
 
 import org.junit.Assert.*
 import org.junit.Before
+import java.time.format.FormatStyle
 import java.util.Locale
 import java.util.TimeZone
 
@@ -41,7 +42,7 @@ class ExampleUnitTest {
     @Test
     fun `returns empty string when millis is null`() {
         val result: String = (null as Long?).formatMillisToLocal()
-        assertEquals(result, "")
+        assertEquals("", result )
     }
 
     @Test
@@ -49,30 +50,29 @@ class ExampleUnitTest {
         // 2024-06-15T00:00:00Z en ms (UTC)
         val millis = 1718409600000L
         val result = millis.formatMillisToLocal(
-            pattern = "dd MMMM yyyy",
             locale = Locale.FRANCE
         )
-        assertEquals(result, "15 juin 2024")
+        assertEquals("15 juin 2024", result )
     }
 
     @Test
-    fun `formats date in US locale with custom pattern`() {
+    fun `formats date in US locale with short pattern`() {
         val millis = 1718409600000L // 2024-06-15T00:00:00Z
         val result = millis.formatMillisToLocal(
-            pattern = "yyyy/MM/dd",
+            dateStyle = FormatStyle.SHORT,
             locale = Locale.US
         )
-        assertEquals(result,"2024/06/15")
+        assertEquals("6/15/24", result)
     }
 
     @Test
-    fun `formats month name in English with default pattern`() {
+    fun `formats month name in American with long pattern`() {
         val millis = 1718409600000L
         val result = millis.formatMillisToLocal(
-            pattern = "dd MMMM yyyy",
+            dateStyle = FormatStyle.LONG,
             locale = Locale.US
         )
-        assertEquals(result,"15 June 2024")
+        assertEquals("June 15, 2024", result)
     }
 
     // ========== CURRENCY CONVERSION TESTS ==========

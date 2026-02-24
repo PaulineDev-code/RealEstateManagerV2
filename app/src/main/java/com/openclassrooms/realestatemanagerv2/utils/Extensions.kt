@@ -18,6 +18,7 @@ import java.util.UUID
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
 
 
@@ -129,19 +130,26 @@ fun String.validatePositiveNumber(): String? {
 }
 
 /**
- * Formate un [Long] (millis depuis l’Epoch) en date locale lisible.
+ * Formate un [Long] (millis) en utilisant le format local automatique de l'utilisateur.
  *
- * @receiver le timestamp à formater (ou null pour « aucune date »)
- * @param pattern le pattern JavaTime, par défaut "dd MMMM yyyy" (ex. "07 mars 2025")
- * @param locale la locale à utiliser (défaut : Locale.getDefault())
- * @return la chaîne formatée, ou chaîne vide si receiver est null
+ * @param dateStyle Le style de la date (SHORT, MEDIUM, LONG ou FULL)
+ * @param locale La locale (par défaut celle du système)
  */
 fun Long?.formatMillisToLocal(
-    pattern: String = "dd MMMM yyyy",
+    dateStyle: FormatStyle = FormatStyle.MEDIUM,
     locale: Locale = Locale.getDefault()
 ): String = this
-    ?.let { Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate() }
-    ?.format(DateTimeFormatter.ofPattern(pattern, locale))
+    ?.let {
+        val localDate = Instant.ofEpochMilli(it)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+
+        val formatter = DateTimeFormatter
+            .ofLocalizedDate(dateStyle)
+            .withLocale(locale)
+
+        localDate.format(formatter)
+    }
     .orEmpty()
 
 fun String.formatToLocalCurrency(): String {

@@ -60,10 +60,16 @@ class NetworkMonitorImpl @Inject constructor(
         connectivityManager.registerNetworkCallback(request, networkCallback)
 
         // Send current state immediately
-        val currentNetwork = connectivityManager.activeNetwork
-        if (currentNetwork != null &&
-            connectivityManager.getNetworkCapabilities(currentNetwork)?.hasCapability(
-                NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true) {
+        val isInitiallyAvailable = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            val currentNetwork = connectivityManager.activeNetwork
+            connectivityManager.getNetworkCapabilities(currentNetwork)
+                ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
+        } else {
+            @Suppress("DEPRECATION")
+            connectivityManager.activeNetworkInfo?.isConnected == true
+        }
+
+        if (isInitiallyAvailable) {
             trySend(NetworkStatus.Available)
         } else {
             trySend(NetworkStatus.Unavailable)

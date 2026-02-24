@@ -72,7 +72,7 @@ fun CustomDatePicker(selectedDateMillis: Long?,
         }
     )*/
     // Conversion du timestamp en date lisible pour l'affichage
-    val displayText = selectedDateMillis?.formatMillisToLocal() ?: "Click to select"
+    val displayText = selectedDateMillis?.formatMillisToLocal(FormatStyle.LONG) ?: "Click to select"
 
     OutlinedTextField(
         value = displayText,
