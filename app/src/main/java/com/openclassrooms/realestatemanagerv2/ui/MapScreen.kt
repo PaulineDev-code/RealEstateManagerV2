@@ -150,7 +150,7 @@ fun MapScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(locationPermissionGranted) {
         if (!locationPermissionGranted || isInitialCameraMoveDone) {
             return@LaunchedEffect
         }
