@@ -54,23 +54,6 @@ class PropertySharedViewModel @Inject constructor
             databaseStatusTracker.isReady.first { it }
             loadProperties()
             updateAndRefreshIfNeeded()
-
-
-        }
-        triggerLocationSyncWhenNetworkIsBack()
-    }
-
-    private fun triggerLocationSyncWhenNetworkIsBack() {
-        viewModelScope.launch {
-            uiState.filterIsInstance<PropertyUiState.Success>()
-                .map { it.networkStatus }
-                .distinctUntilChanged()
-                .drop(1)
-                .filter { it == NetworkStatus.Available }
-                .collect {
-                    Log.d("LocationUpdateVM", "Network is back. Triggering sync.")
-                    updateAndRefreshIfNeeded()
-                }
         }
     }
 
@@ -148,7 +131,7 @@ class PropertySharedViewModel @Inject constructor
         }
     }
 
-    private suspend fun updateAndRefreshIfNeeded() {
+    suspend fun updateAndRefreshIfNeeded() {
 
         val updatedCount = updateMissingLocationUseCase()
         if (updatedCount > 0) {

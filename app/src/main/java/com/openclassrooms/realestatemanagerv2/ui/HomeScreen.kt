@@ -99,8 +99,15 @@ fun HomeScreen(
     //Track latest close version of the detail pane
     val closeVersion = successListState?.detailPaneCloseVersion ?: 0
     var lastHandledVersion by rememberSaveable { mutableIntStateOf(0) }
+    val networkStatus = successListState?.networkStatus
 
     val activity = LocalContext.current as? Activity
+
+    LaunchedEffect(networkStatus) {
+        if(networkStatus == NetworkStatus.Available) {
+            listViewModel.updateAndRefreshIfNeeded()
+        }
+    }
 
     LaunchedEffect(closeVersion) {
         if (closeVersion > lastHandledVersion) {
