@@ -10,6 +10,7 @@ import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestCrossRefDA
 import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.PropertyLocalDAO
 import com.openclassrooms.realestatemanagerv2.data.database.MyDatabase
+import com.openclassrooms.realestatemanagerv2.utils.DatabaseStatusTracker
 import com.openclassrooms.realestatemanagerv2.utils.DatabaseUtil
 import dagger.Module
 import dagger.Provides
@@ -27,7 +28,8 @@ class DatabaseModule {
 
     @Provides @Singleton
     fun provideDatabase(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        databaseStatusTracker: DatabaseStatusTracker
     ): MyDatabase {
         val db = Room.databaseBuilder(
             context.applicationContext,
@@ -56,8 +58,10 @@ class DatabaseModule {
                     }
 
                     Log.d("DatabaseModule", "✅ Database prepopulation completed successfully")
+                    databaseStatusTracker.notifyPrepopulated()
                 } else {
                     Log.d("DatabaseModule", "Database already contains $poiCount POIs, skipping prepopulation")
+                    databaseStatusTracker.notifyPrepopulated()
                 }
             } catch (e: Exception) {
                 Log.e("DatabaseModule", "❌ Error during database prepopulation", e)

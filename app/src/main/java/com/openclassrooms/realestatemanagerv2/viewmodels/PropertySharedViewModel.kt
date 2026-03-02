@@ -10,6 +10,7 @@ import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllPropertiesUs
 import com.openclassrooms.realestatemanagerv2.domain.usecases.ObserveNetworkStatusUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.SearchPropertiesUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.UpdateMissingLocationUseCase
+import com.openclassrooms.realestatemanagerv2.utils.DatabaseStatusTracker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -30,7 +32,8 @@ class PropertySharedViewModel @Inject constructor
     (private val getAllPropertiesUseCase: GetAllPropertiesUseCase,
      private val searchPropertiesUseCase: SearchPropertiesUseCase,
      private val updateMissingLocationUseCase: UpdateMissingLocationUseCase,
-     private val observeNetworkStatusUseCase: ObserveNetworkStatusUseCase
+     private val observeNetworkStatusUseCase: ObserveNetworkStatusUseCase,
+     private val databaseStatusTracker: DatabaseStatusTracker
 ) : ViewModel() {
 
     private val networkFlow = observeNetworkStatusUseCase()
@@ -48,7 +51,11 @@ class PropertySharedViewModel @Inject constructor
 
     init {
         viewModelScope.launch {
+            databaseStatusTracker.isReady.first { it }
             loadProperties()
+            updateAndRefreshIfNeeded()
+
+
         }
         triggerLocationSyncWhenNetworkIsBack()
     }
@@ -62,8 +69,7 @@ class PropertySharedViewModel @Inject constructor
                 .filter { it == NetworkStatus.Available }
                 .collect {
                     Log.d("LocationUpdateVM", "Network is back. Triggering sync.")
-                    updateMissingLocationUseCase()
-                    refreshProperties()
+                    updateAndRefreshIfNeeded()
                 }
         }
     }
@@ -75,7 +81,9 @@ class PropertySharedViewModel @Inject constructor
     ) {
 
         val previousState = _uiState.value as? PropertyUiState.Success
-        _uiState.value = PropertyUiState.Loading
+        if (previousState == null) {
+            _uiState.value = PropertyUiState.Loading
+        }
 
         try {
             val properties = if (isSearch && searchCriteria != null) {
@@ -135,8 +143,16 @@ class PropertySharedViewModel @Inject constructor
     }
 
     suspend fun refreshProperties() {
-        if ((uiState.value as? PropertySharedViewModel.PropertyUiState.Success)?.isFiltered != true) {
+        if ((_uiState.value as? PropertyUiState.Success)?.isFiltered != true) {
             loadProperties()
+        }
+    }
+
+    private suspend fun updateAndRefreshIfNeeded() {
+
+        val updatedCount = updateMissingLocationUseCase()
+        if (updatedCount > 0) {
+            refreshProperties()
         }
     }
 

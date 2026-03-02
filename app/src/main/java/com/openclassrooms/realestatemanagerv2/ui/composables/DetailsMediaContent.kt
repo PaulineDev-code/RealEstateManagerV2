@@ -155,22 +155,25 @@ fun DetailsMediaContent(
                             .align(Alignment.Center)
                     )
 
-                    IconButton(
-                        onClick = { onVideoDeleted(video) },
-                        modifier = Modifier
-                            .padding(2.dp)
-                            .size(16.dp)
-                            .align(Alignment.TopEnd)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = "Delete video",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .background(Color.White, CircleShape)
+                    if(isInEditMode) {
 
-                        )
+                        IconButton(
+                            onClick = { onVideoDeleted(video) },
+                            modifier = Modifier
+                                .padding(2.dp)
+                                .size(16.dp)
+                                .align(Alignment.TopEnd)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Clear,
+                                contentDescription = "Delete video",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .background(Color.White, CircleShape)
+
+                            )
+                        }
                     }
                 }
             }

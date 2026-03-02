@@ -10,24 +10,5 @@ import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class MyApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        // Installe les fournisseurs de sécurité réseau les plus récents pour les anciens Android
-        // afin de résoudre les problèmes de certificats SSL/TLS.
-        installTlsProvider()
-    }
 
-    @OptIn(UnstableApi::class)
-    private fun installTlsProvider() {
-        try {
-            ProviderInstaller.installIfNeeded(applicationContext)
-            Log.d("MyApplication", "TLS Provider installed successfully.")
-        } catch (e: Exception) {
-            // Si les Play Services ne sont pas disponibles ou à jour, cela peut échouer.
-            // On peut tenter de le corriger.
-            Log.e("MyApplication", "Failed to install TLS Provider: ${e.message}")
-            GoogleApiAvailability.getInstance()
-                .showErrorNotification(applicationContext, e.hashCode())
-        }
-    }
 }

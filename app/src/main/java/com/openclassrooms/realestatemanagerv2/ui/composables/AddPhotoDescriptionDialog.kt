@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
@@ -61,6 +62,7 @@ fun AddPhotoDescriptionDialog(photoUri: String,
                     placeHolder = { Text(text = "Add a quick description") },
                     modifier = Modifier.padding(8.dp),
                     onTextChange = onPhotoDescriptionChange,
+                    imeAction = ImeAction.Done,
                     text = photoDescription
                 )
             }

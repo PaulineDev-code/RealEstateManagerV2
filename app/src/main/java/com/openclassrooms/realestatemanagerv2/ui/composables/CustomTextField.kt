@@ -26,6 +26,7 @@ fun CustomTextField(modifier: Modifier = Modifier,
                     suffix: @Composable (() -> Unit) = {},
                     supportingText: @Composable (() -> Unit) = {},
                     keyboardType: KeyboardType = KeyboardType.Text,
+                    imeAction: ImeAction = ImeAction.Next,
                     onTextChange: (String) -> Unit,
                     text: String
 
@@ -50,7 +51,7 @@ fun CustomTextField(modifier: Modifier = Modifier,
         },
         suffix = suffix,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType,
-            imeAction = ImeAction.Next),
+            imeAction = imeAction),
         modifier = modifier,
         supportingText = supportingText
     )
