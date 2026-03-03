@@ -10,6 +10,7 @@ import javax.inject.Singleton
 class DatabaseStatusTracker @Inject constructor() {
     private val _isReady = MutableStateFlow(false)
     val isReady: StateFlow<Boolean> = _isReady.asStateFlow()
+
     fun notifyPrepopulated() {
         _isReady.value = true
     }

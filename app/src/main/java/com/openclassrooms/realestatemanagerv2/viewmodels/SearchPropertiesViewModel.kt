@@ -24,7 +24,8 @@ class SearchPropertiesViewModel @Inject constructor(
     private val getPropertyTypesUseCase: GetPropertyTypesUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<SearchPropertiesUiState>(SearchPropertiesUiState.Editing())
+    private val _uiState =
+        MutableStateFlow<SearchPropertiesUiState>(SearchPropertiesUiState.Editing())
     val uiState: StateFlow<SearchPropertiesUiState> = _uiState
     val allPointOfInterestList: List<PointOfInterest> = PointOfInterest.entries
 
@@ -74,7 +75,7 @@ class SearchPropertiesViewModel @Inject constructor(
     }
 
     fun updateMinArea(newMinArea: String) {
-    val error = newMinArea.validatePositiveNumber()
+        val error = newMinArea.validatePositiveNumber()
         updateState {
             copy(
                 minArea = minArea.copy(value = newMinArea, error = error)
@@ -92,19 +93,19 @@ class SearchPropertiesViewModel @Inject constructor(
     }
 
     fun updateMinNumberOfRooms(newMinNumberOfRooms: String) {
-            val error = newMinNumberOfRooms.validatePositiveNumber()
+        val error = newMinNumberOfRooms.validatePositiveNumber()
         updateState {
             copy(
-                minNumberOfRooms =  minNumberOfRooms.copy(value = newMinNumberOfRooms, error = error)
+                minNumberOfRooms = minNumberOfRooms.copy(value = newMinNumberOfRooms, error = error)
             )
         }
     }
 
     fun updateMaxNumberOfRooms(newMaxNumberOfRooms: String) {
-            val error = newMaxNumberOfRooms.validatePositiveNumber()
+        val error = newMaxNumberOfRooms.validatePositiveNumber()
         updateState {
             copy(
-                maxNumberOfRooms =  maxNumberOfRooms.copy(value = newMaxNumberOfRooms, error = error)
+                maxNumberOfRooms = maxNumberOfRooms.copy(value = newMaxNumberOfRooms, error = error)
             )
         }
     }
@@ -127,8 +128,7 @@ class SearchPropertiesViewModel @Inject constructor(
         }
     }
 
-    fun updateEntryDate(newEntryDate: Long?)  {
-        /*val error = newMinVideos.validatePositiveNumber() + newMinVideos.validateNonEmpty()*/
+    fun updateEntryDate(newEntryDate: Long?) {
         updateState {
             copy(
                 entryDate = newEntryDate/*, error = error)*/
@@ -136,8 +136,7 @@ class SearchPropertiesViewModel @Inject constructor(
         }
     }
 
-    fun updateEntryDateDialogShown(newIsDialogShown: Boolean)  {
-        /*val error = newMinVideos.validatePositiveNumber() + newMinVideos.validateNonEmpty()*/
+    fun updateEntryDateDialogShown(newIsDialogShown: Boolean) {
         updateState {
             copy(
                 isEntryDatePickerShown = newIsDialogShown/*, error = error)*/
@@ -145,8 +144,7 @@ class SearchPropertiesViewModel @Inject constructor(
         }
     }
 
-    fun updateSaleDate(newSaleDate: Long?)  {
-        /*val error = newMinVideos.validatePositiveNumber() + newMinVideos.validateNonEmpty()*/
+    fun updateSaleDate(newSaleDate: Long?) {
         updateState {
             copy(
                 saleDate = newSaleDate/*, error = error)*/
@@ -154,8 +152,7 @@ class SearchPropertiesViewModel @Inject constructor(
         }
     }
 
-    fun updateSaleDateDialogShown(newIsDialogShown: Boolean)  {
-        /*val error = newMinVideos.validatePositiveNumber() + newMinVideos.validateNonEmpty()*/
+    fun updateSaleDateDialogShown(newIsDialogShown: Boolean) {
         updateState {
             copy(
                 isSaleDatePickerShown = newIsDialogShown/*, error = error)*/
@@ -185,7 +182,7 @@ class SearchPropertiesViewModel @Inject constructor(
         }
     }
 
-    fun updateAgent(newAgent: Agent)  {
+    fun updateAgent(newAgent: Agent) {
         updateState {
             copy(
                 agent = newAgent
@@ -198,7 +195,8 @@ class SearchPropertiesViewModel @Inject constructor(
         if (currentState is SearchPropertiesUiState.Editing) {
             val newState = currentState.update()
             _uiState.value = newState.copy(
-                isFormValid = isFormValid(newState))
+                isFormValid = isFormValid(newState)
+            )
         }
     }
 
@@ -215,17 +213,17 @@ class SearchPropertiesViewModel @Inject constructor(
         ).all { it.isNullOrBlank() }
 
         val isAnyFieldFilled = listOf(
-                    state.minPrice.value,
-                    state.maxPrice.value,
-                    state.minArea.value,
-                    state.maxArea.value,
-                    state.minNumberOfRooms.value,
-                    state.maxNumberOfRooms.value,
-                    state.minPhotos.value,
-                    state.minVideos.value,
-                    state.entryDate,
-                    state.saleDate,
-                    state.agent
+            state.minPrice.value,
+            state.maxPrice.value,
+            state.minArea.value,
+            state.maxArea.value,
+            state.minNumberOfRooms.value,
+            state.maxNumberOfRooms.value,
+            state.minPhotos.value,
+            state.minVideos.value,
+            state.entryDate,
+            state.saleDate,
+            state.agent
         ).any { it != null && it.toString().isNotBlank() }
 
         val isAnySetFilled = state.typeSet.isNotEmpty() || state.nearbyPointSet.isNotEmpty()
@@ -258,8 +256,10 @@ class SearchPropertiesViewModel @Inject constructor(
     }
 
     sealed interface SearchPropertiesUiState {
-        data class Success(val properties: List<Property>): SearchPropertiesUiState
-        data class Error(val error: SearchPropertiesViewModel.SearchPropertiesError): SearchPropertiesUiState
+        data class Success(val properties: List<Property>) : SearchPropertiesUiState
+        data class Error(val error: SearchPropertiesViewModel.SearchPropertiesError) :
+            SearchPropertiesUiState
+
         data class Editing(
             val typeSet: Set<String> = emptySet(),
             val allTypes: List<String> = emptyList(),
@@ -278,7 +278,8 @@ class SearchPropertiesViewModel @Inject constructor(
             val isSaleDatePickerShown: Boolean = false,
             val agent: Agent? = null,
             val agentList: List<Agent> = emptyList(),
-            val isFormValid: Boolean = false): SearchPropertiesUiState {}
+            val isFormValid: Boolean = false
+        ) : SearchPropertiesUiState {}
 
     }
 

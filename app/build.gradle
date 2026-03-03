@@ -66,9 +66,6 @@ android {
     }
     namespace 'com.openclassrooms.realestatemanagerv2'
 
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.5.11'
-    }
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'

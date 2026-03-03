@@ -21,7 +21,7 @@ import javax.inject.Singleton
 
 @Singleton
 class LocationRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val propertyDAO: PropertyLocalDAO,
     private val networkMonitor: NetworkMonitor
 ) : LocationRepository {
