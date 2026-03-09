@@ -1,10 +1,6 @@
 package com.openclassrooms.realestatemanagerv2.data.view
 
 import androidx.room.DatabaseView
-import com.openclassrooms.realestatemanagerv2.domain.model.Agent
-import com.openclassrooms.realestatemanagerv2.domain.model.Media
-import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
-import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 
 
 @DatabaseView(
@@ -29,7 +25,6 @@ import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
       COALESCE((SELECT COUNT(*) FROM medias WHERE propertyLocalId = p.id AND type = 'photo'), 0) AS photos_count,
       COALESCE((SELECT COUNT(*) FROM medias WHERE propertyLocalId = p.id AND type = 'video'), 0) AS videos_count,
 
-      -- listes aplaties (séparateur peu probable)
       (SELECT GROUP_CONCAT(DISTINCT pointOfInterestId) 
        FROM point_of_interest_cross_ref 
        WHERE propertyId = p.id) AS poi_ids,

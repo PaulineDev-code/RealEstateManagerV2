@@ -5,16 +5,13 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.layout.AnimatedPane
@@ -37,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,22 +42,17 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.CameraPositionState
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.NetworkStatus
-import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
 import com.openclassrooms.realestatemanagerv2.ui.composables.DetailsContent
 import com.openclassrooms.realestatemanagerv2.ui.composables.DoubleBackToExitHandler
-import com.openclassrooms.realestatemanagerv2.utils.convertToLocalCurrency
-import com.openclassrooms.realestatemanagerv2.utils.formatToLocalCurrency
+import com.openclassrooms.realestatemanagerv2.ui.composables.ErrorStateContent
+import com.openclassrooms.realestatemanagerv2.ui.composables.MapContent
+import com.openclassrooms.realestatemanagerv2.ui.states.PropertyDetailsUiState
+import com.openclassrooms.realestatemanagerv2.ui.states.PropertyUiState
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
 import kotlinx.coroutines.launch
@@ -77,10 +68,7 @@ fun MapScreen(
     detailsViewModel: PropertyDetailsViewModel
 ) {
     val listUiState by propertiesViewModel.uiState.collectAsStateWithLifecycle()
-    val successListState = listUiState as? PropertySharedViewModel.PropertyUiState.Success
-
-    val detailsUiState by detailsViewModel.uiState.collectAsStateWithLifecycle()
-    val successDetailsState = detailsUiState as? PropertyDetailsViewModel.PropertyDetailsUiState.Success
+    val successListState = listUiState as? PropertyUiState.Success
 
     // State for video player visibility and URL, managed within this stateful composable
     var isVideoDisplayed by remember { mutableStateOf(false) }
@@ -108,6 +96,7 @@ fun MapScreen(
     //Track latest close version of the detail pane
     val closeVersion = successListState?.detailPaneCloseVersion ?: 0
     var lastHandledVersion by rememberSaveable { mutableIntStateOf(0) }
+    val networkStatus = successListState?.networkStatus
 
     val activity = LocalContext.current as? Activity
 
@@ -167,6 +156,12 @@ fun MapScreen(
         }
     }
 
+    LaunchedEffect(networkStatus) {
+        if (networkStatus == NetworkStatus.Available) {
+            propertiesViewModel.updateAndRefreshIfNeeded()
+        }
+    }
+
     LaunchedEffect(closeVersion) {
         if (closeVersion > lastHandledVersion) {
             if (navigator.canNavigateBack(BackNavigationBehavior.PopUntilCurrentDestinationChange)) {
@@ -184,8 +179,8 @@ fun MapScreen(
     }
 
     val navBarsColor = if (
-        listUiState is PropertySharedViewModel.PropertyUiState.Success
-        && (listUiState as PropertySharedViewModel.PropertyUiState.Success).isFiltered
+        listUiState is PropertyUiState.Success
+        && (listUiState as PropertyUiState.Success).isFiltered
     ) {
         MaterialTheme.colorScheme.surfaceVariant
     } else {
@@ -226,18 +221,25 @@ fun MapScreen(
             listPane = {
                 AnimatedPane(modifier = Modifier) {
                     when (val state = listUiState) {
-                        is PropertySharedViewModel.PropertyUiState.Loading -> {
-                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        is PropertyUiState.Loading -> {
+                            Box(
+                                Modifier
+                                    .padding(innerPadding)
+                                    .fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
                                 CircularProgressIndicator()
                             }
                         }
 
-                        is PropertySharedViewModel.PropertyUiState.Error -> {
-                            val e = state.exception
-                            Text("Erreur : ${e.localizedMessage}")
+                        is PropertyUiState.Error -> {
+                            ErrorStateContent(
+                                message = state.message,
+                                onRetry = { propertiesViewModel.resetProperties() }
+                            )
                         }
 
-                        is PropertySharedViewModel.PropertyUiState.Success -> {
+                        is PropertyUiState.Success -> {
                             MapContent(
                                 properties = state.properties,
                                 locationPermissionGranted = locationPermissionGranted,
@@ -257,44 +259,78 @@ fun MapScreen(
             },
             detailPane = {
                 AnimatedPane(modifier = Modifier) {
-                    navigator.currentDestination?.contentKey?.let { propertyId ->
-                        detailsViewModel.getPropertyById(propertyId)
-                    }
-                    if (navigator.currentDestination?.contentKey != null) {
-                        DetailsContent(
-                            uiState = detailsUiState,
-                            innerPadding = PaddingValues(0.dp),
-                            onPhotoClicked = { photoIndex ->
-                                detailsViewModel.updateSelectedPhotoIndex(photoIndex)
-                                detailsViewModel.updatePhotoViewerShown(true)
-                            },
-                            onPhotoViewerClosed = {
-                                detailsViewModel.updatePhotoViewerShown(false)
-                            },
-                            isPhotoViewerDisplayed = successDetailsState?.isPhotoViewerShown ?: false,
-                            selectedPhotoIndex = successDetailsState?.selectedPhotoIndex ?: 0,
-                            onPhotoIndexChanged = { index ->
-                                detailsViewModel.updateSelectedPhotoIndex(index)
-                            },
-                            onVideoClicked = { videoUrl ->
-                                currentVideoUrl = videoUrl
-                                isVideoDisplayed = true
-                            },
-                            onVideoPlayerClosed = {
-                                currentVideoUrl = ""
-                                isVideoDisplayed = false
-                            },
-                            isVideoDisplayed = isVideoDisplayed,
-                            currentVideoUrl = currentVideoUrl
-                        )
-                    } else if (isListAndDetailVisible
-                        && listUiState is PropertySharedViewModel.PropertyUiState.Success
-                    ) {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(stringResource(R.string.select_property_to_details))
+                    val detailsUiState by detailsViewModel.uiState.collectAsStateWithLifecycle()
+                    val successDetailsState = detailsUiState as? PropertyDetailsUiState.Success
+                    val propertyId = navigator.currentDestination?.contentKey
+                    LaunchedEffect(propertyId) {
+                        propertyId?.let { id ->
+                            detailsViewModel.getPropertyById(id)
                         }
-                    } else {
-                        Box(Modifier.fillMaxSize())
+                    }
+                    when(val state = detailsUiState) {
+                        is PropertyDetailsUiState.Loading -> {
+                            Box(
+                                Modifier
+                                    .padding(innerPadding)
+                                    .fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
+
+                        is PropertyDetailsUiState.Error -> {
+                            ErrorStateContent(
+                                message = state.message,
+                                onRetry = {
+                                    propertyId?.let { id ->
+                                        detailsViewModel.getPropertyById(id)
+                                    }
+                                })
+                        }
+
+                        is PropertyDetailsUiState.Success -> {
+                            val property = state.property
+
+                            if (propertyId != null && property != null) {
+                                DetailsContent(
+                                    property = property,
+                                    innerPadding = PaddingValues(0.dp),
+                                    onPhotoClicked = { photoIndex ->
+                                        detailsViewModel.updateSelectedPhotoIndex(photoIndex)
+                                        detailsViewModel.updatePhotoViewerShown(true)
+                                    },
+                                    onPhotoViewerClosed = {
+                                        detailsViewModel.updatePhotoViewerShown(false)
+                                    },
+                                    isPhotoViewerDisplayed = successDetailsState?.isPhotoViewerShown
+                                        ?: false,
+                                    selectedPhotoIndex = successDetailsState?.selectedPhotoIndex
+                                        ?: 0,
+                                    onPhotoIndexChanged = { index ->
+                                        detailsViewModel.updateSelectedPhotoIndex(index)
+                                    },
+                                    onVideoClicked = { videoUrl ->
+                                        currentVideoUrl = videoUrl
+                                        isVideoDisplayed = true
+                                    },
+                                    onVideoPlayerClosed = {
+                                        currentVideoUrl = ""
+                                        isVideoDisplayed = false
+                                    },
+                                    isVideoDisplayed = isVideoDisplayed,
+                                    currentVideoUrl = currentVideoUrl
+                                )
+                            } else if (isListAndDetailVisible
+                                && listUiState is PropertyUiState.Success
+                            ) {
+                                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    Text(stringResource(R.string.select_property_to_details))
+                                }
+                            } else {
+                                Box(Modifier.fillMaxSize())
+                            }
+                        }
                     }
                 }
             },
@@ -303,52 +339,4 @@ fun MapScreen(
 
         )
     }
-}
-
-@Composable
-fun MapContent(
-    properties: List<Property>,
-    locationPermissionGranted: Boolean,
-    cameraPositionState: CameraPositionState,
-    onInfoWindowClick: (propertyId: String) -> Unit
-) {
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        GoogleMap(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            properties = MapProperties(isMyLocationEnabled = locationPermissionGranted),
-            uiSettings = MapUiSettings(myLocationButtonEnabled = locationPermissionGranted)
-        ) {
-            properties.forEach { property ->
-                if (property.latitude != null && property.longitude != null) {
-                    Marker(
-                        state = MarkerState(
-                            position = LatLng(property.latitude, property.longitude)
-                        ),
-                        title = property.address,
-                        snippet = property.type + " - " + "${
-                            property.price.convertToLocalCurrency().toString()
-                                .formatToLocalCurrency()
-                        }",
-                        onInfoWindowClick = { onInfoWindowClick(property.id) }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true, backgroundColor = -1)
-@Composable
-fun MapContentPreview() {
-
-    MapContent(
-        properties = emptyList(),
-        locationPermissionGranted = false,
-        cameraPositionState = rememberCameraPositionState(),
-        onInfoWindowClick = {})
 }

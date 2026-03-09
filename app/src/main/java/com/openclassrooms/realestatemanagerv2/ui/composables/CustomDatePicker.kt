@@ -1,11 +1,6 @@
 package com.openclassrooms.realestatemanagerv2.ui.composables
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imeNestedScroll
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -20,30 +15,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.utils.formatMillisToLocal
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
 
@@ -57,21 +37,6 @@ fun CustomDatePicker(selectedDateMillis: Long?,
                      datePickerState : DatePickerState,
                      modifier: Modifier = Modifier
 ) {
-
-    /*val DatePickerStateSaver: Saver<DatePickerState, Long> = Saver(
-        save = { state ->
-            // On sauvegarde le timestamp sélectionné, ou la date actuelle si null
-            state.selectedDateMillis ?: System.currentTimeMillis()
-        },
-        restore = { savedMillis ->
-            // On restaure en recréant une instance avec le timestamp sauvegardé et le locale par défaut.
-            DatePickerState(
-                initialSelectedDateMillis = savedMillis,
-                locale = Locale.getDefault()
-            )
-        }
-    )*/
-    // Conversion du timestamp en date lisible pour l'affichage
     val displayText = selectedDateMillis?.formatMillisToLocal(FormatStyle.LONG) ?: "Click to select"
 
     OutlinedTextField(
@@ -108,10 +73,6 @@ fun CustomDatePicker(selectedDateMillis: Long?,
 
 
     if (isDialogShown) {
-        // Utilisation de rememberSaveable avec notre Saver personnalisé
-        /*val datePickerState = datePickerState {
-            DatePickerState(locale = Locale.getDefault(), initialSelectedDateMillis = selectedDateMillis ?: System.currentTimeMillis())
-        }*/
 
         DatePickerDialog(
             onDismissRequest = onDismissDialog,
@@ -124,9 +85,7 @@ fun CustomDatePicker(selectedDateMillis: Long?,
                 }
             },
             dismissButton = {
-                Button(onClick = {/*
-                    datePickerState.selectedDateMillis = null
-                    datePickerState.displayedMonthMillis = System.currentTimeMillis()*/
+                Button(onClick = {
                     onDismissDialog()
                 }) {
                     Text("Cancel")

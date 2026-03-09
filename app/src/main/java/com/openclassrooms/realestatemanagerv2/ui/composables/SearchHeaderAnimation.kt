@@ -19,25 +19,22 @@ fun SearchHeaderAnimation(
     modifier: Modifier = Modifier,
     iterations: Int = LottieConstants.IterateForever
 ) {
-    // 1) Charger la composition depuis le raw resource
     val composition by rememberLottieComposition(
         LottieCompositionSpec.RawRes(R.raw.animation_search_property)
     )
-    // 2) Piloter l’animation
     val progress by animateLottieCompositionAsState(
         composition = composition,
         iterations = iterations,
-        speed = 1.0f,            // 1x speed
+        speed = 1.0f,
         isPlaying = true
     )
 
-    // 3) Afficher
     LottieAnimation(
         composition = composition,
         progress = { progress },
         modifier = modifier
             .fillMaxWidth()
-            .height(200.dp)     // ajuste selon ton design
+            .height(200.dp)
     )
 }
 

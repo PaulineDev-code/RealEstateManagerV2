@@ -60,6 +60,7 @@ fun SearchContentTwoPane(
     agent: Agent?,
     agentList: List<Agent>,
     onAgentSelected: (Agent) -> Unit,
+    onResetAgent: () -> Unit,
 
     //EntryDatePicker
     selectedEntryDate: Long?,
@@ -223,10 +224,11 @@ fun SearchContentTwoPane(
             )
 
             AgentSpinner(
-                modifier = Modifier.padding(top = 8.dp),
+                modifier = Modifier.padding(8.dp),
                 agents = agentList,
                 selectedAgent = agent,
-                onAgentSelected = onAgentSelected
+                onAgentSelected = onAgentSelected,
+                onResetAgent = onResetAgent
             )
 
             Button(
@@ -295,6 +297,7 @@ fun SearchContentTwoPanePreview() {
         agentList = listOf(Agent("1", "John", "Doe", "test@gmail.com")),
         agent = Agent("1", "John", "Doe", "test@gmail.com"),
         onAgentSelected = {},
+        onResetAgent = {},
         isSearchClickEnabled = true,
         onSearchClicked = {}
     )

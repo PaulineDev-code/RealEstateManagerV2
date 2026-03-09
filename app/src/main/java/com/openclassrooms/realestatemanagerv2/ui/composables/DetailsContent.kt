@@ -1,19 +1,13 @@
 package com.openclassrooms.realestatemanagerv2.ui.composables
 
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,11 +19,10 @@ import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.domain.model.Video
-import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
 
 @Composable
 fun DetailsContent(
-    uiState: PropertyDetailsViewModel.PropertyDetailsUiState,
+    property: Property,
     innerPadding: PaddingValues, // For content padding from AppTopBar
     onPhotoClicked: (photoIndex: Int) -> Unit,
     onPhotoViewerClosed: () -> Unit,
@@ -42,89 +35,47 @@ fun DetailsContent(
     currentVideoUrl: String
 ) {
     val context = LocalContext.current
+    // Display property details
+    Column(
+        modifier = Modifier
+            .padding(innerPadding)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(8.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        DetailsMediaContent(
+            photoList = property.media.filterIsInstance<Photo>(),
+            videoList = property.media.filterIsInstance<Video>(),
+            context = context,
+            onPhotoDeleted = {},
+            onPhotoClicked = onPhotoClicked,
+            onVideoDeleted = {},
+            onVideoClicked = onVideoClicked
+        )
+        DetailsDescriptionContent(description = property.description)
+        DetailsInformationsContent(property)
+        StaticMapView(
+            latitude = property.latitude,
+            longitude = property.longitude,
+            apiKey = BuildConfig.MAPS_API_KEY,
+        )
+    }
 
-    when (uiState) {
-        is PropertyDetailsViewModel.PropertyDetailsUiState.Loading -> {
-            Box(
-                Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
 
-        is PropertyDetailsViewModel.PropertyDetailsUiState.Success -> {
-            val property = uiState.property
-            if (property != null) {
-                // Display property details
-                Column(
-                    modifier = Modifier
-                        .padding(innerPadding)
-                        .background(MaterialTheme.colorScheme.background)
-                        .padding(8.dp)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    DetailsMediaContent(
-                        photoList = property.media.filterIsInstance<Photo>(),
-                        videoList = property.media.filterIsInstance<Video>(),
-                        context = context,
-                        onPhotoDeleted = {},
-                        onPhotoClicked = onPhotoClicked,
-                        onVideoDeleted = {},
-                        onVideoClicked = onVideoClicked
-                    )
-                    DetailsDescriptionContent(description = property.description)
-                    DetailsInformationsContent(property)
-                    StaticMapView(
-                        latitude = property.latitude,
-                        longitude = property.longitude,
-                        apiKey = BuildConfig.MAPS_API_KEY,
-                    )
-                }
-            } else {
-                // Display Text saying there is no property available to display
-                Box(
-                    modifier = Modifier
-                        .padding(innerPadding)
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "No property available to display")
-                }
-            }
-
-            if (isVideoDisplayed && currentVideoUrl.isNotBlank()) {
-                VideoPlayer(
-                    videoUri = currentVideoUrl,
-                    context = context.applicationContext,
-                    onClose = onVideoPlayerClosed
-                )
-            }
-            if (isPhotoViewerDisplayed && property != null) {
-                PhotoViewer(
-                    photos = property.media.filterIsInstance<Photo>(),
-                    selectedPhotoIndex = selectedPhotoIndex,
-                    onPhotoIndexChanged = onPhotoIndexChanged,
-                    onClose = onPhotoViewerClosed
-                )
-            }
-        }
-
-        is PropertyDetailsViewModel.PropertyDetailsUiState.Error -> {
-            Box(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                // Display error message for the user
-                Text(text = "Error loading property details.")
-                // Log the error for debugging
-                Log.e("DetailsScreenContent", "PropertyDetailsUiState.Error occurred")
-            }
-        }
+    if (isVideoDisplayed && currentVideoUrl.isNotBlank()) {
+        VideoPlayer(
+            videoUri = currentVideoUrl,
+            context = context.applicationContext,
+            onClose = onVideoPlayerClosed
+        )
+    }
+    if (isPhotoViewerDisplayed) {
+        PhotoViewer(
+            photos = property.media.filterIsInstance<Photo>(),
+            selectedPhotoIndex = selectedPhotoIndex,
+            onPhotoIndexChanged = onPhotoIndexChanged,
+            onClose = onPhotoViewerClosed
+        )
     }
 }
 
@@ -166,7 +117,7 @@ fun DetailsScreenPreview() {
     )
 
     DetailsContent(
-        uiState = PropertyDetailsViewModel.PropertyDetailsUiState.Success(sampleProperty),
+        property = sampleProperty,
         innerPadding = PaddingValues(0.dp),
         onPhotoClicked = {},
         onPhotoViewerClosed = {},

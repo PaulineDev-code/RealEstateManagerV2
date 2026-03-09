@@ -26,6 +26,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.openclassrooms.realestatemanagerv2.ui.states.PropertyUiState
 import com.openclassrooms.realestatemanagerv2.viewmodels.EditPropertyViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
@@ -149,7 +150,7 @@ fun AppNavHost(
                 backStackEntry.arguments?.getString(BottomNavItem.List.ARG_NEW_ID)?.let(Uri::decode)
             val uiState by sharedViewModel.uiState.collectAsState()
             LaunchedEffect(newId, uiState) {
-                if (newId != null && uiState is PropertySharedViewModel.PropertyUiState.Success) {
+                if (newId != null && uiState is PropertyUiState.Success) {
                     sharedViewModel.updateAddedProperty(newId)
                     backStackEntry.arguments?.remove(BottomNavItem.List.ARG_NEW_ID)
                 }
@@ -187,7 +188,7 @@ fun AppNavHost(
         composable(BottomNavItem.Search.route) {
             SearchScreen(
                 windowAdaptiveInfo = windowAdaptiveInfo,
-                navController = navController, // If SearchScreen needs to navigate
+                navController = navController,
                 onNavigateToAdd = { navController.navigate("add_screen") }
             )
         }

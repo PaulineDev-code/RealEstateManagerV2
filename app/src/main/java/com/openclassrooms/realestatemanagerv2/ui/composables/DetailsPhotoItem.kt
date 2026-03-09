@@ -14,8 +14,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -25,7 +23,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Photo
 
 
 @Composable
-fun PhotoItem(/*@PreviewParameter(PhotoPreviewParameterProvider::class)*/ media: Media) {
+fun PhotoItem(media: Media) {
     Box(Modifier.padding(8.dp)) {
         Image(
             painter = rememberAsyncImagePainter(
@@ -50,19 +48,10 @@ fun PhotoItem(/*@PreviewParameter(PhotoPreviewParameterProvider::class)*/ media:
 
 }
 
-@Preview
+@Preview(backgroundColor = -1, showBackground = true)
 @Composable
 fun PhototItemPreview() {
     var mediaPreview : Media = Photo("", "descriptionTest")
+
     PhotoItem(mediaPreview)
-
 }
-
-/*
-class PhotoPreviewParameterProvider : PreviewParameterProvider<Media> {
-    private val mediaLists: List<Media> = listOf(Photo("https://www.istockphoto.com/fr/photo/belle-maison-avec-jardin-gm590279802-101488565", "belle maison"))
-    private val nearByPointsList: List<String> = listOf("Ecole","Boulangerie")
-    override val values = sequenceOf(
-        Photo("https://www.istockphoto.com/fr/photo/belle-maison-avec-jardin-gm590279802-101488565", "Facade")
-    )
-}*/

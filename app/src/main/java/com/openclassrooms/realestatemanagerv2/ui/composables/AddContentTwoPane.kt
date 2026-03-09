@@ -1,9 +1,5 @@
 package com.openclassrooms.realestatemanagerv2.ui.composables
 
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,8 +46,6 @@ fun AddContentTwoPane(
 
     title: String,
     onCreatePropertyClick: () -> Unit,
-    errorMessage: String?,
-    onDismissError: () -> Unit,
 
     photoUri: String,
     photoDescription: String,
@@ -121,14 +114,6 @@ fun AddContentTwoPane(
     var videoUri: String by remember { mutableStateOf("") }
 
     val context = LocalContext.current
-
-    LaunchedEffect(errorMessage) {
-        errorMessage?.let {
-            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-            onDismissError()
-        }
-    }
-
 
     Row(modifier = Modifier
         .padding(paddingValues)
@@ -333,7 +318,6 @@ fun AddContentTwoPanePreview() {
         numberOfRoomsError = "numberOfRoomsError",
 
         // OnChange functions
-
         onDescriptionChange = {},
         onTypeChange = {},
         onPriceChange = {},
@@ -344,10 +328,6 @@ fun AddContentTwoPanePreview() {
         onAgentSelected = {},
 
         //Other functions
-
-        errorMessage = "errorMessage",
-        onDismissError = {},
-
         photoUri = "",
         photoDescription = "photoDescription",
         onPhotoUriChange = {},

@@ -114,7 +114,6 @@ fun DetailsMediaContent(
                     }
                 }
 
-                // Surface avec texte
                 Surface(
                     color = Color(0, 0, 0, 150),
                     modifier = Modifier
@@ -134,7 +133,6 @@ fun DetailsMediaContent(
         }
     }
 
-    //TODO: Add isInEditMode to hide delete button
     if (videoList.isNotEmpty()) {
         LazyRow(modifier = Modifier.fillMaxWidth()) {
             itemsIndexed(items = videoList) { _, video ->

@@ -14,6 +14,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
 import com.openclassrooms.realestatemanagerv2.domain.repositories.PropertyRepository
 import com.openclassrooms.realestatemanagerv2.ui.MainActivity
+import com.openclassrooms.realestatemanagerv2.ui.states.PropertyUiState
 import com.openclassrooms.realestatemanagerv2.utils.DatabaseStatusTracker
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -91,14 +92,14 @@ class NetworkSyncIntegrationTest {
         try {
 
             composeTestRule.waitUntil(timeoutMillis = 20000) {
-                viewModel.uiState.value is PropertySharedViewModel.PropertyUiState.Success
+                viewModel.uiState.value is PropertyUiState.Success
             }
 
             NetworkHelper.testNetworkFlow.value = NetworkStatus.Unavailable
 
             composeTestRule.waitUntil(timeoutMillis = 10000) {
                 val state =
-                    viewModel.uiState.value as? PropertySharedViewModel.PropertyUiState.Success
+                    viewModel.uiState.value as? PropertyUiState.Success
                 state?.networkStatus == NetworkStatus.Unavailable
             }
 
@@ -108,7 +109,7 @@ class NetworkSyncIntegrationTest {
 
             composeTestRule.waitUntil(timeoutMillis = 10000) {
                 val state =
-                    viewModel.uiState.value as? PropertySharedViewModel.PropertyUiState.Success
+                    viewModel.uiState.value as? PropertyUiState.Success
                 state?.networkStatus == NetworkStatus.Available
             }
 

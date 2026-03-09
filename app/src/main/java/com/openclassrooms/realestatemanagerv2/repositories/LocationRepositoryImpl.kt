@@ -37,8 +37,8 @@ class LocationRepositoryImpl @Inject constructor(
     ): Unit = propertyDAO.updateLocationByAddress(address, latitude, longitude)
 
     /**
-     * Essaie de géocoder [address] tout de suite si réseau dispo.
-     * @return LatLng si trouvé, ou null si hors-ligne, adresse introuvable ou erreur.
+     * Try to resolve [address] by now if network is available.
+     * @return LatLng if found, or null if offline, adress not found or error.
      */
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     override suspend fun geocodeNowOrNull(address: String): LatLng? = withContext(Dispatchers.IO) {
@@ -67,7 +67,6 @@ class LocationRepositoryImpl @Inject constructor(
                         }
                     )
                     continuation.invokeOnCancellation {
-                        // si la coroutine est annulée, rien à nettoyer de particulier
                     }
                 }
             } else {
@@ -77,10 +76,8 @@ class LocationRepositoryImpl @Inject constructor(
                     ?.let { LatLng(it.latitude, it.longitude) }
             }
         } catch (e: IOException) {
-            // p.ex. pas de net ou service down → on renvoie null pour différer
             null
         } catch (e: Exception) {
-            // toute autre erreur (adresse invalide, bug Geocoder…) → null
             null
         }
     }

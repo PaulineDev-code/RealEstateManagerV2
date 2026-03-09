@@ -1,8 +1,8 @@
 package com.openclassrooms.realestatemanagerv2.data.dao
 
+import android.database.Cursor
 import androidx.room.Dao
 import androidx.room.Query
-import android.database.Cursor
 import androidx.room.RawQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 

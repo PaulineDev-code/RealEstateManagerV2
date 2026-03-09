@@ -46,7 +46,6 @@ fun AddTextFields(
     onNumberOfRoomsChange: (String) -> Unit,
 ) {
     var pricePretty by remember(price) { mutableStateOf(price) }
-    var hasFocus by remember { mutableStateOf(false) }
 
     TitleText(
         text = stringResource(id = R.string.description_for_the_property),
@@ -100,10 +99,8 @@ fun AddTextFields(
                 .padding(8.dp)
                 .onFocusChanged { f ->
                     if (!f.isFocused && price != "") {
-                        hasFocus = true
                         pricePretty = price.formatToLocalCurrency()
                     } else {
-                        hasFocus = false
                         pricePretty = price
                     }
                 }
@@ -178,7 +175,7 @@ fun AddTextFieldsPreview() {
             areaError = "",
             numberOfRoomsError = "",
 
-// OnChange functions
+            // OnChange functions
             onDescriptionChange = {},
             onTypeChange = {},
             onPriceChange = {},

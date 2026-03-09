@@ -37,24 +37,14 @@ fun PointsOfInterestDropdown(
         stringResource(id = point.displayNameResId)
     }
 
-    // Texte à afficher dans le bouton du spinner
-    /*val selectedText = if (selectedNames.isEmpty()) {
-        "Choose Points of Interest"
-    } else {
-        selectedNames.joinToString(", ")
-    }*/
-
     val selectedText = stringResource(R.string.click_to_select_points_of_interest) + " " +
             selectedNames.joinToString(", ")
 
-
-    // Spinner button
     Box(
         modifier = modifier
             .clickable { expanded = !expanded }
 
     ) {
-
         OutlinedTextField(
             value = selectedText,
             onValueChange = {},
@@ -70,7 +60,6 @@ fun PointsOfInterestDropdown(
                 disabledContainerColor = Color.LightGray.copy(alpha = 0.2f), // background color
             )
         )
-        /*Text(text = selectedText)*/
     }
 
     // Dropdown Menu
@@ -101,23 +90,11 @@ fun PointsOfInterestDropdown(
     }
 }
 
-/*@Preview(showBackground = true, backgroundColor = -1, showSystemUi = true)
-@Composable
-fun PointsOfInterestDropdownPreview () {
-    PointsOfInterestDropdown(
-
-        allPointOfInterestList = PointOfInterest.values().asList() ,
-        selectedPointOfInterestSet = setOf(PointOfInterest.RESTAURANT, PointOfInterest.PHARMACY),
-        onSelectionChanged = {pointOfInterest, isSelected ->   }
-    )
-}*/
 @Preview(showBackground = true, backgroundColor = 0xfff)
 @Composable
 fun PointsOfInterestDropdownPreview() {
-    // Liste complète des points d'intérêt
-    val allPoints = PointOfInterest.values().toList()
+    val allPoints = PointOfInterest.entries
 
-    // État local pour les points d'intérêt sélectionnés, initialisé avec deux points d'intérêt
     val (selectedPoints, setSelectedPoints) = remember {
         mutableStateOf(setOf(PointOfInterest.RESTAURANT, PointOfInterest.PHARMACY))
     }
@@ -127,7 +104,6 @@ fun PointsOfInterestDropdownPreview() {
         allPointOfInterestList = allPoints,
         selectedPointOfInterestSet = selectedPoints,
         onSelectionChanged = { pointOfInterest, isSelected ->
-            // Mettre à jour l'état local en fonction de la sélection
             val newSelectedPoints = if (isSelected) {
                 selectedPoints + pointOfInterest
             } else {

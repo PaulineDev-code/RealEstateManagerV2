@@ -1,7 +1,6 @@
 package com.openclassrooms.realestatemanagerv2.repositories
 
 import com.openclassrooms.realestatemanagerv2.data.dao.AgentDAO
-import com.openclassrooms.realestatemanagerv2.data.entity.AgentEntity
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.repositories.AgentRepository
 import com.openclassrooms.realestatemanagerv2.utils.toAgentEntity

@@ -1,30 +1,25 @@
 package com.openclassrooms.realestatemanagerv2.ui.composables
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.openclassrooms.realestatemanagerv2.R
-import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -34,8 +29,6 @@ fun PropertyTypeCheckBox(
     onTypeSelected: (String, Boolean) -> Unit,
     modifier: Modifier
 ) {
-
-
     FlowRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -59,9 +52,6 @@ fun PropertyTypeCheckBox(
                     modifier = Modifier,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    // Ici, par exemple, on pourrait ajouter une Checkbox.
-                    // Pour simplifier, on l'affiche sans gestion locale du checked.
-
                     val isChecked = selectedType.contains(type)
                     Checkbox(
                         checked = isChecked,

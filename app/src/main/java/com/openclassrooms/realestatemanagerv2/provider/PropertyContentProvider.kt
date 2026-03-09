@@ -11,8 +11,8 @@ import android.net.Uri
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.room.InvalidationTracker
-import com.openclassrooms.realestatemanagerv2.data.database.MyDatabase
 import com.openclassrooms.realestatemanagerv2.data.dao.ProviderDAO
+import com.openclassrooms.realestatemanagerv2.data.database.MyDatabase
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -30,7 +30,7 @@ class PropertyContentProvider : ContentProvider() {
         addURI(PropertyProviderContract.AUTHORITY, "properties/*", CODE_PROPERTY_ID)
     }
 
-    override fun onCreate() = true
+    override fun onCreate(): Boolean = true
 
     private fun ensureInitialized() {
         if (db != null && dao != null) return
@@ -42,17 +42,6 @@ class PropertyContentProvider : ContentProvider() {
                 db = database
                 dao = db?.providerDAO()
 
-
-
-                /*database.invalidationTracker.addObserver(object : InvalidationTracker.Observer(
-                    "properties","medias","agents","point_of_interest_cross_ref"
-                ) {
-                    override fun onInvalidated(tables: Set<String>) {
-                        context?.contentResolver?.notifyChange(
-                            PropertyProviderContract.Properties.URI, null
-                        )
-                    }
-                })*/
             }
             if (!initialized && db != null) {
                 registerInvalidationObserver(db!!)
@@ -119,7 +108,6 @@ class PropertyContentProvider : ContentProvider() {
         })
     }
 
-    // Optionnel : hook de test si tu veux forcer une DB spécifique (pas nécessaire avec le module de test Hilt)
     @VisibleForTesting
     internal fun setDatabaseForTesting(database: MyDatabase, testContext: Context) {
         synchronized(this) {

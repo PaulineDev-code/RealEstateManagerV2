@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.openclassrooms.realestatemanagerv2.data.entity.AgentEntity
-import com.openclassrooms.realestatemanagerv2.data.entity.PropertyWithDetails
 
 @Dao
 interface AgentDAO{

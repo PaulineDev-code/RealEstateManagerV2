@@ -10,16 +10,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.window.core.layout.WindowWidthSizeClass
 import com.openclassrooms.realestatemanagerv2.R
@@ -27,8 +24,10 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
 import com.openclassrooms.realestatemanagerv2.ui.composables.DoubleBackToExitHandler
+import com.openclassrooms.realestatemanagerv2.ui.composables.ErrorStateContent
 import com.openclassrooms.realestatemanagerv2.ui.composables.SearchContentOnePane
 import com.openclassrooms.realestatemanagerv2.ui.composables.SearchContentTwoPane
+import com.openclassrooms.realestatemanagerv2.ui.states.SearchPropertiesUiState
 import com.openclassrooms.realestatemanagerv2.viewmodels.SearchPropertiesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,24 +39,7 @@ fun SearchScreen(
     searchPropertiesViewModel: SearchPropertiesViewModel = hiltViewModel()
 ) {
 
-    val state = searchPropertiesViewModel.uiState.collectAsState().value
-    val editingState = state as? SearchPropertiesViewModel.SearchPropertiesUiState.Editing
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-
-    if (state is SearchPropertiesViewModel.SearchPropertiesUiState.Error) {
-        val errorState = state as SearchPropertiesViewModel.SearchPropertiesUiState.Error
-        when (val error = errorState.error) {
-
-            is SearchPropertiesViewModel.SearchPropertiesError.GeneralError -> {
-                errorMessage = error.exception.message ?: "unknown general error"
-            }
-
-            is SearchPropertiesViewModel.SearchPropertiesError.FieldError -> {
-                TODO()
-            }
-        }
-    }
-
+    val uiState by searchPropertiesViewModel.uiState.collectAsStateWithLifecycle()
     val activity = LocalContext.current as? Activity
 
     DoubleBackToExitHandler(
@@ -72,218 +54,271 @@ fun SearchScreen(
         navBarsColor = MaterialTheme.colorScheme.surfaceVariant
     ) { paddingValues ->
 
-        if(windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
-            SearchContentTwoPane(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .verticalScroll(rememberScrollState()),
-                minPrice = editingState?.minPrice?.value ?: "",
-                minPriceError = editingState?.minPrice?.error ?: "",
-                onMinPriceChange = { newMinPrice ->
-                    searchPropertiesViewModel.updateMinPrice(
-                        newMinPrice
-                    )
-                },
-                maxPrice = editingState?.maxPrice?.value ?: "",
-                maxPriceError = editingState?.maxPrice?.error ?: "",
-                onMaxPriceChange = { newMaxPrice ->
-                    searchPropertiesViewModel.updateMaxPrice(
-                        newMaxPrice
-                    )
-                },
-                types = editingState?.allTypes ?: emptyList(),
-                selectedTypes = editingState?.typeSet ?: emptySet(),
-                onTypeSelected = { type, isSelected ->
-                    searchPropertiesViewModel.updateTypeSelection(
-                        type,
-                        isSelected
-                    )
-                },
-                nearbyPointSelectedSet = editingState?.nearbyPointSet ?: emptySet(),
-                nearbyPointList = searchPropertiesViewModel.allPointOfInterestList,
-                onNearbyPointChange = { pointOfInterest, isSelected ->
-                    searchPropertiesViewModel.updatePointOfInterestSelection(
-                        pointOfInterest,
-                        isSelected
-                    )
-                },
-                minArea = editingState?.minArea?.value ?: "",
-                minAreaError = editingState?.minArea?.error ?: "",
-                onMinAreaChange = { newMinArea -> searchPropertiesViewModel.updateMinArea(newMinArea) },
-                maxArea = editingState?.maxArea?.value ?: "",
-                maxAreaError = editingState?.maxArea?.error ?: "",
-                onMaxAreaChange = { newMaxArea -> searchPropertiesViewModel.updateMaxArea(newMaxArea) },
-                minNumberOfRooms = editingState?.minNumberOfRooms?.value ?: "",
-                minNumberOfRoomsError = editingState?.minNumberOfRooms?.error ?: "",
-                onMinNumberOfRoomsChange = { newMinNumberOfRooms ->
-                    searchPropertiesViewModel.updateMinNumberOfRooms(newMinNumberOfRooms)
-                },
-                maxNumberOfRooms = editingState?.maxNumberOfRooms?.value ?: "",
-                maxNumberOfRoomsError = editingState?.maxNumberOfRooms?.error ?: "",
-                onMaxNumberOfRoomsChange = { newMaxNumberOfRooms ->
-                    searchPropertiesViewModel.updateMaxNumberOfRooms(newMaxNumberOfRooms)
-                },
-                minPhotos = editingState?.minPhotos?.value ?: "",
-                minPhotosError = editingState?.minPhotos?.error ?: "",
-                onMinPhotosChange = { newMinPhotos ->
-                    searchPropertiesViewModel.updateMinPhotos(
-                        newMinPhotos
-                    )
-                },
-                minVideos = editingState?.minVideos?.value ?: "",
-                minVideosError = editingState?.minVideos?.error ?: "",
-                onMinVideosChange = { newMinVideos ->
-                    searchPropertiesViewModel.updateMinVideos(
-                        newMinVideos
-                    )
-                },
-                //date Picker for entry and sale date
-                selectedEntryDate = editingState?.entryDate,
-                onEntryDateSelected = { newEntryDate ->
-                    searchPropertiesViewModel.updateEntryDate(
-                        newEntryDate
-                    )
-                },
-                isEntryDateDialogShown = editingState?.isEntryDatePickerShown ?: false,
-                onShowEntryDateDialog = { searchPropertiesViewModel.updateEntryDateDialogShown(true) },
-                onDismissEntryDateDialog = {
-                    searchPropertiesViewModel.updateEntryDateDialogShown(
-                        false
-                    )
-                },
-                entryDatePickerState = rememberDatePickerState(),
-                selectedSaleDate = editingState?.saleDate,
-                onSaleDateSelected = { newSaleDate ->
-                    searchPropertiesViewModel.updateSaleDate(
-                        newSaleDate
-                    )
-                },
-                isSaleDateDialogShown = editingState?.isSaleDatePickerShown ?: false,
-                onShowSaleDateDialog = { searchPropertiesViewModel.updateSaleDateDialogShown(true) },
-                onDismissSaleDateDialog = {
-                    searchPropertiesViewModel.updateSaleDateDialogShown(
-                        false
-                    )
-                },
-                saleDatePickerState = rememberDatePickerState(),
+        when (val state = uiState) {
+            is SearchPropertiesUiState.Error -> {
+                ErrorStateContent(state.message)
+            }
 
-                agent = editingState?.agent,
-                agentList = editingState?.agentList ?: emptyList(),
-                onAgentSelected = { searchPropertiesViewModel.updateAgent(it) },
+            is SearchPropertiesUiState.Editing -> {
 
-                isSearchClickEnabled = editingState?.isFormValid ?: false,
-                onSearchClicked = {
-                    val criterias = searchPropertiesViewModel.getCurrentCriteria()
-                    navController.previousBackStackEntry?.savedStateHandle?.set("Criterias", criterias)
-                    navController.popBackStack()
+                if (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+                    SearchContentTwoPane(
+                        modifier = Modifier
+                            .padding(paddingValues)
+                            .verticalScroll(rememberScrollState()),
+                        minPrice = state.minPrice.value,
+                        minPriceError = state.minPrice.error ?: "",
+                        onMinPriceChange = { newMinPrice ->
+                            searchPropertiesViewModel.updateMinPrice(
+                                newMinPrice
+                            )
+                        },
+                        maxPrice = state.maxPrice.value,
+                        maxPriceError = state.maxPrice.error ?: "",
+                        onMaxPriceChange = { newMaxPrice ->
+                            searchPropertiesViewModel.updateMaxPrice(
+                                newMaxPrice
+                            )
+                        },
+                        types = state.allTypes,
+                        selectedTypes = state.typeSet ,
+                        onTypeSelected = { type, isSelected ->
+                            searchPropertiesViewModel.updateTypeSelection(
+                                type,
+                                isSelected
+                            )
+                        },
+                        nearbyPointSelectedSet = state.nearbyPointSet,
+                        nearbyPointList = searchPropertiesViewModel.allPointOfInterestList,
+                        onNearbyPointChange = { pointOfInterest, isSelected ->
+                            searchPropertiesViewModel.updatePointOfInterestSelection(
+                                pointOfInterest,
+                                isSelected
+                            )
+                        },
+                        minArea = state.minArea.value,
+                        minAreaError = state.minArea.error ?: "",
+                        onMinAreaChange = { newMinArea ->
+                            searchPropertiesViewModel.updateMinArea(
+                                newMinArea
+                            )
+                        },
+                        maxArea = state.maxArea.value,
+                        maxAreaError = state.maxArea.error ?: "",
+                        onMaxAreaChange = { newMaxArea ->
+                            searchPropertiesViewModel.updateMaxArea(
+                                newMaxArea
+                            )
+                        },
+                        minNumberOfRooms = state.minNumberOfRooms.value,
+                        minNumberOfRoomsError = state.minNumberOfRooms.error ?: "",
+                        onMinNumberOfRoomsChange = { newMinNumberOfRooms ->
+                            searchPropertiesViewModel.updateMinNumberOfRooms(newMinNumberOfRooms)
+                        },
+                        maxNumberOfRooms = state.maxNumberOfRooms.value,
+                        maxNumberOfRoomsError = state.maxNumberOfRooms.error ?: "",
+                        onMaxNumberOfRoomsChange = { newMaxNumberOfRooms ->
+                            searchPropertiesViewModel.updateMaxNumberOfRooms(newMaxNumberOfRooms)
+                        },
+                        minPhotos = state.minPhotos.value,
+                        minPhotosError = state.minPhotos.error ?: "",
+                        onMinPhotosChange = { newMinPhotos ->
+                            searchPropertiesViewModel.updateMinPhotos(
+                                newMinPhotos
+                            )
+                        },
+                        minVideos = state.minVideos.value,
+                        minVideosError = state.minVideos.error ?: "",
+                        onMinVideosChange = { newMinVideos ->
+                            searchPropertiesViewModel.updateMinVideos(
+                                newMinVideos
+                            )
+                        },
+                        //date Picker for entry and sale date
+                        selectedEntryDate = state.entryDate,
+                        onEntryDateSelected = { newEntryDate ->
+                            searchPropertiesViewModel.updateEntryDate(
+                                newEntryDate
+                            )
+                        },
+                        isEntryDateDialogShown = state.isEntryDatePickerShown,
+                        onShowEntryDateDialog = {
+                            searchPropertiesViewModel.updateEntryDateDialogShown(
+                                true
+                            )
+                        },
+                        onDismissEntryDateDialog = {
+                            searchPropertiesViewModel.updateEntryDateDialogShown(
+                                false
+                            )
+                        },
+                        entryDatePickerState = rememberDatePickerState(),
+                        selectedSaleDate = state.saleDate,
+                        onSaleDateSelected = { newSaleDate ->
+                            searchPropertiesViewModel.updateSaleDate(
+                                newSaleDate
+                            )
+                        },
+                        isSaleDateDialogShown = state.isSaleDatePickerShown,
+                        onShowSaleDateDialog = {
+                            searchPropertiesViewModel.updateSaleDateDialogShown(
+                                true
+                            )
+                        },
+                        onDismissSaleDateDialog = {
+                            searchPropertiesViewModel.updateSaleDateDialogShown(
+                                false
+                            )
+                        },
+                        saleDatePickerState = rememberDatePickerState(),
+
+                        agent = state.agent,
+                        agentList = state.agentList,
+                        onAgentSelected = { searchPropertiesViewModel.updateAgent(it) },
+                        onResetAgent = { searchPropertiesViewModel.updateAgent(null) },
+
+                        isSearchClickEnabled = state.isFormValid,
+                        onSearchClicked = {
+                            val criterias = searchPropertiesViewModel.getCurrentCriteria()
+                            if (criterias != null) {
+                                navController.previousBackStackEntry?.savedStateHandle?.set(
+                                    "Criterias",
+                                    criterias
+                                )
+                                navController.popBackStack()
+                            }
+                        }
+                    )
+                } else {
+                    SearchContentOnePane(
+                        modifier = Modifier
+                            .padding(paddingValues)
+                            .verticalScroll(rememberScrollState()),
+                        minPrice = state.minPrice.value,
+                        minPriceError = state.minPrice.error ?: "",
+                        onMinPriceChange = { newMinPrice ->
+                            searchPropertiesViewModel.updateMinPrice(
+                                newMinPrice
+                            )
+                        },
+                        maxPrice = state.maxPrice.value,
+                        maxPriceError = state.maxPrice.error ?: "",
+                        onMaxPriceChange = { newMaxPrice ->
+                            searchPropertiesViewModel.updateMaxPrice(
+                                newMaxPrice
+                            )
+                        },
+                        types = state.allTypes,
+                        selectedTypes = state.typeSet,
+                        onTypeSelected = { type, isSelected ->
+                            searchPropertiesViewModel.updateTypeSelection(
+                                type,
+                                isSelected
+                            )
+                        },
+                        nearbyPointSelectedSet = state.nearbyPointSet,
+                        nearbyPointList = searchPropertiesViewModel.allPointOfInterestList,
+                        onNearbyPointChange = { pointOfInterest, isSelected ->
+                            searchPropertiesViewModel.updatePointOfInterestSelection(
+                                pointOfInterest,
+                                isSelected
+                            )
+                        },
+                        minArea = state.minArea.value,
+                        minAreaError = state.minArea.error ?: "",
+                        onMinAreaChange = { newMinArea ->
+                            searchPropertiesViewModel.updateMinArea(
+                                newMinArea
+                            )
+                        },
+                        maxArea = state.maxArea.value,
+                        maxAreaError = state.maxArea.error ?: "",
+                        onMaxAreaChange = { newMaxArea ->
+                            searchPropertiesViewModel.updateMaxArea(
+                                newMaxArea
+                            )
+                        },
+                        minNumberOfRooms = state.minNumberOfRooms.value,
+                        minNumberOfRoomsError = state.minNumberOfRooms.error ?: "",
+                        onMinNumberOfRoomsChange = { newMinNumberOfRooms ->
+                            searchPropertiesViewModel.updateMinNumberOfRooms(newMinNumberOfRooms)
+                        },
+                        maxNumberOfRooms = state.maxNumberOfRooms.value,
+                        maxNumberOfRoomsError = state.maxNumberOfRooms.error ?: "",
+                        onMaxNumberOfRoomsChange = { newMaxNumberOfRooms ->
+                            searchPropertiesViewModel.updateMaxNumberOfRooms(newMaxNumberOfRooms)
+                        },
+                        minPhotos = state.minPhotos.value,
+                        minPhotosError = state.minPhotos.error ?: "",
+                        onMinPhotosChange = { newMinPhoto ->
+                            searchPropertiesViewModel.updateMinPhotos(
+                                newMinPhoto
+                            )
+                        },
+                        minVideos = state.minVideos.value,
+                        minVideosError = state.minVideos.error ?: "",
+                        onMinVideosChange = { newMinVideo ->
+                            searchPropertiesViewModel.updateMinVideos(
+                                newMinVideo
+                            )
+                        },
+                        //date Picker for entry and sale date
+                        selectedEntryDate = state.entryDate,
+                        onEntryDateSelected = { newEntryDate ->
+                            searchPropertiesViewModel.updateEntryDate(
+                                newEntryDate
+                            )
+                        },
+                        isEntryDateDialogShown = state.isEntryDatePickerShown,
+                        onShowEntryDateDialog = {
+                            searchPropertiesViewModel.updateEntryDateDialogShown(
+                                true
+                            )
+                        },
+                        onDismissEntryDateDialog = {
+                            searchPropertiesViewModel.updateEntryDateDialogShown(
+                                false
+                            )
+                        },
+                        entryDatePickerState = rememberDatePickerState(),
+                        selectedSaleDate = state.saleDate,
+                        onSaleDateSelected = { newSaleDate ->
+                            searchPropertiesViewModel.updateSaleDate(
+                                newSaleDate
+                            )
+                        },
+                        isSaleDateDialogShown = state.isSaleDatePickerShown,
+                        onShowSaleDateDialog = {
+                            searchPropertiesViewModel.updateSaleDateDialogShown(
+                                true
+                            )
+                        },
+                        onDismissSaleDateDialog = {
+                            searchPropertiesViewModel.updateSaleDateDialogShown(
+                                false
+                            )
+                        },
+                        saleDatePickerState = rememberDatePickerState(),
+
+                        agent = state.agent,
+                        agentList = state.agentList,
+                        onAgentSelected = { searchPropertiesViewModel.updateAgent(it) },
+                        onResetAgent = { searchPropertiesViewModel.updateAgent(null) },
+
+                        isSearchClickEnabled = state.isFormValid,
+                        onSearchClicked = {
+                            val criterias = searchPropertiesViewModel.getCurrentCriteria()
+                            if (criterias != null) {
+                                navController.previousBackStackEntry?.savedStateHandle?.set(
+                                    "Criterias",
+                                    criterias
+                                )
+                                navController.popBackStack()
+                            }
+                        }
+                    )
                 }
-            )
-        } else {
-            SearchContentOnePane(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .verticalScroll(rememberScrollState()),
-                minPrice = editingState?.minPrice?.value ?: "",
-                minPriceError = editingState?.minPrice?.error ?: "",
-                onMinPriceChange = { newMinPrice ->
-                    searchPropertiesViewModel.updateMinPrice(
-                        newMinPrice
-                    )
-                },
-                maxPrice = editingState?.maxPrice?.value ?: "",
-                maxPriceError = editingState?.maxPrice?.error ?: "",
-                onMaxPriceChange = { newMaxPrice ->
-                    searchPropertiesViewModel.updateMaxPrice(
-                        newMaxPrice
-                    )
-                },
-                types = editingState?.allTypes ?: emptyList(),
-                selectedTypes = editingState?.typeSet ?: emptySet(),
-                onTypeSelected = { type, isSelected ->
-                    searchPropertiesViewModel.updateTypeSelection(
-                        type,
-                        isSelected
-                    )
-                },
-                nearbyPointSelectedSet = editingState?.nearbyPointSet ?: emptySet(),
-                nearbyPointList = searchPropertiesViewModel.allPointOfInterestList,
-                onNearbyPointChange = { pointOfInterest, isSelected ->
-                    searchPropertiesViewModel.updatePointOfInterestSelection(
-                        pointOfInterest,
-                        isSelected
-                    )
-                },
-                minArea = editingState?.minArea?.value ?: "",
-                minAreaError = editingState?.minArea?.error ?: "",
-                onMinAreaChange = { newMinArea -> searchPropertiesViewModel.updateMinArea(newMinArea) },
-                maxArea = editingState?.maxArea?.value ?: "",
-                maxAreaError = editingState?.maxArea?.error ?: "",
-                onMaxAreaChange = { newMaxArea -> searchPropertiesViewModel.updateMaxArea(newMaxArea) },
-                minNumberOfRooms = editingState?.minNumberOfRooms?.value ?: "",
-                minNumberOfRoomsError = editingState?.minNumberOfRooms?.error ?: "",
-                onMinNumberOfRoomsChange = { newMinNumberOfRooms ->
-                    searchPropertiesViewModel.updateMinNumberOfRooms(newMinNumberOfRooms)
-                },
-                maxNumberOfRooms = editingState?.maxNumberOfRooms?.value ?: "",
-                maxNumberOfRoomsError = editingState?.maxNumberOfRooms?.error ?: "",
-                onMaxNumberOfRoomsChange = { newMaxNumberOfRooms ->
-                    searchPropertiesViewModel.updateMaxNumberOfRooms(newMaxNumberOfRooms)
-                },
-                minPhotos = editingState?.minPhotos?.value ?: "",
-                minPhotosError = editingState?.minPhotos?.error ?: "",
-                onMinPhotosChange = { newMinPhoto ->
-                    searchPropertiesViewModel.updateMinPhotos(
-                        newMinPhoto
-                    )
-                },
-                minVideos = editingState?.minVideos?.value ?: "",
-                minVideosError = editingState?.minVideos?.error ?: "",
-                onMinVideosChange = { newMinVideo ->
-                    searchPropertiesViewModel.updateMinVideos(
-                        newMinVideo
-                    )
-                },
-                //date Picker for entry and sale date
-                selectedEntryDate = editingState?.entryDate,
-                onEntryDateSelected = { newEntryDate ->
-                    searchPropertiesViewModel.updateEntryDate(
-                        newEntryDate
-                    )
-                },
-                isEntryDateDialogShown = editingState?.isEntryDatePickerShown ?: false,
-                onShowEntryDateDialog = { searchPropertiesViewModel.updateEntryDateDialogShown(true) },
-                onDismissEntryDateDialog = {
-                    searchPropertiesViewModel.updateEntryDateDialogShown(
-                        false
-                    )
-                },
-                entryDatePickerState = rememberDatePickerState(),
-                selectedSaleDate = editingState?.saleDate,
-                onSaleDateSelected = { newSaleDate ->
-                    searchPropertiesViewModel.updateSaleDate(
-                        newSaleDate
-                    )
-                },
-                isSaleDateDialogShown = editingState?.isSaleDatePickerShown ?: false,
-                onShowSaleDateDialog = { searchPropertiesViewModel.updateSaleDateDialogShown(true) },
-                onDismissSaleDateDialog = {
-                    searchPropertiesViewModel.updateSaleDateDialogShown(
-                        false
-                    )
-                },
-                saleDatePickerState = rememberDatePickerState(),
-
-                agent = editingState?.agent,
-                agentList = editingState?.agentList ?: emptyList(),
-                onAgentSelected = { searchPropertiesViewModel.updateAgent(it) },
-
-                isSearchClickEnabled = editingState?.isFormValid ?: false,
-                onSearchClicked = {
-                    val criterias = searchPropertiesViewModel.getCurrentCriteria()
-                    navController.previousBackStackEntry?.savedStateHandle?.set("Criterias", criterias)
-                    navController.popBackStack()
-                }
-            )
+            }
         }
     }
 }
@@ -341,6 +376,7 @@ fun SearchScreenPreview() {
         agentList = listOf(Agent("1", "John", "Doe", "test@gmail.com")),
         agent = Agent("1", "John", "Doe", "test@gmail.com"),
         onAgentSelected = {},
+        onResetAgent = {},
         isSearchClickEnabled = true,
         onSearchClicked = {}
     )

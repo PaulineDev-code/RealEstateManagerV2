@@ -1,6 +1,5 @@
 package com.openclassrooms.realestatemanagerv2.ui.composables
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,8 +45,6 @@ fun AddContentOnePane(
 
     title: String,
     onCreatePropertyClick: () -> Unit,
-    errorMessage: String?,
-    onDismissError: () -> Unit,
 
     photoUri: String,
     photoDescription: String,
@@ -117,13 +113,6 @@ fun AddContentOnePane(
     var videoUri: String by remember { mutableStateOf("") }
 
     val context = LocalContext.current
-
-    LaunchedEffect(errorMessage) {
-        errorMessage?.let {
-            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-            onDismissError()
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -281,7 +270,6 @@ fun AddContentOnePane(
 @Preview(showBackground = true, backgroundColor = -1)
 @Composable
 fun AddContentOnePanePreview() {
-    var photoUri = "8"
 
     AddContentOnePane(
         paddingValues = PaddingValues(0.dp),
@@ -320,7 +308,6 @@ fun AddContentOnePanePreview() {
         numberOfRoomsError = "numberOfRoomsError",
 
         // OnChange functions
-
         onDescriptionChange = {},
         onTypeChange = {},
         onPriceChange = {},
@@ -331,17 +318,13 @@ fun AddContentOnePanePreview() {
         onAgentSelected = {},
 
         //Other functions
-
-        errorMessage = "errorMessage",
-        onDismissError = {},
-
-        photoUri = photoUri,
+        photoUri = "",
         photoDescription = "",
         onPhotoUriChange = {},
         onPhotoDescriptionChange = {},
         onPhotoDeleteClick = {},
         onAddPhotoDescriptionClick = {},
-        onDismissAddPhotoDescriptionDialog = {photoUri = "" },
+        onDismissAddPhotoDescriptionDialog = { },
 
         onVideoUriChange = {},
         onVideoAdded = {},

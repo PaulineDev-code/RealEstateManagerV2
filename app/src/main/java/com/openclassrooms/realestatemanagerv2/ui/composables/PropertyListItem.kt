@@ -1,17 +1,21 @@
 package com.openclassrooms.realestatemanagerv2.ui.composables
 
 import android.util.Log
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -19,13 +23,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
-import com.openclassrooms.realestatemanagerv2.domain.model.Media
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
@@ -43,7 +45,6 @@ fun PropertyListItem(property: Property, isItemSelected: Boolean, onItemClick: (
                 selected = isItemSelected,
                 onClick = { onItemClick(property.id) }
             )
-            /*.clickable (onClick = { onItemClick(property.id) })*/
             .fillMaxWidth()
             .wrapContentHeight(),
         shape = MaterialTheme.shapes.medium,
@@ -116,36 +117,6 @@ fun PropertyListItem(property: Property, isItemSelected: Boolean, onItemClick: (
         }
     }
 }
-
-/*SubcomposeAsyncImage(
-                model = "https://www.istockphoto.com/fr/photo/belle-maison-avec-jardin-gm590279802-101488565",
-                contentDescription = "maison",
-                modifier = Modifier.size(128.dp)
-            )  {
-                val state = painter.state
-                if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
-                    CircularProgressIndicator()
-                } else {
-                    SubcomposeAsyncImageContent()
-                }
-            }*/
-/*@Preview
-@Composable
-fun PreviewPropertyItem(@PreviewParameter(PropertyPreviewParameterProvider::class) property: Property) {
-    PropertyItem(property = property)
-}*/
-
-/*class PropertyPreviewParameterProvider : PreviewParameterProvider<Property> {
-    private val mediaLists: List<Media> = listOf(Photo("https://www.istockphoto.com/fr/photo/belle-maison-avec-jardin-gm590279802-101488565", "belle maison"))
-    private val nearByPointsList: List<String> = listOf("Ecole","Boulangerie")
-    override val values = sequenceOf(
-        Property("1", "maison", 100000.00, 50.00, 2,
-            "Une belle petite maison", mediaLists, "2 DownStreet NY",
-            nearByPointsList, PropertyStatus.Available, "2023, 10, 14", null,
-            Agent("1", "Léo l'agent", "0678910111", "toto@gmail.com")
-        )
-    )
-}*/
 
 @Preview(showBackground = true, showSystemUi = true, backgroundColor = -1)
 @Composable

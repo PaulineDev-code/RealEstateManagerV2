@@ -5,36 +5,36 @@ import com.openclassrooms.realestatemanagerv2.utils.convertToLocalCurrency
 import com.openclassrooms.realestatemanagerv2.utils.formatMillisToLocal
 import com.openclassrooms.realestatemanagerv2.utils.formatToLocalCurrency
 import org.junit.After
-import org.junit.Test
-
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Test
 import java.time.format.FormatStyle
 import java.util.Locale
 import java.util.TimeZone
 
 /**
- * Example local unit test, which will execute on the development machine (host).
+ * Unit tests for the utility extension functions defined in Extensions.kt.
  *
- * See [testing documentation](http://d.android.com/tools/testing).
+ * These tests verify:
+ * 1. Date formatting across different locales and patterns.
+ * 2. Currency conversion (USD to Local and Local to USD).
+ * 3. Robustness against null or invalid inputs.
  */
-class ExampleUnitTest {
+class ExtensionsTest {
     private lateinit var previousTimeZone: TimeZone
     private lateinit var previousLocale: Locale
 
     @Before
     fun setUp() {
-        // Sauvegarde puis force UTC pour des résultats déterministes
         previousTimeZone = TimeZone.getDefault()
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
-        // (Optionnel) figer la Locale par défaut si tu en dépends ailleurs
         previousLocale = Locale.getDefault()
         Locale.setDefault(Locale.US)
     }
 
     @After
     fun tearDown() {
-        // Restaure l’environnement
         TimeZone.setDefault(previousTimeZone)
         Locale.setDefault(previousLocale)
     }
@@ -87,7 +87,6 @@ class ExampleUnitTest {
         val result = usdPrice.convertToLocalCurrency()
 
         // 100000 USD * 0.91 = 91000 EUR
-        // Format français: "91 000,00 €" (avec espace insécable \u00A0)
         assertEquals(91000.0, result, 0.001)
     }
 
@@ -102,7 +101,6 @@ class ExampleUnitTest {
         val usdPrice = 100000.0
         val result = usdPrice.convertToLocalCurrency()
 
-        // Devrait rester en USD sans conversion
         assertEquals(100000.0, result, 0.001)
     }
 
@@ -115,8 +113,6 @@ class ExampleUnitTest {
         val priceString = "300000"
         val result = priceString.formatToLocalCurrency()
 
-        // Devrait formater en EUR SANS conversion: "300 000,00 €"
-        /*assertEquals("300 000,00 €", result.replace('\u00A0', ' '))*/
         assertTrue("Should contain 300", result.contains("300"))
         assertTrue("Should contain 000", result.contains("000"))
         assertTrue("Should contain EUR symbol", result.contains("€") || result.contains("EUR"))
@@ -128,7 +124,6 @@ class ExampleUnitTest {
         val priceString = "1234.56"
         val result = priceString.formatToLocalCurrency()
 
-        // Format US: "$1,234.56"
         assertEquals("$1,234.56", result)
     }
 
@@ -138,7 +133,6 @@ class ExampleUnitTest {
         val invalidString = "not a number"
         val result = invalidString.formatToLocalCurrency()
 
-        // Devrait retourner la chaîne originale car parseDouble échoue
         assertEquals(invalidString, result)
     }
 
@@ -152,7 +146,6 @@ class ExampleUnitTest {
         val result = eurPrice.convertFromLocalCurrency()
 
         // 91000 EUR / 0.91 = 100000.0 USD
-        // Retourne un String du Double brut: "100000.0"
         assertEquals(100000.0, result, 0.01) // Tolérance pour arrondis
     }
 
@@ -163,11 +156,10 @@ class ExampleUnitTest {
             .setRegion("PT")
             .build()
 
-        Locale.setDefault(portugalLocale) // Portugal (non supporté)
+        Locale.setDefault(portugalLocale) // Portugal
         val price = 50000.0
         val result = price.convertFromLocalCurrency()
 
-        // Devrait retourner la même valeur: 50000.0
         assertEquals(50000.0, result, 0.001)
     }
 
@@ -182,19 +174,9 @@ class ExampleUnitTest {
         // USD → EUR (formatted): 100000 * 0.91 = "91 000,00 €"
         val eurDouble = originalUSD.convertToLocalCurrency()
 
-        // Parse le montant EUR: "91 000,00 €" → 91000.0
-        /*val eurValue = eurString
-            .replace('\u00A0', ' ')           // Espace insécable → normal
-            .replace(" ", "")                  // Enlever espaces
-            .replace("€", "")                  // Enlever symbole
-            .replace(",", ".")                 // Virgule → point
-            .trim()
-            .toDoubleOrNull() ?: 0.0*/
-
         // EUR → USD (raw): 91000 / 0.91 = "100000.0"
         val finalUSD = eurDouble.convertFromLocalCurrency()
 
-        // Devrait être très proche de l'original (tolérance 0.1% pour arrondis)
         assertEquals(originalUSD, finalUSD, 10.0)
     }
 }

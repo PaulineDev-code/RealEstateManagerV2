@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
-import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.Media
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
@@ -15,7 +14,7 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Video
 import com.openclassrooms.realestatemanagerv2.domain.usecases.AddPropertyUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllAgentsUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetLocationUseCase
-import com.openclassrooms.realestatemanagerv2.ui.models.FormField
+import com.openclassrooms.realestatemanagerv2.ui.states.PropertyFormUiState
 import com.openclassrooms.realestatemanagerv2.utils.convertFromLocalCurrency
 import com.openclassrooms.realestatemanagerv2.utils.validateLength
 import com.openclassrooms.realestatemanagerv2.utils.validateNonEmpty
@@ -23,30 +22,47 @@ import com.openclassrooms.realestatemanagerv2.utils.validatePositiveNumber
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
 
+/**
+ * ViewModel responsible for the business logic of adding a new real estate property.
+ *
+ * It manages the property creation flow using a reactive [PropertyFormUiState].
+ * Key responsibilities include:
+ * 1. Fetching the list of available real estate agents.
+ * 2. Handling real-time form validation for various property fields (price, area, etc.).
+ * 3. Converting physical addresses into geographic coordinates (Geocoding).
+ * 4. Managing temporary media lists (Photos and Videos) before persistence.
+ * 5. Persisting the finalized [Property] object via specialized Use Cases.
+ *
+ * @property addPropertyUseCase The use case used to persist a new property in the data source.
+ * @property getAllAgentsUseCase The use case used to retrieve all registered agents.
+ * @property getLocationUseCase The use case used to fetch [LatLng] coordinates from a string address.
+ */
 @HiltViewModel
 class AddPropertyViewModel @Inject constructor
     (
     private val addPropertyUseCase: AddPropertyUseCase,
     private val getAllAgentsUseCase: GetAllAgentsUseCase,
     private val getLocationUseCase: GetLocationUseCase
-            ) : ViewModel() {
+) : ViewModel() {
 
-    private var previousEditingState: AddPropertyUiState.Editing? = null
-    private val _uiState = MutableStateFlow<AddPropertyUiState>(AddPropertyUiState.Editing())
-    val uiState: StateFlow<AddPropertyUiState> = _uiState
-    //TODO: replace set with double list of points of interest one full/one selected items
+    /**
+     * Cache used to restore user input when returning from an Error state.
+     */
+    private var previousEditingState: PropertyFormUiState.Editing? = null
+
+    private val _uiState = MutableStateFlow<PropertyFormUiState>(PropertyFormUiState.Editing())
+    val uiState: StateFlow<PropertyFormUiState> = _uiState
     val allPointOfInterestList: List<PointOfInterest> = PointOfInterest.entries
 
 
     init {
         viewModelScope.launch {
             try {
-                //Make allAgentList out of Editing state ? Keep useCase here and expose val through viewmodel?
-                //Error management ok
                 val agents = getAllAgentsUseCase()
                 Log.d("AddViewModel", "Collected agents: $agents")
                 updateState {
@@ -55,123 +71,65 @@ class AddPropertyViewModel @Inject constructor
 
             } catch (exception: Exception) {
                 Log.e("ViewModel", "Error collecting agents", exception)
-                handleError(AddPropertyError.GeneralError(exception))
+                handleError(exception)
             }
         }
     }
 
-    private fun validatePropertyData(currentState: AddPropertyUiState.Editing): ValidationResult {
-        // Ensure all required fields are filled
-        val invalidFields = mutableListOf<Int>()
-
-        if (currentState.type.value.isBlank()) {
-            invalidFields.add(R.string.type)
-        }
-
-        if (currentState.price.value.toDoubleOrNull() == null) {
-            invalidFields.add(R.string.price)
-        }
-
-        if (currentState.area.value.toDoubleOrNull() == null) {
-            invalidFields.add(R.string.area)
-        }
-
-        if (currentState.numberOfRooms.value.toIntOrNull() == null) {
-            invalidFields.add(R.string.number_of_rooms)
-        }
-
-        if (currentState.description.value.isBlank()) {
-            invalidFields.add(R.string.description)
-        }
-
-        if (currentState.mediaLists.isEmpty()) {
-            invalidFields.add(R.string.media)
-        }
-
-        if (currentState.address.value.isBlank()) {
-            invalidFields.add(R.string.location)
-        }
-
-        if (currentState.nearbyPointSet.isEmpty()) {
-            invalidFields.add(R.string.nearby_points_of_interest)
-        }
-
-        if (currentState.entryDate == null) {
-            invalidFields.add(R.string.entry_date)
-        }
-
-        if (currentState.agent == null) {
-            invalidFields.add(R.string.agent)
-        }
-        return if (invalidFields.isEmpty()) {
-
-
-            ValidationResult.Success()
-        } else {
-            ValidationResult.Error(
-                Exception
-                    ("Invalid property data")
-            )
-        }
-    }
-
+    /**
+     * Validates form data, performs geocoding, and persists the property.
+     * Transitions state to [PropertyFormUiState.Success] upon completion.
+     */
     fun createProperty() {
-        val currentState = _uiState.value
-        if (currentState is AddPropertyUiState.Editing) {
-            when (val validationResult = validatePropertyData(currentState)) {
-                is ValidationResult.Success -> {
-                    viewModelScope.launch {
-                        val coordinates: LatLng? = try {
-                            getLocationUseCase(currentState.address.value)
-                        }catch (e: Exception){
-                            null
-                        }
-                        val newProperty = Property(
-                            id = UUID.randomUUID().toString(),
-                            type = currentState.type.value,
-                            price = currentState.price.value.toDouble().convertFromLocalCurrency(),
-                            area = currentState.area.value.toDouble(),
-                            numberOfRooms = currentState.numberOfRooms.value.toInt(),
-                            description = currentState.description.value,
-                            media = currentState.mediaLists,
-                            address = currentState.address.value,
-                            latitude = coordinates?.latitude,
-                            longitude = coordinates?.longitude,
-                            nearbyPointsOfInterest = currentState.nearbyPointSet.toList(),
-                            status = if (currentState.saleDate != null) PropertyStatus.Sold
-                            else PropertyStatus.Available,
-                            entryDate = requireNotNull(currentState.entryDate) { "Entry date cannot be null" },
-                            saleDate = if (currentState.saleDate != null) currentState.saleDate
-                            else null,
-                            agent = currentState.agent!!
-                        )
-                        try {
-                            val propertyId = newProperty.id
+        val currentState = _uiState.value as? PropertyFormUiState.Editing ?: return
+        if (isFormValid(currentState)) {
+            previousEditingState = currentState
 
-                            addPropertyUseCase(newProperty)
+            viewModelScope.launch {
+                _uiState.value = PropertyFormUiState.Loading
 
-                            //Pass the property id to the UI in order to navigate
-                            _uiState.value = AddPropertyUiState.Success(propertyId)
-                        } catch (exception: Exception) {
-                            handleError(AddPropertyError.GeneralError(exception))
-                        }
-                    }
+                val coordinates: LatLng? = try {
+                    getLocationUseCase(currentState.address.value)
+                } catch (e: Exception) {
+                    null
                 }
-                is ValidationResult.Error -> {
-                    handleError(AddPropertyError.GeneralError(validationResult.error))
+
+                try {
+                    val newProperty = Property(
+                        id = UUID.randomUUID().toString(),
+                        type = currentState.type.value,
+                        price = currentState.price.value.toDouble().convertFromLocalCurrency(),
+                        area = currentState.area.value.toDouble(),
+                        numberOfRooms = currentState.numberOfRooms.value.toInt(),
+                        description = currentState.description.value,
+                        media = currentState.mediaLists,
+                        address = currentState.address.value,
+                        latitude = coordinates?.latitude,
+                        longitude = coordinates?.longitude,
+                        nearbyPointsOfInterest = currentState.nearbyPointSet.toList(),
+                        status = if (currentState.saleDate != null) PropertyStatus.Sold
+                        else PropertyStatus.Available,
+                        entryDate = requireNotNull(currentState.entryDate) { "Entry date cannot be null" },
+                        saleDate = currentState.saleDate,
+                        agent = requireNotNull(currentState.agent) { "Agent must be selected" }
+                    )
+
+                    addPropertyUseCase(newProperty)
+                    _uiState.value = PropertyFormUiState.Success(newProperty.id)
+                } catch (exception: Exception) {
+                    handleError((exception))
                 }
             }
         }
     }
 
-    private fun handleError(error: AddPropertyError) {
-/*
-        val currentState = _uiState.value as? AddPropertyUiState.Editing
-*/
-        _uiState.value = AddPropertyUiState.Error(error)
+    private fun handleError(exception: Exception) {
+        _uiState.value = PropertyFormUiState.Error(
+            exception.message ?: "An unexpected error occurred"
+        )
     }
 
-    //ADD AND DELETE A PHOTO
+
     fun deleteMedia(media: Media) {
         updateState {
             copy(mediaLists = mediaLists.filterNot { it == media })
@@ -180,7 +138,8 @@ class AddPropertyViewModel @Inject constructor
 
     fun addPhoto() {
         updateState {
-            copy(mediaLists = mediaLists + Photo(photoUri, photoDescription),
+            copy(
+                mediaLists = mediaLists + Photo(photoUri, photoDescription),
                 photoUri = "",
                 photoDescription = ""
             )
@@ -196,14 +155,6 @@ class AddPropertyViewModel @Inject constructor
 
     }
 
-    /*fun addNearbyPoint() {
-        updateState {
-            copy(nearbyPointList = nearbyPointList + nearbyPoint,
-                nearbyPoint = ""
-            )
-        }
-    }*/
-
     fun updatePointOfInterestSelection(poi: PointOfInterest, isSelected: Boolean) {
         updateState {
             val updatedNearbyPoints = if (isSelected) {
@@ -215,13 +166,6 @@ class AddPropertyViewModel @Inject constructor
         }
     }
 
-    /*fun deleteNearbyPoint(point: PointOfInterest) {
-        updateState {
-            copy(nearbyPointList = nearbyPointList.filterNot { it == point })
-        }
-    }*/
-
-    // UPDATE FIELDS
     fun updatePhotoUri(photoUri: String) {
         updateState {
             copy(photoUri = photoUri)
@@ -271,7 +215,8 @@ class AddPropertyViewModel @Inject constructor
     }
 
     fun updateNumberOfRooms(newNumberOfRooms: String) {
-        val error = newNumberOfRooms.validateNonEmpty() + " " + newNumberOfRooms.validatePositiveNumber()
+        val error =
+            newNumberOfRooms.validateNonEmpty() + " " + newNumberOfRooms.validatePositiveNumber()
         updateState {
             copy(numberOfRooms = numberOfRooms.copy(value = newNumberOfRooms, error = error))
         }
@@ -290,7 +235,7 @@ class AddPropertyViewModel @Inject constructor
         }
     }
 
-    fun updateEntryDate(newEntryDate: Long?)  {
+    fun updateEntryDate(newEntryDate: Long?) {
         updateState {
             copy(
                 entryDate = newEntryDate
@@ -298,7 +243,7 @@ class AddPropertyViewModel @Inject constructor
         }
     }
 
-    fun updateEntryDateDialogShown(newIsDialogShown: Boolean)  {
+    fun updateEntryDateDialogShown(newIsDialogShown: Boolean) {
         updateState {
             copy(
                 isEntryDatePickerShown = newIsDialogShown
@@ -306,7 +251,7 @@ class AddPropertyViewModel @Inject constructor
         }
     }
 
-    fun updateSaleDate(newSaleDate: Long?)  {
+    fun updateSaleDate(newSaleDate: Long?) {
         updateState {
             copy(
                 saleDate = newSaleDate
@@ -314,7 +259,7 @@ class AddPropertyViewModel @Inject constructor
         }
     }
 
-    fun updateSaleDateDialogShown(newIsDialogShown: Boolean)  {
+    fun updateSaleDateDialogShown(newIsDialogShown: Boolean) {
         updateState {
             copy(
                 isSaleDatePickerShown = newIsDialogShown
@@ -328,97 +273,51 @@ class AddPropertyViewModel @Inject constructor
         }
     }
 
-    private fun updateState(update: AddPropertyUiState.Editing.() -> AddPropertyUiState.Editing) {
-        val currentState = _uiState.value
-        if (currentState is AddPropertyUiState.Editing) {
-            previousEditingState = currentState
-            val newState = currentState.update()
-            _uiState.value = newState.copy(
-                isFormValid = isFormValid(newState))
+    /**
+     * Atomically updates the editing state and refreshes form validity.
+     */
+    private fun updateState(update: PropertyFormUiState.Editing.() -> PropertyFormUiState.Editing) {
+        _uiState.update { currentState ->
+            if (currentState is PropertyFormUiState.Editing) {
+                previousEditingState = currentState
+                val newState = currentState.update()
+                newState.copy(
+                    isFormValid = isFormValid(newState)
+                )
+            } else {
+                currentState
+            }
         }
     }
 
+    /**
+     * Returns the UI to the last valid editing state.
+     */
     fun returnToEditingState() {
         val currentState = _uiState.value
-        if (currentState is AddPropertyUiState.Error && previousEditingState != null) {
-            _uiState.value = previousEditingState as AddPropertyUiState.Editing
+        if (currentState is PropertyFormUiState.Error && previousEditingState != null) {
+            _uiState.value = previousEditingState as PropertyFormUiState.Editing
         }
     }
 
-    sealed class AddPropertyError {
-        data class FieldError(val fieldId: Int) : AddPropertyError()
-        data class GeneralError(val exception: Throwable) : AddPropertyError()
-    }
-
-    sealed class ValidationResult {
-        class Success() : ValidationResult()
-        data class Error(val error: Exception) : ValidationResult()
-    }
-
-    private fun isFormValid(state: AddPropertyUiState.Editing): Boolean {
-        return listOf(
+    /**
+     * Business logic for form validation (checks both field errors and mandatory data).
+     */
+    private fun isFormValid(state: PropertyFormUiState.Editing): Boolean {
+        val hasNoErrors = listOf(
             state.description.error,
             state.type.error,
             state.price.error,
             state.address.error,
             state.area.error,
             state.numberOfRooms.error,
-        ).all { it.isNullOrBlank() && state.agent != null && state.mediaLists.isNotEmpty()
-                && state.nearbyPointSet.isNotEmpty() && state.entryDate != null}
+        ).all { it.isNullOrBlank() }
+
+        val hasRequiredFields = state.agent != null &&
+                state.mediaLists.isNotEmpty() &&
+                state.nearbyPointSet.isNotEmpty() &&
+                state.entryDate != null
+
+        return hasNoErrors && hasRequiredFields
     }
-
-
-
-
-
-
-    /*data class Error(
-        override val errors: List<AddPropertyError>
-    ) : AddPropertyUiState*/
-
-    sealed interface AddPropertyUiState {
-        /*data class Success(val properties: List<Property>): AddPropertyUiState()
-        data class Error(val exception: Exception): AddPropertyUiState()*/
-
-        data class Success(val propertyId: String) : AddPropertyUiState
-        data class Error(val error: AddPropertyError?) : AddPropertyUiState
-        data class Editing(
-            val description: FormField = FormField(),
-            val type: FormField = FormField(),
-            val price: FormField = FormField(),
-            val area: FormField = FormField(),
-            val numberOfRooms: FormField = FormField(),
-            val photoUri: String = "",
-            val videoUri: String = "",
-            val photoDescription: String = "",
-            val mediaLists: List<Media> = emptyList<Media>(),
-            val address: FormField = FormField(),
-            val nearbyPointSet: Set<PointOfInterest> = emptySet(),
-            val entryDate: Long? = null,
-            val isEntryDatePickerShown: Boolean = false,
-            val saleDate: Long? = null,
-            val isSaleDatePickerShown: Boolean = false,
-            val agent: Agent? = null,
-            val agentList: List<Agent> = emptyList(),
-            val isFormValid: Boolean = false
-            /*
-                        val errors: List<AddPropertyError>? = null,
-            */
-
-
-        ) : AddPropertyUiState {
-            val photoList: List<Photo>
-                get() = mediaLists.filterIsInstance<Photo>()
-
-            val videoList: List<Video>
-                get() = mediaLists.filterIsInstance<Video>()
-
-        }
-    }
-
 }
-
-
-
-
-

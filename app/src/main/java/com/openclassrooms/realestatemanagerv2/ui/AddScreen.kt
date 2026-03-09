@@ -1,16 +1,19 @@
 package com.openclassrooms.realestatemanagerv2.ui
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,6 +28,8 @@ import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
 import com.openclassrooms.realestatemanagerv2.ui.composables.AddContentOnePane
 import com.openclassrooms.realestatemanagerv2.ui.composables.AddContentTwoPane
 import com.openclassrooms.realestatemanagerv2.ui.composables.AppTopBar
+import com.openclassrooms.realestatemanagerv2.ui.composables.ErrorStateContent
+import com.openclassrooms.realestatemanagerv2.ui.states.PropertyFormUiState
 import com.openclassrooms.realestatemanagerv2.viewmodels.AddPropertyViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,24 +40,11 @@ fun AddScreen(
     onUpClicked: () -> Unit,
     addViewModel: AddPropertyViewModel = hiltViewModel()
 ) {
-    val state by addViewModel.uiState.collectAsStateWithLifecycle()
-    val editingState = state as? AddPropertyViewModel.AddPropertyUiState.Editing
-    var errorMessage by remember { mutableStateOf<String?>(null) } //TODO : à transmettre au VM
-    val addedPropertyId = (state as? AddPropertyViewModel.AddPropertyUiState.Success)?.propertyId
+    val uiState by addViewModel.uiState.collectAsStateWithLifecycle()
+    val addedPropertyId = (uiState as? PropertyFormUiState.Success)?.propertyId
     val context = LocalContext.current
 
-    if (state is AddPropertyViewModel.AddPropertyUiState.Error) {
-        val errorState = state as AddPropertyViewModel.AddPropertyUiState.Error
-        when (val error = errorState.error) {
 
-            is AddPropertyViewModel.AddPropertyError.GeneralError -> {
-                // Vous pouvez afficher un message générique ou utiliser le message de l'exception
-                errorMessage = error.exception.message ?: "unknown error"
-            }
-            is AddPropertyViewModel.AddPropertyError.FieldError -> TODO()
-            null -> TODO()
-        }
-    }
 
     LaunchedEffect(addedPropertyId) {
         addedPropertyId ?: return@LaunchedEffect
@@ -71,188 +63,232 @@ fun AddScreen(
         onUpClick = onUpClicked,
         showAddButton = false,
         onAddClick = {},
-        onModifyClick = { /*TODO*/ },
+        onModifyClick = {},
         showModifyButton = false,
     ) { paddingValues ->
 
-        if (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
-            AddContentTwoPane(
-                paddingValues = paddingValues,
-                title = stringResource(id = R.string.add_a_new_property),
-                onCreatePropertyClick = { addViewModel.createProperty() },
-                errorMessage = errorMessage,
-                onDismissError = {
-                    errorMessage = null
-                    addViewModel.returnToEditingState()
-                },
+        when (val state = uiState) {
+            is PropertyFormUiState.Loading -> {
+                Box(
+                    Modifier
+                        .padding(paddingValues)
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
 
-                photoUri = editingState?.photoUri ?: "",
-                photoDescription = editingState?.photoDescription ?: "",
-                onPhotoUriChange = { newPhotoUri -> addViewModel.updatePhotoUri(newPhotoUri) },
-                onPhotoDescriptionChange = { newDescription ->
-                    addViewModel.updatePhotoDescription(
-                        newDescription
+            is PropertyFormUiState.Error -> {
+                ErrorStateContent(
+                    message= state.message,
+                    onRetry = { addViewModel.returnToEditingState() }
                     )
-                },
-                onPhotoDeleteClick = { photoToRemove ->
-                    addViewModel.deleteMedia(photoToRemove)
-                },
+            }
 
-                onAddPhotoDescriptionClick = { addViewModel.addPhoto() },
-                onDismissAddPhotoDescriptionDialog = {
-                    addViewModel.updatePhotoUri("")
-                    addViewModel.updatePhotoDescription("")
-                },
-                onVideoUriChange = { newVideoUri -> addViewModel.updateVideoUri(newVideoUri) },
-                onVideoAdded = { videoToAdd -> addViewModel.addVideo(videoToAdd) },
-                onVideoDeleteClick = { videoToDelete -> addViewModel.deleteMedia(videoToDelete) },
-
-                //Values
-                description = editingState?.description?.value ?: "",
-                type = editingState?.type?.value ?: "",
-                area = editingState?.area?.value ?: "",
-                price = editingState?.price?.value ?: "",
-                numberOfRooms = editingState?.numberOfRooms?.value ?: "",
-                photoList = editingState?.photoList ?: emptyList(),
-                videoList = editingState?.videoList ?: emptyList(),
-                address = editingState?.address?.value ?: "",
-                nearbyPointList = addViewModel.allPointOfInterestList,
-                nearbyPointSelectedSet = editingState?.nearbyPointSet ?: emptySet(),
-                agent = editingState?.agent,
-                agentList = editingState?.agentList ?: emptyList(),
-                showSaveButton = editingState?.isFormValid,
-                //DatePickers
-                selectedEntryDate = editingState?.entryDate,
-                onEntryDateSelected = { newEntryDate -> addViewModel.updateEntryDate(newEntryDate) },
-                isEntryDateDialogShown = editingState?.isEntryDatePickerShown ?: false,
-                onShowEntryDateDialog = { addViewModel.updateEntryDateDialogShown(true) },
-                onDismissEntryDateDialog = { addViewModel.updateEntryDateDialogShown(false) },
-                entryDatePickerState = rememberDatePickerState(),
-                selectedSaleDate = editingState?.saleDate,
-                onSaleDateSelected = { newSaleDate -> addViewModel.updateSaleDate(newSaleDate) },
-                isSaleDateDialogShown = editingState?.isSaleDatePickerShown ?: false,
-                onShowSaleDateDialog = { addViewModel.updateSaleDateDialogShown(true) },
-                onDismissSaleDateDialog = { addViewModel.updateSaleDateDialogShown(false) },
-                saleDatePickerState = rememberDatePickerState(),
-
-                // Error Values
-                descriptionError = editingState?.description?.error ?: "",
-                typeError = editingState?.type?.error ?: "",
-                priceError = editingState?.price?.error ?: "",
-                addressError = editingState?.address?.error ?: "",
-                areaError = editingState?.area?.error ?: "",
-                numberOfRoomsError = editingState?.numberOfRooms?.error ?: "",
-
-                //On change callback functions
-                onDescriptionChange = { newDescription ->
-                    addViewModel.updateDescription(
-                        newDescription
-                    )
-                },
-                onTypeChange = { newType -> addViewModel.updateType(newType) },
-                onAreaChange = { newArea -> addViewModel.updateArea(newArea) },
-                onPriceChange = { newPrice -> addViewModel.updatePrice(newPrice) },
-                onNumberOfRoomsChange = { newNumberOfRooms ->
-                    addViewModel.updateNumberOfRooms(
-                        newNumberOfRooms
-                    )
-                },
-                onAddressChange = { newAddress -> addViewModel.updateAddress(newAddress) },
-                onNearbyPointChange = { pointOfInterest, isSelected ->
-                    addViewModel.updatePointOfInterestSelection(pointOfInterest, isSelected)
-                },
-                onAgentSelected = { selectedAgent -> addViewModel.updateAgent(selectedAgent) }
+            is PropertyFormUiState.Success -> Box(
+                Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize(),
             )
-        } else {
-            AddContentOnePane(
-                paddingValues = paddingValues,
 
-                title = stringResource(id = R.string.add_a_new_property),
-                onCreatePropertyClick = { addViewModel.createProperty() },
-                errorMessage = errorMessage,
-                onDismissError = {
-                    errorMessage = null
-                    addViewModel.returnToEditingState()
-                },
+            is PropertyFormUiState.Editing -> {
 
-                photoUri = editingState?.photoUri ?: "",
-                photoDescription = editingState?.photoDescription ?: "",
-                onPhotoUriChange = { newPhotoUri -> addViewModel.updatePhotoUri(newPhotoUri)},
-                onPhotoDescriptionChange = { newDescription ->
-                    addViewModel.updatePhotoDescription(
-                        newDescription
+
+                if (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+                    AddContentTwoPane(
+                        paddingValues = paddingValues,
+                        title = stringResource(id = R.string.add_a_new_property),
+                        onCreatePropertyClick = { addViewModel.createProperty() },
+
+                        photoUri = state.photoUri,
+                        photoDescription = state.photoDescription,
+                        onPhotoUriChange = { newPhotoUri -> addViewModel.updatePhotoUri(newPhotoUri) },
+                        onPhotoDescriptionChange = { newDescription ->
+                            addViewModel.updatePhotoDescription(
+                                newDescription
+                            )
+                        },
+                        onPhotoDeleteClick = { photoToRemove ->
+                            addViewModel.deleteMedia(photoToRemove)
+                        },
+
+                        onAddPhotoDescriptionClick = { addViewModel.addPhoto() },
+                        onDismissAddPhotoDescriptionDialog = {
+                            addViewModel.updatePhotoUri("")
+                            addViewModel.updatePhotoDescription("")
+                        },
+                        onVideoUriChange = { newVideoUri -> addViewModel.updateVideoUri(newVideoUri) },
+                        onVideoAdded = { videoToAdd -> addViewModel.addVideo(videoToAdd) },
+                        onVideoDeleteClick = { videoToDelete ->
+                            addViewModel.deleteMedia(
+                                videoToDelete
+                            )
+                        },
+
+                        //Values
+                        description = state.description.value,
+                        type = state.type.value,
+                        area = state.area.value,
+                        price = state.price.value,
+                        numberOfRooms = state.numberOfRooms.value,
+                        photoList = state.photoList,
+                        videoList = state.videoList,
+                        address = state.address.value,
+                        nearbyPointList = addViewModel.allPointOfInterestList,
+                        nearbyPointSelectedSet = state.nearbyPointSet,
+                        agent = state.agent,
+                        agentList = state.agentList,
+                        showSaveButton = state.isFormValid,
+                        //DatePickers
+                        selectedEntryDate = state.entryDate,
+                        onEntryDateSelected = { newEntryDate ->
+                            addViewModel.updateEntryDate(
+                                newEntryDate
+                            )
+                        },
+                        isEntryDateDialogShown = state.isEntryDatePickerShown,
+                        onShowEntryDateDialog = { addViewModel.updateEntryDateDialogShown(true) },
+                        onDismissEntryDateDialog = { addViewModel.updateEntryDateDialogShown(false) },
+                        entryDatePickerState = rememberDatePickerState(),
+                        selectedSaleDate = state.saleDate,
+                        onSaleDateSelected = { newSaleDate ->
+                            addViewModel.updateSaleDate(
+                                newSaleDate
+                            )
+                        },
+                        isSaleDateDialogShown = state.isSaleDatePickerShown,
+                        onShowSaleDateDialog = { addViewModel.updateSaleDateDialogShown(true) },
+                        onDismissSaleDateDialog = { addViewModel.updateSaleDateDialogShown(false) },
+                        saleDatePickerState = rememberDatePickerState(),
+
+                        // Error Values
+                        descriptionError = state.description.error ?: "",
+                        typeError = state.type.error ?: "",
+                        priceError = state.price.error ?: "",
+                        addressError = state.address.error ?: "",
+                        areaError = state.area.error ?: "",
+                        numberOfRoomsError = state.numberOfRooms.error ?: "",
+
+                        //On change callback functions
+                        onDescriptionChange = { newDescription ->
+                            addViewModel.updateDescription(
+                                newDescription
+                            )
+                        },
+                        onTypeChange = { newType -> addViewModel.updateType(newType) },
+                        onAreaChange = { newArea -> addViewModel.updateArea(newArea) },
+                        onPriceChange = { newPrice -> addViewModel.updatePrice(newPrice) },
+                        onNumberOfRoomsChange = { newNumberOfRooms ->
+                            addViewModel.updateNumberOfRooms(
+                                newNumberOfRooms
+                            )
+                        },
+                        onAddressChange = { newAddress -> addViewModel.updateAddress(newAddress) },
+                        onNearbyPointChange = { pointOfInterest, isSelected ->
+                            addViewModel.updatePointOfInterestSelection(pointOfInterest, isSelected)
+                        },
+                        onAgentSelected = { selectedAgent -> addViewModel.updateAgent(selectedAgent) }
                     )
-                },
-                onPhotoDeleteClick = { photoToRemove ->
-                    addViewModel.deleteMedia(photoToRemove)
-                },
+                } else {
+                    AddContentOnePane(
+                        paddingValues = paddingValues,
 
-                onAddPhotoDescriptionClick = { addViewModel.addPhoto() },
-                onDismissAddPhotoDescriptionDialog = {
-                    addViewModel.updatePhotoUri("")
-                    addViewModel.updatePhotoDescription("")
-                },
+                        title = stringResource(id = R.string.add_a_new_property),
+                        onCreatePropertyClick = { addViewModel.createProperty() },
 
-                onVideoUriChange = { newVideoUri -> addViewModel.updateVideoUri(newVideoUri) },
-                onVideoAdded = { videoToAdd -> addViewModel.addVideo(videoToAdd) },
-                onVideoDeleteClick = { videoToDelete -> addViewModel.deleteMedia(videoToDelete) },
+                        photoUri = state.photoUri,
+                        photoDescription = state.photoDescription,
+                        onPhotoUriChange = { newPhotoUri -> addViewModel.updatePhotoUri(newPhotoUri) },
+                        onPhotoDescriptionChange = { newDescription ->
+                            addViewModel.updatePhotoDescription(
+                                newDescription
+                            )
+                        },
+                        onPhotoDeleteClick = { photoToRemove ->
+                            addViewModel.deleteMedia(photoToRemove)
+                        },
 
-                //Values
-                description = editingState?.description?.value ?: "",
-                type = editingState?.type?.value ?: "",
-                area = editingState?.area?.value ?: "",
-                price = editingState?.price?.value ?: "",
-                numberOfRooms = editingState?.numberOfRooms?.value ?: "",
-                photoList = editingState?.photoList ?: emptyList(),
-                videoList = editingState?.videoList ?: emptyList(),
-                address = editingState?.address?.value ?: "",
-                nearbyPointList = addViewModel.allPointOfInterestList,
-                nearbyPointSelectedSet = editingState?.nearbyPointSet ?: emptySet(),
-                agent = editingState?.agent,
-                agentList = editingState?.agentList ?: emptyList(),
-                showSaveButton = editingState?.isFormValid,
-                //DatePickers
-                selectedEntryDate = editingState?.entryDate,
-                onEntryDateSelected = { newEntryDate -> addViewModel.updateEntryDate(newEntryDate) },
-                isEntryDateDialogShown = editingState?.isEntryDatePickerShown ?: false,
-                onShowEntryDateDialog = { addViewModel.updateEntryDateDialogShown(true) },
-                onDismissEntryDateDialog = { addViewModel.updateEntryDateDialogShown(false) },
-                entryDatePickerState = rememberDatePickerState(),
-                selectedSaleDate = editingState?.saleDate,
-                onSaleDateSelected = { newSaleDate -> addViewModel.updateSaleDate(newSaleDate) },
-                isSaleDateDialogShown = editingState?.isSaleDatePickerShown ?: false,
-                onShowSaleDateDialog = { addViewModel.updateSaleDateDialogShown(true) },
-                onDismissSaleDateDialog = { addViewModel.updateSaleDateDialogShown(false) },
-                saleDatePickerState = rememberDatePickerState(),
+                        onAddPhotoDescriptionClick = { addViewModel.addPhoto() },
+                        onDismissAddPhotoDescriptionDialog = {
+                            addViewModel.updatePhotoUri("")
+                            addViewModel.updatePhotoDescription("")
+                        },
 
-                // Error Values
-                descriptionError = editingState?.description?.error ?: "",
-                typeError = editingState?.type?.error ?: "",
-                priceError = editingState?.price?.error ?: "",
-                addressError = editingState?.address?.error ?: "",
-                areaError = editingState?.area?.error ?: "",
-                numberOfRoomsError = editingState?.numberOfRooms?.error ?: "",
+                        onVideoUriChange = { newVideoUri -> addViewModel.updateVideoUri(newVideoUri) },
+                        onVideoAdded = { videoToAdd -> addViewModel.addVideo(videoToAdd) },
+                        onVideoDeleteClick = { videoToDelete ->
+                            addViewModel.deleteMedia(
+                                videoToDelete
+                            )
+                        },
 
-                //On change callback functions
-                onDescriptionChange = { newDescription ->
-                    addViewModel.updateDescription(
-                        newDescription
+                        //Values
+                        description = state.description.value,
+                        type = state.type.value,
+                        area = state.area.value,
+                        price = state.price.value,
+                        numberOfRooms = state.numberOfRooms.value,
+                        photoList = state.photoList,
+                        videoList = state.videoList,
+                        address = state.address.value,
+                        nearbyPointList = addViewModel.allPointOfInterestList,
+                        nearbyPointSelectedSet = state.nearbyPointSet,
+                        agent = state.agent,
+                        agentList = state.agentList,
+                        showSaveButton = state.isFormValid,
+                        //DatePickers
+                        selectedEntryDate = state.entryDate,
+                        onEntryDateSelected = { newEntryDate ->
+                            addViewModel.updateEntryDate(
+                                newEntryDate
+                            )
+                        },
+                        isEntryDateDialogShown = state.isEntryDatePickerShown,
+                        onShowEntryDateDialog = { addViewModel.updateEntryDateDialogShown(true) },
+                        onDismissEntryDateDialog = { addViewModel.updateEntryDateDialogShown(false) },
+                        entryDatePickerState = rememberDatePickerState(),
+                        selectedSaleDate = state.saleDate,
+                        onSaleDateSelected = { newSaleDate ->
+                            addViewModel.updateSaleDate(
+                                newSaleDate
+                            )
+                        },
+                        isSaleDateDialogShown = state.isSaleDatePickerShown,
+                        onShowSaleDateDialog = { addViewModel.updateSaleDateDialogShown(true) },
+                        onDismissSaleDateDialog = { addViewModel.updateSaleDateDialogShown(false) },
+                        saleDatePickerState = rememberDatePickerState(),
+
+                        // Error Values
+                        descriptionError = state.description.error ?: "",
+                        typeError = state.type.error ?: "",
+                        priceError = state.price.error ?: "",
+                        addressError = state.address.error ?: "",
+                        areaError = state.area.error ?: "",
+                        numberOfRoomsError = state.numberOfRooms.error ?: "",
+
+                        //On change callback functions
+                        onDescriptionChange = { newDescription ->
+                            addViewModel.updateDescription(
+                                newDescription
+                            )
+                        },
+                        onTypeChange = { newType -> addViewModel.updateType(newType) },
+                        onAreaChange = { newArea -> addViewModel.updateArea(newArea) },
+                        onPriceChange = { newPrice -> addViewModel.updatePrice(newPrice) },
+                        onNumberOfRoomsChange = { newNumberOfRooms ->
+                            addViewModel.updateNumberOfRooms(
+                                newNumberOfRooms
+                            )
+                        },
+                        onAddressChange = { newAddress -> addViewModel.updateAddress(newAddress) },
+                        onNearbyPointChange = { pointOfInterest, isSelected ->
+                            addViewModel.updatePointOfInterestSelection(pointOfInterest, isSelected)
+                        },
+                        onAgentSelected = { selectedAgent -> addViewModel.updateAgent(selectedAgent) }
                     )
-                },
-                onTypeChange = { newType -> addViewModel.updateType(newType) },
-                onAreaChange = { newArea -> addViewModel.updateArea(newArea) },
-                onPriceChange = { newPrice -> addViewModel.updatePrice(newPrice) },
-                onNumberOfRoomsChange = { newNumberOfRooms ->
-                    addViewModel.updateNumberOfRooms(
-                        newNumberOfRooms
-                    )
-                },
-                onAddressChange = { newAddress -> addViewModel.updateAddress(newAddress) },
-                onNearbyPointChange = { pointOfInterest, isSelected ->
-                    addViewModel.updatePointOfInterestSelection(pointOfInterest, isSelected)
-                },
-                onAgentSelected = { selectedAgent -> addViewModel.updateAgent(selectedAgent) }
-            )
+                }
+            }
         }
     }
 }
@@ -299,7 +335,6 @@ fun AddScreenPreview() {
         numberOfRoomsError = "numberOfRoomsError",
 
         // OnChange functions
-
         onDescriptionChange = {},
         onTypeChange = {},
         onPriceChange = {},
@@ -310,10 +345,6 @@ fun AddScreenPreview() {
         onAgentSelected = {},
 
         //Other functions
-
-        errorMessage = "errorMessage",
-        onDismissError = {},
-
         photoUri = "",
         photoDescription = "",
         onPhotoUriChange = {},
@@ -329,19 +360,3 @@ fun AddScreenPreview() {
         onCreatePropertyClick = {}
     )
 }
-/*
-description = "description",
-type = "type",
-price = "price",
-area = "area",
-numberOfRooms = "numberOfRooms",
-photoList = emptyList(),
-videoUri = null,
-address = "address",
-nearbyPoint = "nearByPoint",
-nearbyPointList = emptyList<String>(),
-entryDate = "entryDate",
-saleDate = "SaleDate",
-agent = null,
-agentList = emptyList<Agent>(),
-*/

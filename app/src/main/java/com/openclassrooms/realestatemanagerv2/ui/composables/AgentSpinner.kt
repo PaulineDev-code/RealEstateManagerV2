@@ -1,5 +1,6 @@
 package com.openclassrooms.realestatemanagerv2.ui.composables
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -9,10 +10,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -26,7 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.realestatemanagerv2.R
@@ -34,29 +34,49 @@ import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 
 @Composable
 fun AgentSpinner(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     agents: List<Agent>,
     selectedAgent: Agent?,
-    onAgentSelected: (Agent) -> Unit
+    onAgentSelected: (Agent) -> Unit,
+    onResetAgent: (() -> Unit)? = null
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
-            .wrapContentSize()
-            .background(MaterialTheme.colorScheme.inverseOnSurface)
+            .animateContentSize()
+            .background(
+                MaterialTheme.colorScheme.inverseOnSurface,
+                shape = MaterialTheme.shapes.small
+            )
             .clickable(onClick = { expanded = true })
-
+            .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(8.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Text(
                 text = selectedAgent?.name ?: stringResource(R.string.select_an_agent),
-                modifier = Modifier.wrapContentWidth()
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
+
+            if (selectedAgent != null && onResetAgent != null) {
+                Icon(
+                    imageVector = Icons.Default.Clear,
+                    contentDescription = stringResource(R.string.clear_agent),
+                    modifier = Modifier
+                        .padding(start = 8.dp, end = 8.dp)
+                        .size(24.dp)
+                        .clickable{ onResetAgent() },
+                    tint = MaterialTheme.colorScheme.inverseSurface
+                )
+            }
+
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = "Dropdown",
+                contentDescription = stringResource(R.string.dropdown),
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -65,30 +85,41 @@ fun AgentSpinner(
             onDismissRequest = { expanded = false }
         ) {
             agents.forEach { agent ->
-                DropdownMenuItem(onClick = {
-                    onAgentSelected(agent)
-                    expanded = false
-                },
+                DropdownMenuItem(
+                    onClick = {
+                        onAgentSelected(agent)
+                        expanded = false
+                    },
                     text = { Text(text = agent.name) }
                 )
             }
         }
     }
 }
-    
 
 
 @Preview(showBackground = true, backgroundColor = -1)
 @Composable
 fun AgentSpinnerPreview() {
     Column() {
-        AgentSpinner(agents = listOf(
+        val agents = listOf(
             Agent("1", "AgentTest1", "0111111111", "agent1@gmail.com"),
             Agent("2", "AgentTest2", "0222222222", "agent2@gmail.com"),
             Agent("3", "AgentTest3", "0333333333", "agent3@gmail.com")
-        ),
-            selectedAgent = null,
+        )
+        AgentSpinner(
+            agents = agents,
+            modifier = Modifier.padding(8.dp),
+            selectedAgent = Agent("1", "AgentTest1", "0111111111", "agent1@gmail.com"),
             onAgentSelected = {},
-            modifier = Modifier.padding(8.dp))
+            onResetAgent = {}
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        AgentSpinner(
+            agents = agents,
+            modifier = Modifier.padding(8.dp),
+            selectedAgent = null,
+            onAgentSelected = {}
+        )
     }
 }

@@ -29,6 +29,14 @@ import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowNetworkCapabilities
 
+/**
+ * Instrumented unit tests for [NetworkMonitorImpl] using Robolectric.
+ *
+ * These tests verify the reactive network status flow by:
+ * 1. Mocking the ConnectivityManager and NetworkCapabilities.
+ * 2. Using Turbine to observe Flow emissions in a coroutine test environment.
+ * 3. Simulating network losses and validations to ensure [NetworkStatus] consistency.
+ */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class NetworkMonitorTest {
@@ -43,8 +51,6 @@ class NetworkMonitorTest {
 
     @Mock
     private lateinit var network: Network
-    /*@Mock
-    private lateinit var capabilities: NetworkCapabilities*/
 
     private lateinit var closeable: AutoCloseable
 

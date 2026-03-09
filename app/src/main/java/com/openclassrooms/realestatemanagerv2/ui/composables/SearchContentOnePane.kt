@@ -58,6 +58,7 @@ fun SearchContentOnePane(
     agent: Agent?,
     agentList: List<Agent>,
     onAgentSelected: (Agent) -> Unit,
+    onResetAgent: () -> Unit,
 
     //EntryDatePicker
     selectedEntryDate: Long?,
@@ -79,11 +80,9 @@ fun SearchContentOnePane(
     onSearchClicked: () -> Unit,
 ) {
 
-
     Column(
         modifier = modifier
     ) {
-
         SearchHeaderAnimation()
 
         Text(
@@ -216,7 +215,8 @@ fun SearchContentOnePane(
             modifier = Modifier.padding(8.dp),
             agents = agentList,
             selectedAgent = agent,
-            onAgentSelected = onAgentSelected
+            onAgentSelected = onAgentSelected,
+            onResetAgent = onResetAgent
         )
 
         Button(
@@ -282,6 +282,7 @@ fun SearchContentOnePanePreview() {
         agentList = listOf(Agent("1", "John", "Doe", "test@gmail.com")),
         agent = Agent("1", "John", "Doe", "test@gmail.com"),
         onAgentSelected = {},
+        onResetAgent = {},
         isSearchClickEnabled = true,
         onSearchClicked = {}
     )

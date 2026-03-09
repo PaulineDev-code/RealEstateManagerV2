@@ -3,13 +3,12 @@ package com.openclassrooms.realestatemanagerv2.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.openclassrooms.realestatemanagerv2.domain.model.NetworkStatus
-import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllPropertiesUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.ObserveNetworkStatusUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.SearchPropertiesUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.UpdateMissingLocationUseCase
+import com.openclassrooms.realestatemanagerv2.ui.states.PropertyUiState
 import com.openclassrooms.realestatemanagerv2.utils.DatabaseStatusTracker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,16 +16,32 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Shared ViewModel responsible for orchestrating the property list state, search filtering,
+ * and real-time synchronization across the application.
+ *
+ * This ViewModel serves as a central hub for:
+ * 1. **Data Orchestration**: Combining the property list state with real-time network status
+ *    monitoring via [ObserveNetworkStatusUseCase].
+ * 2. **Adaptive Layout Management**: Controls `detailPaneCloseVersion` to synchronize
+ *    the visibility of the detail panel during major state transitions (e.g., new search).
+ * 3. **Smart Data Loading**: Ensuring the database is fully initialized via [DatabaseStatusTracker]
+ *    before any queries are executed.
+ * 4. **Geocoding Maintenance**: Automatically triggering [UpdateMissingLocationUseCase]
+ *    on startup to resolve coordinates for properties added offline.
+ *
+ * @property getAllPropertiesUseCase Use case to retrieve the complete list of properties.
+ * @property searchPropertiesUseCase Use case for multi-criteria property filtering.
+ * @property updateMissingLocationUseCase Use case to geocode addresses that lack coordinates.
+ * @property observeNetworkStatusUseCase Use case to provide a real-time stream of connectivity status.
+ * @property databaseStatusTracker Utility to ensure Room DB readiness before data collection.
+ */
 @HiltViewModel
 class PropertySharedViewModel @Inject constructor
     (private val getAllPropertiesUseCase: GetAllPropertiesUseCase,
@@ -38,6 +53,13 @@ class PropertySharedViewModel @Inject constructor
 
     private val networkFlow = observeNetworkStatusUseCase()
     private val _uiState = MutableStateFlow<PropertyUiState>(PropertyUiState.Loading)
+
+    /**
+     * Exposes the unified UI state.
+     * Uses [combine] to merge the property internal state with the live network status flow.
+     * Implements [stateIn] to share the state efficiently across multiple screens
+     * while maintaining a 5-second buffer for configuration changes.
+     */
     val uiState: StateFlow<PropertyUiState> = combine(_uiState, networkFlow) {
             propertyUiState, networkStatus ->
 
@@ -57,6 +79,14 @@ class PropertySharedViewModel @Inject constructor
         }
     }
 
+    /**
+     * Core private method to fetch properties from the local data source.
+     *
+     * @param isSearch If true, applies [searchCriteria] instead of a full fetch.
+     * @param searchCriteria The filter parameters provided by the user.
+     * @param incrementCloseVersion If true, increments the close version
+     * in [PropertyUiState.Success] to signal the UI to close the Detail Pane.
+     */
     private suspend fun loadProperties(
         isSearch: Boolean = false,
         searchCriteria: PropertySearchCriteria? = null,
@@ -90,22 +120,19 @@ class PropertySharedViewModel @Inject constructor
             Log.d("ListViewModel", "Collected properties: $properties")
         } catch (exception: Exception) {
             Log.e("ListViewModel", "Error collecting properties", exception)
-            _uiState.value = PropertyUiState.Error(exception)
+            _uiState.value = PropertyUiState.Error(exception.message ?: "Unknown error")
         }
     }
 
     fun updateSelectedProperty(propertyId: String) {
-        val currentState = _uiState.value
-        if (currentState is PropertyUiState.Success) {
-            _uiState.value =
-                currentState.copy(selectedPropertyId = propertyId)
+        updateState {
+            copy(selectedPropertyId = propertyId)
         }
     }
 
     fun updateAddedProperty(propertyId: String?) {
-        val currentState = _uiState.value
-        if (currentState is PropertyUiState.Success) {
-            _uiState.value = currentState.copy(addedPropertyId = propertyId)
+        updateState {
+            copy(addedPropertyId = propertyId)
         }
         Log.d(
             "ListViewModel",
@@ -131,6 +158,11 @@ class PropertySharedViewModel @Inject constructor
         }
     }
 
+    /**
+     * Checks for missing geographic coordinates and refreshes data if any are resolved.
+     * This ensures that UI components like Map Markers and Static Map previews
+     * are correctly displayed and up-to-date.
+     */
     suspend fun updateAndRefreshIfNeeded() {
 
         val updatedCount = updateMissingLocationUseCase()
@@ -139,15 +171,17 @@ class PropertySharedViewModel @Inject constructor
         }
     }
 
-    sealed class PropertyUiState {
-        object Loading : PropertyUiState()
-        data class Success(val properties: List<Property>,
-                           val networkStatus: NetworkStatus = NetworkStatus.Unknown,
-                           val selectedPropertyId: String = "",
-                           val addedPropertyId: String? = null,
-                           val isFiltered: Boolean = false,
-                           val detailPaneCloseVersion: Int = 0
-        ) : PropertyUiState()
-        data class Error(val exception: Throwable): PropertyUiState()
+    /**
+     * Internal helper for atomic updates of the [PropertyUiState.Success] state.
+     * Ensures thread-safety and prevents state loss during concurrent updates.
+     */
+    private fun updateState(update: PropertyUiState.Success.() -> PropertyUiState.Success) {
+        _uiState.update { currentState ->
+            if (currentState is PropertyUiState.Success) {
+                currentState.update()
+            } else {
+                currentState
+            }
+        }
     }
 }

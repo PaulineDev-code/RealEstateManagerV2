@@ -1,11 +1,8 @@
 package com.openclassrooms.realestatemanagerv2.ui.composables
 
 import android.util.Log
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,8 +26,8 @@ fun StaticMapView(
     apiKey: String,
     modifier: Modifier = Modifier,
     zoom: Int = 18,
-    width: Int = 600, // Image width in pixels
-    height: Int = 600, // Image height in pixels
+    width: Int = 600, //pixels
+    height: Int = 600, //pixels
     mapType: String = "roadmap",
     markerLabel: String = "",
     markerColor: String = "red",
@@ -75,8 +72,8 @@ fun StaticMapView(
         modifier = modifier
             .fillMaxWidth()
             .height(mapHeight)
-            .then(imageModifier), // Allow further customization of the Image
-        contentScale = ContentScale.Crop, // Or ContentScale.Fit for a smaller image with full coverage
+            .then(imageModifier),
+        contentScale = ContentScale.Crop,
         loading = {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         },

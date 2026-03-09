@@ -1,13 +1,9 @@
 package com.openclassrooms.realestatemanagerv2.ui.composables
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.foundation.gestures.rememberTransformableState
-import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -115,17 +111,14 @@ fun ZoomableImage (
                                     val zoomFactor = distance / previousDistance
                                     val newScale = (scale * zoomFactor).coerceIn(1f, 4f)
 
-                                    // Calculer le déplacement pour garder le centroid stable
                                     if (newScale > 1f) {
                                         val scaleDiff = newScale - scale
                                         val centerX = size.width / 2f
                                         val centerY = size.height / 2f
 
-                                        // Ajuster l'offset pour zoomer vers le centroid
                                         offsetX += (centerX - centroid.x) * scaleDiff
                                         offsetY += (centerY - centroid.y) * scaleDiff
 
-                                        // Borner les offsets
                                         val maxOffsetX = (size.width * (newScale - 1f)) / 2f
                                         val maxOffsetY = (size.height * (newScale - 1f)) / 2f
                                         offsetX = offsetX.coerceIn(-maxOffsetX, maxOffsetX)
@@ -134,7 +127,6 @@ fun ZoomableImage (
 
                                     scale = newScale
 
-                                    // Réinitialiser si on revient à 1x
                                     if (scale <= 1f) {
                                         scale = 1f
                                         offsetX = 0f
@@ -144,32 +136,27 @@ fun ZoomableImage (
 
                                 previousDistance = distance
 
-                                // Consommer les événements pour le zoom
                                 event.changes.forEach { it.consume() }
                             }
 
-                            // Single touch + zoomé : gérer le pan
+                            // Single touch + zoom
                             pointerCount == 1 && scale > 1f -> {
                                 val change = pressed.first()
                                 if (change.positionChanged()) {
                                     val pan = change.position - change.previousPosition
 
-                                    // Appliquer le pan
+                                    // Apply pan
                                     val maxOffsetX = (size.width * (scale - 1f)) / 2f
                                     val maxOffsetY = (size.height * (scale - 1f)) / 2f
 
                                     offsetX = (offsetX + pan.x).coerceIn(-maxOffsetX, maxOffsetX)
                                     offsetY = (offsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
 
-                                    // Consommer pour empêcher le pager de scroller
                                     event.changes.forEach { it.consume() }
                                 }
                             }
 
-                            // Single touch + scale == 1f : NE PAS consommer
-                            // Le HorizontalPager recevra le swipe
                             pointerCount == 1 && scale <= 1f -> {
-                                // Ne rien faire - laisser le pager gérer
                                 previousDistance = 0f
                             }
                         }
@@ -233,13 +220,13 @@ private fun calculateCentroidAndDistance(changes: List<PointerInputChange>): Pai
         return Pair(changes.firstOrNull()?.position ?: Offset.Zero, 0f)
     }
 
-    // Centroid = moyenne des positions
+    // Centroid
     val centroid = Offset(
         x = changes.map { it.position.x }.average().toFloat(),
         y = changes.map { it.position.y }.average().toFloat()
     )
 
-    // Distance = distance entre les deux premiers pointeurs
+    // Distance
     val p1 = changes[0].position
     val p2 = changes[1].position
     val distance = kotlin.math.sqrt(

@@ -5,7 +5,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
-import com.openclassrooms.realestatemanagerv2.R
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.Media
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
@@ -18,6 +17,7 @@ import com.openclassrooms.realestatemanagerv2.domain.usecases.GetLocationUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetPropertyByIdUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.UpdatePropertyUseCase
 import com.openclassrooms.realestatemanagerv2.ui.models.FormField
+import com.openclassrooms.realestatemanagerv2.ui.states.PropertyFormUiState
 import com.openclassrooms.realestatemanagerv2.utils.convertFromLocalCurrency
 import com.openclassrooms.realestatemanagerv2.utils.convertToLocalCurrency
 import com.openclassrooms.realestatemanagerv2.utils.validateLength
@@ -26,9 +26,24 @@ import com.openclassrooms.realestatemanagerv2.utils.validatePositiveNumber
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel responsible for the business logic of editing an existing real estate property. *
+ * It manages the update flow by:
+ * 1. Retrieving existing property data via [GetPropertyByIdUseCase] and [SavedStateHandle].
+ * 2. Pre-filling the [PropertyFormUiState] with current values.
+ * 3. Handling conditional geocoding (only if the address has changed).
+ * 4. Persisting changes through [UpdatePropertyUseCase].
+ *
+ * @property updatePropertyUseCase Use case to persist modified property data.
+ * @property getAllAgentsUseCase Use case to retrieve the list of agents for the spinner.
+ * @property getPropertyByIdUseCase Use case to fetch the initial data of the property to edit.
+ * @property getLocationUseCase Use case to resolve new addresses to geographic coordinates.
+ * @property savedState Handle to retrieve the property ID passed through navigation.
+ */
 @HiltViewModel
 class EditPropertyViewModel @Inject constructor
     (
@@ -39,31 +54,41 @@ class EditPropertyViewModel @Inject constructor
     private val savedState: SavedStateHandle
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<EditPropertyUiState>(EditPropertyUiState.Editing())
-    private var previousEditingState: EditPropertyUiState.Editing? = null
+    /**
+     * Cache used to restore user input when returning from an Error state.
+     */
+    private var previousEditingState: PropertyFormUiState.Editing? = null
+
+    /**
+     * The original property data before any edits, used for address comparison.
+     */
     private var initialProperty: Property? = null
 
-    val uiState: StateFlow<EditPropertyUiState> = _uiState
+    private val _uiState = MutableStateFlow<PropertyFormUiState>(PropertyFormUiState.Editing())
+
+    val uiState: StateFlow<PropertyFormUiState> = _uiState
     val allPointOfInterestList: List<PointOfInterest> = PointOfInterest.entries
 
     init {
         val propertyId = savedState.get<String>("propertyId")
         viewModelScope.launch {
             try {
-                if( propertyId != null) {
+                if (propertyId != null) {
                     val property = getPropertyByIdUseCase(propertyId)
 
                     val agents = getAllAgentsUseCase()
                     Log.d("EditViewModel", "Collected agents: $agents")
-                    _uiState.value = EditPropertyUiState.Editing(
+                    val newState = PropertyFormUiState.Editing(
                         id = property.id,
                         description = FormField(value = property.description),
                         type = FormField(value = property.type),
-                        price = FormField(value = property.price.convertToLocalCurrency().toString()),
+                        price = FormField(
+                            value = property.price.convertToLocalCurrency().toString()
+                        ),
                         area = FormField(value = property.area.toString()),
                         numberOfRooms = FormField(value = property.numberOfRooms.toString()),
                         mediaLists = property.media,
-                        videoUri = property.media.find { it is Video }?.mediaUrl,
+                        videoUri = property.media.find { it is Video }?.mediaUrl ?: "",
                         address = FormField(value = property.address),
                         nearbyPointSet = property.nearbyPointsOfInterest.toSet(),
                         entryDate = property.entryDate,
@@ -72,6 +97,7 @@ class EditPropertyViewModel @Inject constructor
                         agentList = agents,
                         isFormValid = false,
                     )
+                    _uiState.value = newState.copy(isFormValid = isFormValid(newState))
 
                     savedState.remove<String>("propertyId")
                     initialProperty = property
@@ -84,121 +110,73 @@ class EditPropertyViewModel @Inject constructor
         }
     }
 
-    private fun validatePropertyData(currentState: EditPropertyUiState.Editing): ValidationResult {
-        // Ensure all required fields are filled
-        val invalidFields = mutableListOf<Int>()
-
-        if (currentState.type.value.isBlank()) {
-            invalidFields.add(R.string.type)
-        }
-
-        if (currentState.price.value.toDoubleOrNull() == null) {
-            invalidFields.add(R.string.price)
-        }
-
-        if (currentState.area.value.toDoubleOrNull() == null) {
-            invalidFields.add(R.string.area)
-        }
-
-        if (currentState.numberOfRooms.value.toIntOrNull() == null) {
-            invalidFields.add(R.string.number_of_rooms)
-        }
-
-        if (currentState.description.value.isBlank()) {
-            invalidFields.add(R.string.description)
-        }
-
-        if (currentState.mediaLists.isEmpty()) {
-            invalidFields.add(R.string.media)
-        }
-
-        if (currentState.address.value.isBlank()) {
-            invalidFields.add(R.string.location)
-        }
-
-        if (currentState.nearbyPointSet.isEmpty()) {
-            invalidFields.add(R.string.nearby_points_of_interest)
-        }
-
-        if (currentState.entryDate == null) {
-            invalidFields.add(R.string.entry_date)
-        }
-
-        if (currentState.agent == null) {
-            invalidFields.add(R.string.agent)
-        }
-        return if (invalidFields.isEmpty()) {
-
-
-            ValidationResult.Success()
-        } else {
-            ValidationResult.Error(
-                Exception
-                    ("Invalid property data")
-            )
-        }
-    }
-
+    /**
+     * Triggers the property update process.
+     *
+     * Performs an optimization: it only calls the geocoding service if the address
+     * has been modified by the user compared to [initialProperty].
+     */
     fun updateProperty() {
-        val currentState = _uiState.value
-        if (currentState is EditPropertyUiState.Editing) {
-            when (val validationResult = validatePropertyData(currentState)) {
-                is ValidationResult.Success -> {
-                    viewModelScope.launch {
-                        val coordinates: LatLng?
-                        if(initialProperty?.address != currentState.address.value) {
-                            coordinates = try {
-                                getLocationUseCase(currentState.address.value)
-                            } catch (e: Exception) {
-                                null
-                            }
-                        } else {
-                            coordinates = initialProperty?.let {
-                                LatLng(it.latitude ?: 0.0, it.longitude ?: 0.0)
-                            }
-                        }
-                        val newProperty = Property(
-                            id = currentState.id,
-                            type = currentState.type.value,
-                            price = currentState.price.value.toDouble().convertFromLocalCurrency(),
-                            area = currentState.area.value.toDouble(),
-                            numberOfRooms = currentState.numberOfRooms.value.toInt(),
-                            description = currentState.description.value,
-                            media = currentState.mediaLists,
-                            address = currentState.address.value,
-                            latitude = coordinates?.latitude,
-                            longitude = coordinates?.longitude,
-                            nearbyPointsOfInterest = currentState.nearbyPointSet.toList(),
-                            status = if (currentState.saleDate != null) PropertyStatus.Sold
-                            else PropertyStatus.Available,
-                            entryDate = requireNotNull(currentState.entryDate) { "Entry date cannot be null" },
-                            saleDate = if (currentState.saleDate != null) currentState.saleDate
-                            else null,
-                            agent = currentState.agent!!
-                        )
-                        try {
-                            val propertyId = newProperty.id
-                            updatePropertyUseCase(newProperty)
-                            //Pass the property id to the UI in order to navigate
-                            _uiState.value = EditPropertyUiState.Success(propertyId)
-                        } catch (e: Exception) {
-                            handleError(e)
-                        }
+        val currentState = _uiState.value as? PropertyFormUiState.Editing ?: return
+        if (isFormValid(currentState)) {
+            previousEditingState = currentState
+            viewModelScope.launch {
+                _uiState.value = PropertyFormUiState.Loading
+
+                val coordinates: LatLng?
+                if (initialProperty?.address != currentState.address.value) {
+                    coordinates = try {
+                        getLocationUseCase(currentState.address.value)
+                    } catch (e: Exception) {
+                        null
+                    }
+                } else {
+                    coordinates = initialProperty?.let {
+                        if (it.latitude != null && it.longitude != null) {
+                            LatLng(it.latitude, it.longitude)
+                        } else null
                     }
                 }
-                is ValidationResult.Error -> {
-                    handleError(Exception(validationResult.exception))
+
+                val newProperty = Property(
+                    id = currentState.id ?: initialProperty?.id ?: throw IllegalStateException("Property ID is missing"),
+                    type = currentState.type.value,
+                    price = currentState.price.value.toDouble().convertFromLocalCurrency(),
+                    area = currentState.area.value.toDouble(),
+                    numberOfRooms = currentState.numberOfRooms.value.toInt(),
+                    description = currentState.description.value,
+                    media = currentState.mediaLists,
+                    address = currentState.address.value,
+                    latitude = coordinates?.latitude,
+                    longitude = coordinates?.longitude,
+                    nearbyPointsOfInterest = currentState.nearbyPointSet.toList(),
+                    status = if (currentState.saleDate != null) PropertyStatus.Sold
+                    else PropertyStatus.Available,
+                    entryDate = requireNotNull(currentState.entryDate) { "Entry date cannot be null" },
+                    saleDate = if (currentState.saleDate != null) currentState.saleDate
+                    else null,
+                    agent = currentState.agent!!
+                )
+                try {
+                    val propertyId = newProperty.id
+                    updatePropertyUseCase(newProperty)
+                    //Pass the property id to the UI in order to navigate
+                    _uiState.value = PropertyFormUiState.Success(propertyId)
+                } catch (e: Exception) {
+                    handleError(e)
                 }
             }
         }
+
     }
+
 
     private fun handleError(exception: Exception) {
-        val currentState = _uiState.value as? EditPropertyUiState.Editing
-        _uiState.value = EditPropertyUiState.Error(EditPropertyError.GeneralError(exception))
+        _uiState.value = PropertyFormUiState.Error(
+            exception.message ?: "An unexpected error occurred"
+        )
     }
 
-    //ADD AND DELETE A PHOTO
     fun deletePhoto(media: Media) {
         updateState {
             copy(mediaLists = mediaLists.filterNot { it == media })
@@ -207,7 +185,8 @@ class EditPropertyViewModel @Inject constructor
 
     fun addPhoto() {
         updateState {
-            copy(mediaLists = mediaLists + Photo(photoUri, photoDescription),
+            copy(
+                mediaLists = mediaLists + Photo(photoUri, photoDescription),
                 photoUri = "",
                 photoDescription = ""
             )
@@ -224,7 +203,7 @@ class EditPropertyViewModel @Inject constructor
 
     fun deleteVideo() {
         updateState {
-            copy(videoUri = null)
+            copy(videoUri = "")
         }
     }
 
@@ -239,21 +218,6 @@ class EditPropertyViewModel @Inject constructor
         }
     }
 
-    /*fun addNearbyPoint() {
-        updateState {
-            copy(nearbyPointList = nearbyPointList + nearbyPoint,
-                nearbyPoint = ""
-            )
-        }
-    }
-
-    fun deleteNearbyPoint(point: String) {
-        updateState {
-            copy(nearbyPointList = nearbyPointList.filterNot { it == point })
-        }
-    }*/
-
-    // UPDATE FIELDS
     fun updatePhotoUri(photoUri: String) {
         updateState {
             copy(photoUri = photoUri)
@@ -303,7 +267,8 @@ class EditPropertyViewModel @Inject constructor
     }
 
     fun updateNumberOfRooms(newNumberOfRooms: String) {
-        val error = newNumberOfRooms.validateNonEmpty() + " " + newNumberOfRooms.validatePositiveNumber()
+        val error =
+            newNumberOfRooms.validateNonEmpty() + " " + newNumberOfRooms.validatePositiveNumber()
         updateState {
             copy(numberOfRooms = numberOfRooms.copy(value = newNumberOfRooms, error = error))
         }
@@ -322,7 +287,7 @@ class EditPropertyViewModel @Inject constructor
         }
     }
 
-    fun updateEntryDate(newEntryDate: Long?)  {
+    fun updateEntryDate(newEntryDate: Long?) {
         updateState {
             copy(
                 entryDate = newEntryDate
@@ -330,7 +295,7 @@ class EditPropertyViewModel @Inject constructor
         }
     }
 
-    fun updateEntryDateDialogShown(newIsDialogShown: Boolean)  {
+    fun updateEntryDateDialogShown(newIsDialogShown: Boolean) {
         updateState {
             copy(
                 isEntryDatePickerShown = newIsDialogShown
@@ -338,7 +303,7 @@ class EditPropertyViewModel @Inject constructor
         }
     }
 
-    fun updateSaleDate(newSaleDate: Long?)  {
+    fun updateSaleDate(newSaleDate: Long?) {
         updateState {
             copy(
                 saleDate = newSaleDate
@@ -346,7 +311,7 @@ class EditPropertyViewModel @Inject constructor
         }
     }
 
-    fun updateSaleDateDialogShown(newIsDialogShown: Boolean)  {
+    fun updateSaleDateDialogShown(newIsDialogShown: Boolean) {
         updateState {
             copy(
                 isSaleDatePickerShown = newIsDialogShown
@@ -360,80 +325,51 @@ class EditPropertyViewModel @Inject constructor
         }
     }
 
-    private fun updateState(update: EditPropertyUiState.Editing.() -> EditPropertyUiState.Editing) {
-        val currentState = _uiState.value
-        if (currentState is EditPropertyUiState.Editing) {
-            previousEditingState = currentState
-            val newState = currentState.update()
-            _uiState.value = newState.copy(
-                isFormValid = isFormValid(newState))
+    /**
+     * Atomically updates the editing state and refreshes form validity.
+     */
+    private fun updateState(update: PropertyFormUiState.Editing.() -> PropertyFormUiState.Editing) {
+        _uiState.update { currentState ->
+            if (currentState is PropertyFormUiState.Editing) {
+                previousEditingState = currentState
+                val newState = currentState.update()
+                newState.copy(
+                    isFormValid = isFormValid(newState)
+                )
+            } else {
+                currentState
+            }
         }
     }
 
+    /**
+     * Returns the UI to the last valid editing state using [previousEditingState].
+     */
     fun returnToEditingState() {
         val currentState = _uiState.value
-        if (currentState is EditPropertyUiState.Error && previousEditingState != null) {
-            _uiState.value = previousEditingState as EditPropertyUiState.Editing
+        if (currentState is PropertyFormUiState.Error && previousEditingState != null) {
+            _uiState.value = previousEditingState as PropertyFormUiState.Editing
         }
     }
 
-    private fun isFormValid(state: EditPropertyUiState.Editing): Boolean {
-        return listOf(
+    /**
+     * Business logic for form validation (checks both field errors and mandatory data).
+     */
+    private fun isFormValid(state: PropertyFormUiState.Editing): Boolean {
+        val hasNoErrors = listOf(
             state.description.error,
             state.type.error,
             state.price.error,
             state.address.error,
             state.area.error,
             state.numberOfRooms.error,
-        ).all { it.isNullOrBlank() && state.agent != null && state.mediaLists.filterIsInstance<Photo>().isNotEmpty()
-                && state.nearbyPointSet.isNotEmpty() && state.entryDate != null}
+        ).all { it.isNullOrBlank() }
+
+        val hasRequiredFields = state.agent != null &&
+                state.mediaLists.isNotEmpty() &&
+                state.nearbyPointSet.isNotEmpty() &&
+                state.entryDate != null
+
+        return hasNoErrors && hasRequiredFields
     }
-
-    sealed class EditPropertyError {
-        data class FieldError(val fieldId: Int) : EditPropertyError()
-        data class GeneralError(val exception: Throwable) : EditPropertyError()
-    }
-
-    sealed class ValidationResult {
-        class Success() : ValidationResult()
-        data class Error(val exception: Exception) : ValidationResult()
-    }
-
-    sealed interface EditPropertyUiState {
-        /*data class Success(val properties: List<Property>): AddPropertyUiState()
-        data class Error(val exception: Exception): AddPropertyUiState()*/
-        data class Success(val propertyId: String) : EditPropertyUiState
-        data class Error(val error: EditPropertyError?) : EditPropertyUiState
-        data class Editing(
-
-            val id: String = "",
-            val description: FormField = FormField(),
-            val type: FormField = FormField(),
-            val price: FormField = FormField(),
-            val area: FormField = FormField(),
-            val numberOfRooms: FormField = FormField(),
-            val photoUri: String = "",
-            val photoDescription: String = "",
-            val mediaLists: List<Media> = emptyList<Media>(),
-            val videoUri: String? = null,
-            val address: FormField = FormField(),
-            val nearbyPointSet: Set<PointOfInterest> = emptySet(),
-            val entryDate: Long? = null,
-            val isEntryDatePickerShown: Boolean = false,
-            val saleDate: Long? = null,
-            val isSaleDatePickerShown: Boolean = false,
-            val agent: Agent? = null,
-            val agentList: List<Agent> = emptyList(),
-            val isFormValid: Boolean = false
-
-        ) : EditPropertyUiState {
-            val photoList: List<Photo>
-                get() = mediaLists.filterIsInstance<Photo>()
-
-            val videoList: List<Video>
-                get() = mediaLists.filterIsInstance<Video>()
-
-        }
-    }
-
 }

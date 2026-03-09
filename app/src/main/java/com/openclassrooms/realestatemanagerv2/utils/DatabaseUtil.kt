@@ -1,20 +1,31 @@
 package com.openclassrooms.realestatemanagerv2.utils
 
-import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.data.dao.AgentDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.MediaDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestCrossRefDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestDAO
-import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.data.dao.PropertyLocalDAO
-import com.openclassrooms.realestatemanagerv2.data.dao.ProviderDAO
-import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestCrossRef
 import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestEntity
+import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.Photo
 import com.openclassrooms.realestatemanagerv2.domain.model.PointOfInterest
+import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertyStatus
-import java.util.UUID
 
+/**
+ * Utility class used to manage initial database operations.
+ *
+ * This class primarily handles the pre-population of the local database with
+ * mandatory static data (Points of Interest) and sample property records
+ * for demonstration purposes.
+ *
+ * @property propertyDAO Data Access Object for property-related operations.
+ * @property agentDAO Data Access Object for real estate agent operations.
+ * @property pointOfInterestDAO Data Access Object for managing POI categories.
+ * @property pointOfInterestCrossRefDAO Data Access Object for managing the many-to-many
+ * relationship between properties and POIs.
+ * @property mediaDAO Data Access Object for managing property media (photos/videos).
+ */
 class DatabaseUtil(propertyDAO: PropertyLocalDAO, agentDAO: AgentDAO,
                    pointOfInterestDAO: PointOfInterestDAO,
                    pointOfInterestCrossRefDAO: PointOfInterestCrossRefDAO, mediaDAO: MediaDAO
@@ -24,6 +35,17 @@ class DatabaseUtil(propertyDAO: PropertyLocalDAO, agentDAO: AgentDAO,
     private val photoDao = mediaDAO
     private val pointOfInterestDao = pointOfInterestDAO
     private val pointOfInterestCrossRefDAO = pointOfInterestCrossRefDAO
+
+    /**
+     * Seeds the database with initial data.
+     *
+     * This method:
+     * 1. Inserts all [PointOfInterest] categories defined in the domain enum.
+     * 2. Inserts a curated list of sample [Property] objects.
+     *
+     * IMPORTANT: The insertion order is strictly managed to avoid Foreign Key
+     * violations (Agents -> Properties -> Media/CrossRefs).
+     */
     suspend fun prepopulateDatabase(
     ) {
         val pointsOfInterest = PointOfInterest.entries.map { poiEnum ->
@@ -154,5 +176,4 @@ class DatabaseUtil(propertyDAO: PropertyLocalDAO, agentDAO: AgentDAO,
             pointOfInterestCrossRefDAO.insertAll(crossRefs)
         }
     }
-
 }

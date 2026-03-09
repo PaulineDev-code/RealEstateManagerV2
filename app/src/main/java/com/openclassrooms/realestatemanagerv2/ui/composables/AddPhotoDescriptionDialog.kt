@@ -30,7 +30,6 @@ fun AddPhotoDescriptionDialog(photoUri: String,
 
     AlertDialog(
         onDismissRequest = {
-            // Clear photo uri and description for next use
             onDismiss()
         },
         title = { Text("Add Description") },
@@ -73,9 +72,6 @@ fun AddPhotoDescriptionDialog(photoUri: String,
                     if (photoDescription.isNotEmpty()) {
                         onConfirm()
                     }
-                    // Fermer la boîte de dialogue
-
-
                 }
             ) {
                 Text("Add")
@@ -83,7 +79,6 @@ fun AddPhotoDescriptionDialog(photoUri: String,
         },
         dismissButton = {
             Button(onClick = {
-                // Clear photo uri and description for next use
                 onDismiss()
             }) {
                 Text("Cancel")
