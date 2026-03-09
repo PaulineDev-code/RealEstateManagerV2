@@ -10,7 +10,6 @@ import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteri
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllAgentsUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetPropertyTypesUseCase
 import com.openclassrooms.realestatemanagerv2.ui.models.FormField
-import com.openclassrooms.realestatemanagerv2.utils.validateNonEmpty
 import com.openclassrooms.realestatemanagerv2.utils.validatePositiveNumber
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -131,7 +130,7 @@ class SearchPropertiesViewModel @Inject constructor(
     fun updateEntryDate(newEntryDate: Long?) {
         updateState {
             copy(
-                entryDate = newEntryDate/*, error = error)*/
+                entryDate = newEntryDate
             )
         }
     }
@@ -139,7 +138,7 @@ class SearchPropertiesViewModel @Inject constructor(
     fun updateEntryDateDialogShown(newIsDialogShown: Boolean) {
         updateState {
             copy(
-                isEntryDatePickerShown = newIsDialogShown/*, error = error)*/
+                isEntryDatePickerShown = newIsDialogShown
             )
         }
     }
@@ -147,7 +146,7 @@ class SearchPropertiesViewModel @Inject constructor(
     fun updateSaleDate(newSaleDate: Long?) {
         updateState {
             copy(
-                saleDate = newSaleDate/*, error = error)*/
+                saleDate = newSaleDate
             )
         }
     }
@@ -155,7 +154,7 @@ class SearchPropertiesViewModel @Inject constructor(
     fun updateSaleDateDialogShown(newIsDialogShown: Boolean) {
         updateState {
             copy(
-                isSaleDatePickerShown = newIsDialogShown/*, error = error)*/
+                isSaleDatePickerShown = newIsDialogShown
             )
         }
     }

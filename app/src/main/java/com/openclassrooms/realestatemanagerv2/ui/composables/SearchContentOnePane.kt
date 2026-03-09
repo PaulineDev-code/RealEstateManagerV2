@@ -49,12 +49,12 @@ fun SearchContentOnePane(
     maxNumberOfRooms: String,
     maxNumberOfRoomsError: String,
     onMaxNumberOfRoomsChange: (String) -> Unit,
-    minPhoto: String,
-    minPhotoError: String,
-    onMinPhotoChange: (String) -> Unit,
-    minVideo: String,
-    minVideoError: String,
-    onMinVideoChange: (String) -> Unit,
+    minPhotos: String,
+    minPhotosError: String,
+    onMinPhotosChange: (String) -> Unit,
+    minVideos: String,
+    minVideosError: String,
+    onMinVideosChange: (String) -> Unit,
     agent: Agent?,
     agentList: List<Agent>,
     onAgentSelected: (Agent) -> Unit,
@@ -93,7 +93,7 @@ fun SearchContentOnePane(
         )
 
         SearchMinMaxElement(
-            modifier = Modifier.padding(top =8.dp),
+            modifier = Modifier.padding(top = 8.dp),
             title = stringResource(R.string.min_and_max_price),
             minValue = minPrice,
             maxValue = maxPrice,
@@ -109,16 +109,16 @@ fun SearchContentOnePane(
 
         SearchMinMaxElement(
             title = stringResource(R.string.min_number_of_medias),
-            minValue = minPhoto,
-            maxValue = minVideo,
-            onMinValueChange = onMinPhotoChange,
-            onMaxValueChange = onMinVideoChange,
-            minValueLabel = stringResource(id = R.string.min_photo),
-            maxValueLabel = stringResource(id = R.string.min_video),
-            minValuePlaceHolder = stringResource(id = R.string.min_photo),
-            maxValuePlaceHolder = stringResource(id = R.string.min_video),
-            minValueError = minPhotoError,
-            maxValueError = minVideoError
+            minValue = minPhotos,
+            maxValue = minVideos,
+            onMinValueChange = onMinPhotosChange,
+            onMaxValueChange = onMinVideosChange,
+            minValueLabel = stringResource(id = R.string.min_photos),
+            maxValueLabel = stringResource(id = R.string.min_videos),
+            minValuePlaceHolder = stringResource(id = R.string.min_photos),
+            maxValuePlaceHolder = stringResource(id = R.string.min_videos),
+            minValueError = minPhotosError,
+            maxValueError = minVideosError
         )
 
         SearchMinMaxElement(
@@ -273,12 +273,12 @@ fun SearchContentOnePanePreview() {
         maxNumberOfRooms = "",
         maxNumberOfRoomsError = "",
         onMaxNumberOfRoomsChange = {},
-        minPhoto = "",
-        minPhotoError = "",
-        onMinPhotoChange = {},
-        minVideo = "",
-        minVideoError = "",
-        onMinVideoChange = {},
+        minPhotos = "",
+        minPhotosError = "",
+        onMinPhotosChange = {},
+        minVideos = "",
+        minVideosError = "",
+        onMinVideosChange = {},
         agentList = listOf(Agent("1", "John", "Doe", "test@gmail.com")),
         agent = Agent("1", "John", "Doe", "test@gmail.com"),
         onAgentSelected = {},

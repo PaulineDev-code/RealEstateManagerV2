@@ -36,9 +36,11 @@ import javax.inject.Inject
 @RunWith(AndroidJUnit4::class)
 class PropertyContentProviderTest {
 
-    @get:Rule(order = 0) val hiltRule = HiltAndroidRule(this)
+    @get:Rule(order = 0)
+    val hiltRule: HiltAndroidRule = HiltAndroidRule(this)
 
-    @Inject lateinit var db: MyDatabase
+    @Inject
+    lateinit var db: MyDatabase
 
     lateinit var contentProvider: PropertyContentProvider
     private val context: Context
@@ -49,7 +51,7 @@ class PropertyContentProviderTest {
         Uri.parse("content://${context.packageName}.provider/$path")
 
     @Before
-    fun setup() = runBlocking {
+    fun setup(): Unit = runBlocking {
         hiltRule.inject()
         val appContext = ApplicationProvider.getApplicationContext<Context>()
         contentProvider = PropertyContentProvider().apply {
@@ -137,29 +139,34 @@ class PropertyContentProviderTest {
 
     @Test
     fun queryAll_returnsExpectedColumnsAndValues() {
-        contentResolver.query(providerUri(), null, null, null, null).use { c ->
-            Assert.assertNotNull("Cursor null", c)
-            c!!; Assert.assertTrue("Cursor vide", c.moveToFirst())
+        contentResolver.query(
+            providerUri(), null, null, null, null
+        ).use { cursor ->
+            Assert.assertNotNull("Cursor null", cursor)
+            cursor!!; Assert.assertTrue("Cursor vide", cursor.moveToFirst())
 
-            for (i in 0 until c.columnCount) {
-                val columnName = c.getColumnName(i)
+            for (i in 0 until cursor.columnCount) {
+                val columnName = cursor.getColumnName(i)
                 val value = when {
-                    c.isNull(i) -> "NULL"
-                    else -> c.getString(i)
+                    cursor.isNull(i) -> "NULL"
+                    else -> cursor.getString(i)
                 }
                 Log.d("TEST", "$columnName = $value")
             }
 
-            // Colonnes de la @DatabaseView (telles que définies)
-            Assert.assertEquals("P1", c.getString(c.getColumnIndexOrThrow("id")))
-            Assert.assertEquals("Apartment", c.getString(c.getColumnIndexOrThrow("type")))
-            Assert.assertEquals(250000.0, c.getDouble(c.getColumnIndexOrThrow("price")), 0.001)
+            Assert.assertEquals("P1", cursor.getString(cursor.getColumnIndexOrThrow("id")))
+            Assert.assertEquals("Apartment", cursor.getString(cursor.getColumnIndexOrThrow("type")))
+            Assert.assertEquals(
+                250000.0,
+                cursor.getDouble(cursor.getColumnIndexOrThrow("price")),
+                0.001
+            )
 
-            Assert.assertEquals(1, c.getInt(c.getColumnIndexOrThrow("photos_count")))
-            Assert.assertEquals(1, c.getInt(c.getColumnIndexOrThrow("videos_count")))
+            Assert.assertEquals(1, cursor.getInt(cursor.getColumnIndexOrThrow("photos_count")))
+            Assert.assertEquals(1, cursor.getInt(cursor.getColumnIndexOrThrow("videos_count")))
 
-            val poiIds = c.getString(c.getColumnIndexOrThrow("poi_ids"))
-            val mediaUrls = c.getString(c.getColumnIndexOrThrow("media_urls"))
+            val poiIds = cursor.getString(cursor.getColumnIndexOrThrow("poi_ids"))
+            val mediaUrls = cursor.getString(cursor.getColumnIndexOrThrow("media_urls"))
 
             val poiSet = poiIds?.split(',')?.toSet() ?: emptySet()
             Assert.assertEquals(setOf("HOSPITAL", "PARK"), poiSet)
@@ -171,11 +178,14 @@ class PropertyContentProviderTest {
 
     @Test
     fun queryById_returnsSingleRow() {
-        contentResolver.query(providerUri("properties/P1"), null, null, null, null).use { c ->
-            Assert.assertNotNull("Cursor null", c)
-            c!!; Assert.assertTrue(c.moveToFirst())
-            Assert.assertEquals("P1", c.getString(c.getColumnIndexOrThrow("id")))
-            Assert.assertFalse("Plus d'une ligne renvoyée", c.moveToNext())
+        contentResolver.query(
+            providerUri("properties/P1"), null, null,
+            null, null
+        )?.use { cursor ->
+            Assert.assertNotNull("Cursor null", cursor)
+            Assert.assertTrue(cursor.moveToFirst())
+            Assert.assertEquals("P1", cursor.getString(cursor.getColumnIndexOrThrow("id")))
+            Assert.assertFalse("Plus d'une ligne renvoyée", cursor.moveToNext())
         }
     }
 
@@ -185,11 +195,13 @@ class PropertyContentProviderTest {
         val latch = CountDownLatch(1)
 
         val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
-            override fun onChange(selfChange: Boolean) { latch.countDown() }
+            override fun onChange(selfChange: Boolean) {
+                latch.countDown()
+            }
         }
         contentResolver.registerContentObserver(uri, true, observer)
 
-        // Modifie la DB -> Room InvalidationTracker -> provider.notifyChange()
+        // Modify the DB -> Room InvalidationTracker -> provider.notifyChange()
         runBlocking {
             db.propertyDAO().updateProperty(
                 PropertyLocalEntity(

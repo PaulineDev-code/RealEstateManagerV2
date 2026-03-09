@@ -66,8 +66,7 @@ fun HomeScreen(
     detailsViewModel: PropertyDetailsViewModel
 ) {
     // Collect UI state from ViewModels
-    val detailsUiState by detailsViewModel.uiState.collectAsStateWithLifecycle()
-    val successDetailsState = detailsUiState as? PropertyDetailsViewModel.PropertyDetailsUiState.Success
+
     val listUiState by listViewModel.uiState.collectAsStateWithLifecycle()
     val successListState = listUiState as? PropertySharedViewModel.PropertyUiState.Success
 
@@ -188,6 +187,8 @@ fun HomeScreen(
             },
             detailPane = {
                 AnimatedPane(modifier = Modifier) {
+                    val detailsUiState by detailsViewModel.uiState.collectAsStateWithLifecycle()
+                    val successDetailsState = detailsUiState as? PropertyDetailsViewModel.PropertyDetailsUiState.Success
                     val propertyId = navigator.currentDestination?.contentKey
                     LaunchedEffect(propertyId) {
                         propertyId?.let { id ->

@@ -1,15 +1,13 @@
 <resources>
-    <string name="app_name">RealEstateManagerV2</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="app_name">RealEstateManager</string>
+    <string name="title_activity_main">Real Estate Manager</string>
     //Property infos
     <string name="description">Description</string>
     <string name="description_for_the_property">Description for the property</string>
     <string name="informations">Informations</string>
     <string name="media">Media</string>
     <string name="type">Type</string>
-    <string name="type_of_property">Type of property</string>
     <string name="price">Price</string>
-    <string name="price_of_property">Price of property</string>
     <string name="type_and_price">Type and Price</string>
     <string name="area">Area</string>
     <string name="rooms">Rooms</string>
@@ -51,8 +49,6 @@
     //Media related strings
     <string name="import_a_photo">Import a photo</string>
     <string name="import_a_video">Import a video</string>
-    <string name="description_of_the_photo">Description of the photo</string>
-    <string name="add_photo">Add photo</string>
     //HomeScreen
     <string name="select_property_to_details">Select a property to see its details</string>
     //SearchScreen
@@ -65,8 +61,8 @@
     <string name="min_number_of_medias">Min number of medias</string>
     <string name="min_price">Min Price</string>
     <string name="max_price">Max Price</string>
-    <string name="min_photo">Min Photo</string>
-    <string name="min_video">Max Video</string>
+    <string name="min_photos">Min Photos</string>
+    <string name="min_videos">Min Videos</string>
     <string name="min_area">Min Area</string>
     <string name="max_area">Max Area</string>
     <string name="min_and_max_price">Min and/or Max price</string>
@@ -77,7 +73,6 @@
     <string name="search_for_properties">Search for properties</string>
     //AddScreen
     <string name="add_a_new_property">Add a new Property</string>
-    <string name="add_proprety_validation_error">Fields are missing: </string>
     //EditScreen
     <string name="edit_this_property">Edit this Property</string>
     <string name="fill_all_fields">Save this property by providing at least one photo and filling all non-optional fields</string>
@@ -106,7 +101,7 @@
     <string name="next_photo">Next photo</string>
     <string name="previous_photo">Previous photo</string>
     <string name="close_photo_viewer">Close photo viewer</string>
-    <string name="photo_count">Photo %1$d of %2$d</string>
     <string name="image_load_error">Failed to load image</string>
+    <string name="photo_count">%1$d / %2$d</string>
     <string name="no_photos_available">No photos available</string>
 </resources>

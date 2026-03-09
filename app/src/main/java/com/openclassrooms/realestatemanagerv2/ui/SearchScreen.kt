@@ -123,18 +123,18 @@ fun SearchScreen(
                 onMaxNumberOfRoomsChange = { newMaxNumberOfRooms ->
                     searchPropertiesViewModel.updateMaxNumberOfRooms(newMaxNumberOfRooms)
                 },
-                minPhoto = editingState?.minPhotos?.value ?: "",
-                minPhotoError = editingState?.minPhotos?.error ?: "",
-                onMinPhotoChange = { newMinPhoto ->
+                minPhotos = editingState?.minPhotos?.value ?: "",
+                minPhotosError = editingState?.minPhotos?.error ?: "",
+                onMinPhotosChange = { newMinPhotos ->
                     searchPropertiesViewModel.updateMinPhotos(
-                        newMinPhoto
+                        newMinPhotos
                     )
                 },
-                minVideo = editingState?.minVideos?.value ?: "",
-                minVideoError = editingState?.minVideos?.error ?: "",
-                onMinVideoChange = { newMinVideo ->
+                minVideos = editingState?.minVideos?.value ?: "",
+                minVideosError = editingState?.minVideos?.error ?: "",
+                onMinVideosChange = { newMinVideos ->
                     searchPropertiesViewModel.updateMinVideos(
-                        newMinVideo
+                        newMinVideos
                     )
                 },
                 //date Picker for entry and sale date
@@ -229,16 +229,16 @@ fun SearchScreen(
                 onMaxNumberOfRoomsChange = { newMaxNumberOfRooms ->
                     searchPropertiesViewModel.updateMaxNumberOfRooms(newMaxNumberOfRooms)
                 },
-                minPhoto = editingState?.minPhotos?.value ?: "",
-                minPhotoError = editingState?.minPhotos?.error ?: "",
-                onMinPhotoChange = { newMinPhoto ->
+                minPhotos = editingState?.minPhotos?.value ?: "",
+                minPhotosError = editingState?.minPhotos?.error ?: "",
+                onMinPhotosChange = { newMinPhoto ->
                     searchPropertiesViewModel.updateMinPhotos(
                         newMinPhoto
                     )
                 },
-                minVideo = editingState?.minVideos?.value ?: "",
-                minVideoError = editingState?.minVideos?.error ?: "",
-                onMinVideoChange = { newMinVideo ->
+                minVideos = editingState?.minVideos?.value ?: "",
+                minVideosError = editingState?.minVideos?.error ?: "",
+                onMinVideosChange = { newMinVideo ->
                     searchPropertiesViewModel.updateMinVideos(
                         newMinVideo
                     )
@@ -332,12 +332,12 @@ fun SearchScreenPreview() {
         maxNumberOfRooms = "",
         maxNumberOfRoomsError = "",
         onMaxNumberOfRoomsChange = {},
-        minPhoto = "",
-        minPhotoError = "",
-        onMinPhotoChange = {},
-        minVideo = "",
-        minVideoError = "",
-        onMinVideoChange = {},
+        minPhotos = "",
+        minPhotosError = "",
+        onMinPhotosChange = {},
+        minVideos = "",
+        minVideosError = "",
+        onMinVideosChange = {},
         agentList = listOf(Agent("1", "John", "Doe", "test@gmail.com")),
         agent = Agent("1", "John", "Doe", "test@gmail.com"),
         onAgentSelected = {},

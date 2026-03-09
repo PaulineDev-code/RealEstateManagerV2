@@ -142,7 +142,9 @@ fun PhotoViewer(
             ) {
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    text = "${pagerState.currentPage + 1} / ${photos.size}",
+                    text = stringResource(
+                        R.string.photo_count,
+                        pagerState.currentPage + 1, photos.size),
                     color = Color.White,
                     style = MaterialTheme.typography.bodyLarge
                 )

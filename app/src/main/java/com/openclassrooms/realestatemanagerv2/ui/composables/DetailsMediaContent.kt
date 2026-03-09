@@ -69,6 +69,11 @@ fun DetailsMediaContent(
                     .height(128.dp)
                     .width(96.dp)
                     .padding(8.dp)
+                    .then(
+                        if (!isInEditMode) {
+                            Modifier.clickable { onPhotoClicked(index) }
+                        } else Modifier
+                    )
             ) {
                 // Photo
                 AsyncImage(
@@ -78,12 +83,7 @@ fun DetailsMediaContent(
                     contentDescription = photo.description,
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Gray)
-                        .then(
-                        if (!isInEditMode) {
-                            Modifier.clickable { onPhotoClicked(index) }
-                        } else Modifier
-                        ),
+                        .background(Color.Gray),
                     contentScale = ContentScale.Crop,
                     onError = { error ->
                         Log.e(

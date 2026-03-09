@@ -1,16 +1,11 @@
 package com.openclassrooms.realestatemanagerv2.repositories
 
 import androidx.room.withTransaction
-import com.openclassrooms.realestatemanagerv2.data.entity.PropertyLocalEntity
-import com.openclassrooms.realestatemanagerv2.data.entity.PropertyWithDetails
 import com.openclassrooms.realestatemanagerv2.data.dao.AgentDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.MediaDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.PointOfInterestCrossRefDAO
 import com.openclassrooms.realestatemanagerv2.data.dao.PropertyLocalDAO
 import com.openclassrooms.realestatemanagerv2.data.database.MyDatabase
-import com.openclassrooms.realestatemanagerv2.data.entity.AgentEntity
-import com.openclassrooms.realestatemanagerv2.data.entity.MediaEntity
-import com.openclassrooms.realestatemanagerv2.data.entity.PointOfInterestCrossRef
 import com.openclassrooms.realestatemanagerv2.domain.model.Property
 import com.openclassrooms.realestatemanagerv2.domain.model.PropertySearchCriteria
 import com.openclassrooms.realestatemanagerv2.domain.repositories.PropertyRepository

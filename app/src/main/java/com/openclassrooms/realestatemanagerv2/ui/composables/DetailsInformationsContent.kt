@@ -5,10 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -77,7 +74,13 @@ fun DetailsInformationsContent(property: Property) {
                 icon = R.drawable.ic_entry_date,
                 data = property.entryDate.formatMillisToLocal()
             )
-            //TODO : saleDate
+            if(property.saleDate != null) {
+                IndividualDetailsContent(
+                    title = stringResource(id = R.string.sale_date),
+                    icon = R.drawable.ic_sale_date,
+                    data = property.saleDate.formatMillisToLocal()
+                )
+            }
             IndividualDetailsContent(
                 title = stringResource(id = R.string.agent),
                 icon = R.drawable.ic_agent,
@@ -166,7 +169,7 @@ private fun MyInfoContentPreview() {
         listOf(PointOfInterest.PHARMACY, PointOfInterest.RESTAURANT),
         PropertyStatus.Available,
         338210283777,
-        null,
+        448210283777,
         Agent("1", "Will", "911", "willagent@brooklyn.com")
     )
     )

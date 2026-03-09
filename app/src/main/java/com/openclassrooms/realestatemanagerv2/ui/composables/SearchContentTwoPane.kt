@@ -2,14 +2,9 @@ package com.openclassrooms.realestatemanagerv2.ui.composables
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -56,12 +51,12 @@ fun SearchContentTwoPane(
     maxNumberOfRooms: String,
     maxNumberOfRoomsError: String,
     onMaxNumberOfRoomsChange: (String) -> Unit,
-    minPhoto: String,
-    minPhotoError: String,
-    onMinPhotoChange: (String) -> Unit,
-    minVideo: String,
-    minVideoError: String,
-    onMinVideoChange: (String) -> Unit,
+    minPhotos: String,
+    minPhotosError: String,
+    onMinPhotosChange: (String) -> Unit,
+    minVideos: String,
+    minVideosError: String,
+    onMinVideosChange: (String) -> Unit,
     agent: Agent?,
     agentList: List<Agent>,
     onAgentSelected: (Agent) -> Unit,
@@ -119,16 +114,16 @@ fun SearchContentTwoPane(
             SearchMinMaxElement(
                 modifier = Modifier,
                 title = stringResource(R.string.min_number_of_medias),
-                minValue = minPhoto,
-                maxValue = minVideo,
-                onMinValueChange = onMinPhotoChange,
-                onMaxValueChange = onMinVideoChange,
-                minValueLabel = stringResource(id = R.string.min_photo),
-                maxValueLabel = stringResource(id = R.string.min_video),
-                minValuePlaceHolder = stringResource(id = R.string.min_photo),
-                maxValuePlaceHolder = stringResource(id = R.string.min_video),
-                minValueError = minPhotoError,
-                maxValueError = minVideoError
+                minValue = minPhotos,
+                maxValue = minVideos,
+                onMinValueChange = onMinPhotosChange,
+                onMaxValueChange = onMinVideosChange,
+                minValueLabel = stringResource(id = R.string.min_photos),
+                maxValueLabel = stringResource(id = R.string.min_videos),
+                minValuePlaceHolder = stringResource(id = R.string.min_photos),
+                maxValuePlaceHolder = stringResource(id = R.string.min_videos),
+                minValueError = minPhotosError,
+                maxValueError = minVideosError
             )
 
             SearchMinMaxElement(
@@ -252,7 +247,9 @@ fun SearchContentTwoPane(
 @Composable
 fun SearchContentTwoPanePreview() {
     SearchContentTwoPane(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()),
         selectedEntryDate = 44738399,
         onEntryDateSelected = {},
         isEntryDateDialogShown = false,
@@ -289,12 +286,12 @@ fun SearchContentTwoPanePreview() {
         maxNumberOfRooms = "",
         maxNumberOfRoomsError = "",
         onMaxNumberOfRoomsChange = {},
-        minPhoto = "",
-        minPhotoError = "",
-        onMinPhotoChange = {},
-        minVideo = "",
-        minVideoError = "",
-        onMinVideoChange = {},
+        minPhotos = "",
+        minPhotosError = "",
+        onMinPhotosChange = {},
+        minVideos = "",
+        minVideosError = "",
+        onMinVideosChange = {},
         agentList = listOf(Agent("1", "John", "Doe", "test@gmail.com")),
         agent = Agent("1", "John", "Doe", "test@gmail.com"),
         onAgentSelected = {},

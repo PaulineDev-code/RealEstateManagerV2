@@ -107,7 +107,7 @@ fun ZoomableImage (
                         val pointerCount = pressed.size
 
                         when {
-                            // Multi-touch : manage zoom
+                            // Multitouch : manage zoom
                             pointerCount >= 2 -> {
                                 val (centroid, distance) = calculateCentroidAndDistance(pressed)
 
