@@ -89,7 +89,7 @@ class ImageUtils(private val context: Context) {
             // Return URI from local file using FileProvider
             FileProvider.getUriForFile(
                 context,
-                "${context.packageName}.fileprovider", // L'autorité de votre FileProvider
+                "${context.packageName}.fileprovider", // Authority of the FileProvider
                 destinationFile
             )
         } catch (e: IOException) {
