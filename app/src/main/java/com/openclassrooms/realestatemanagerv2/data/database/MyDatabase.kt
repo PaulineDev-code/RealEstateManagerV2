@@ -19,7 +19,7 @@ import javax.inject.Singleton
 @Database(entities = [PropertyLocalEntity::class, PointOfInterestEntity::class,
     MediaEntity::class, AgentEntity::class, PointOfInterestCrossRef::class],
     views = [PropertyWithDetailsRow::class],
-    version = 1, exportSchema = false)
+    version = 1, exportSchema = true)
 @Singleton
 abstract class MyDatabase : RoomDatabase() {
 
