@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id 'com.android.application'
@@ -41,10 +42,6 @@ android {
         testInstrumentationRunner "com.openclassrooms.realestatemanagerv2.CustomTestRunner"
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -72,6 +69,12 @@ android {
     lint {
         abortOnError true
         checkReleaseBuilds true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget("17")
     }
 }
 
