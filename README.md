@@ -8,7 +8,7 @@ Développée en Kotlin avec Jetpack Compose, Room et Hilt, l’application met e
 
 ### Consulter les biens immobiliers
 
-L’application permet de consulter l’ensemble des biens enregistrés avec leurs informations essentielles : type de bien, prix, description, première photo associée.
+L’application permet de consulter l’ensemble des biens enregistrés avec leurs informations essentielles : type de bien, prix, description, photo principale.
 
 <img width="108" height="234" alt="image" src="https://github.com/user-attachments/assets/48913d73-d8e8-4d2c-8156-00124a1c3f8e" />
 
@@ -24,7 +24,7 @@ Chaque bien dispose d’un écran de détail regroupant les informations utiles 
 Les utilisateurs peuvent créer ou modifier un bien immobilier à travers un formulaire complet.  
 La fiche peut être enrichie avec des photos, des vidéos, des points d’intérêt, un agent associé et des informations de mise en vente ou de vente.
 
-<img width="108" height="234" alt="image" src="https://github.com/user-attachments/assets/1b14cbc1-4fde-41cf-90d2-584b3a0450be" />      <img width="108" height="234" alt="image" src="https://github.com/user-attachments/assets/ee414553-41ad-4ed4-8f68-3b211eb51fc1" />      <img width="108" height="234" alt="image" src="https://github.com/user-attachments/assets/99279e25-3c33-4548-b02d-aef4a2523c3f" />      <img width="108" height="234" alt="image" src="https://github.com/user-attachments/assets/dd4b04ea-5a3e-4b04-89d8-db881072a0ee" />
+<img width="108" height="234" alt="image" src="https://github.com/user-attachments/assets/1b14cbc1-4fde-41cf-90d2-584b3a0450be" />      <img width="108" height="234" alt="image" src="https://github.com/user-attachments/assets/ee414553-41ad-4ed4-8f68-3b211eb51fc1" />  
 
 ### Rechercher avec des filtres avancés
 
@@ -38,7 +38,7 @@ L’application propose une vue cartographique permettant de localiser les biens
 
 <img width="108" height="234" alt="image" src="https://github.com/user-attachments/assets/af8ee481-8600-4af6-a2ec-f48783c2ffac" />
 
-### Profiter d’une interface adaptée au téléphone et à la tablette
+### Utiliser une interface adaptée au téléphone et à la tablette
 
 L’interface s’adapte à la taille de l’écran. Sur tablette, l’application peut afficher la liste des biens et le détail sélectionné côte à côte, afin d’exploiter au mieux l’espace disponible.
 
