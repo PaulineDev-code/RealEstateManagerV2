@@ -44,3 +44,116 @@ L’interface s’adapte à la taille de l’écran. Sur tablette, l’applicati
 
 <img width="370" height="217" alt="CleanShot 2026-05-27 at 21 20 08@2x" src="https://github.com/user-attachments/assets/73fea5e7-06b4-4a32-99cf-1bc38d49da52" /> 
 
+## Architecture et choix techniques
+
+Real Estate Manager repose sur une architecture en couches inspirée de la Clean Architecture.  
+L’objectif est de séparer les responsabilités entre l’interface, la logique métier et l’accès aux données, tout en gardant une structure adaptée à un projet Android mono-module.
+
+### Stack utilisée
+
+| Domaine | Technologies |
+|---|---|
+| Langage | Kotlin |
+| Interface | Jetpack Compose, Material 3 |
+| Navigation | Navigation Compose, Material 3 Adaptive |
+| Architecture | MVVM, principes de Clean Architecture |
+| Injection de dépendances | Hilt |
+| Persistance locale | Room, SQLite |
+| Asynchrone / état UI | Coroutines, StateFlow |
+| Images / médias | Coil, Media3 |
+| Carte et localisation | Google Maps, Maps Compose, Play Services Location |
+| Tests | JUnit, Mockito, Robolectric, Turbine, Hilt Android Testing, Compose UI Tests |
+
+### Organisation générale
+
+```text
+Presentation
+├── Écrans Jetpack Compose
+├── Composables réutilisables
+├── ViewModels
+└── UI states
+
+Domain
+├── Modèles métier
+├── Use cases
+└── Contrats des repositories
+
+Data
+├── Implémentations des repositories
+├── Room database
+├── DAOs
+├── Entités locales
+├── Relations entre entités
+├── Mappers
+├── Network monitor
+└── ContentProvider
+
+DI
+└── Modules Hilt
+```
+
+### Choix techniques et fonctionnalités avancées
+
+- **Approche offline-first** : les biens, agents, médias et points d’intérêt sont stockés localement avec Room, ce qui permet à l’application de rester exploitable sans connexion réseau.
+
+- **Modèle de données relationnel** : un bien est associé à un agent, à une liste de médias et à plusieurs points d’intérêt via une table de jonction.
+
+- **Recherche multicritère avancée** : la recherche combine plusieurs filtres optionnels : type de bien, prix, surface, nombre de pièces, nombre de photos ou vidéos, points d’intérêt, dates et agent responsable.
+
+- **Interface adaptative** : l’application adapte sa navigation et ses écrans aux téléphones et tablettes, avec un affichage liste / détail sur les grands écrans.
+
+- **Gestion explicite de l’état UI** : les écrans s’appuient sur des sealed UI states pour représenter les états de chargement, de succès et d’erreur.
+
+- **Gestion réseau** : l’application observe l’état de connexion pour signaler les pertes réseau et relancer certaines mises à jour lorsque la connexion redevient disponible.
+
+- **Géocodage différé des biens** : lorsqu’un bien est créé sans coordonnées disponibles, son adresse peut être résolue plus tard afin de compléter sa latitude et sa longitude.
+
+- **Gestion des médias** : les biens peuvent être enrichis avec des photos et des vidéos, associées à la fiche du bien et persistées localement.
+
+- **Formatage local des dates et des prix** : l’application adapte l’affichage de certaines informations, comme les dates et les montants, au format local de l’utilisateur.
+
+- **Validation des formulaires** : les formulaires de création, modification et recherche s’appuient sur une validation progressive des champs pour limiter les entrées invalides.
+
+- **ContentProvider en lecture seule** : certaines données immobilières sont exposées via un ContentProvider, avec notification des changements lorsque les tables Room concernées sont modifiées.
+
+- **Tests sur plusieurs couches** : le projet contient des tests unitaires, des tests de repositories, des tests de ViewModels et des tests instrumentés pour des comportements Android spécifiques.
+
+## Tests
+
+Le projet contient des tests sur plusieurs couches de l’application :
+
+* tests unitaires des use cases et de la logique métier ;
+* tests de ViewModels et de gestion d’état ;
+* tests de repositories avec base Room en mémoire ;
+* tests instrumentés pour certains comportements Android spécifiques, notamment le ContentProvider et la synchronisation liée au réseau.
+
+## Installation
+
+### Prérequis
+
+* Android Studio
+* Android SDK 36
+* Une clé API Google Maps
+
+### Configuration
+
+Ajouter la clé Google Maps dans le fichier `local.properties` à la racine du projet :
+
+```properties
+MAPS_API_KEY=your_api_key_here
+```
+
+Lancer ensuite le projet depuis Android Studio sur un émulateur ou un appareil physique.
+
+## Améliorations possibles
+
+* Ajouter une synchronisation distante avec un backend
+* Externaliser les taux de conversion monétaire au lieu d’utiliser des valeurs statiques
+* Ajouter une pagination pour améliorer les performances de la liste
+* Raffiner la séparation des mappers pour rapprocher davantage le projet d’une Clean Architecture stricte
+
+## Contexte
+
+Ce projet a été réalisé dans le cadre d’un parcours de formation Android et retravaillé comme projet portfolio.
+
+Il met en pratique des problématiques courantes du développement Android moderne : persistance locale, architecture en couches, interface adaptative, gestion d’état, recherche multicritère, géolocalisation, tests et intégration de composants Android comme le ContentProvider.
