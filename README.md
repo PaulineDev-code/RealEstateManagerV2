@@ -36,7 +36,7 @@ La recherche multicritère permet de filtrer les biens selon plusieurs critères
 
 L’application propose une vue cartographique permettant de localiser les biens immobiliers à partir de leur adresse et de visualiser leur répartition géographique.
 
-<img width="162" height="351" alt="Carte avec bien immobiliers" src="https://github.com/user-attachments/assets/af8ee481-8600-4af6-a2ec-f48783c2ffac" />
+<img width="162" height="351" alt="Carte avec biens immobiliers" src="https://github.com/user-attachments/assets/af8ee481-8600-4af6-a2ec-f48783c2ffac" />
 
 ### Utiliser une interface adaptée au téléphone et à la tablette
 
@@ -46,8 +46,9 @@ L’interface s’adapte à la taille de l’écran. Sur tablette, l’applicati
 
 ## Architecture et choix techniques
 
-Real Estate Manager repose sur une architecture en couches inspirée de la Clean Architecture.  
-L’objectif est de séparer les responsabilités entre l’interface, la logique métier et l’accès aux données, tout en gardant une structure adaptée à un projet Android mono-module. Les ViewModels exposent les états observés par les écrans Compose. Les use cases portent les actions métier, tandis que les repositories font le lien entre le domaine et les sources de données locales.
+L’objectif est de séparer les responsabilités entre l’interface, la logique métier et l’accès aux données, tout en gardant une structure adaptée à un projet Android mono-module.
+
+Les ViewModels exposent les états observés par les écrans Compose. Les use cases portent les actions métier, tandis que les repositories font le lien entre le domaine et les sources de données locales.
 
 ### Stack utilisée
 
@@ -148,7 +149,7 @@ Lancer ensuite le projet depuis Android Studio sur un émulateur ou un appareil 
 
 * Ajouter une synchronisation distante avec un backend
 * Externaliser les taux de conversion monétaire au lieu d’utiliser des valeurs statiques
-* Ajouter une pagination pour améliorer les performances de la liste
+* Optimiser l’affichage de grandes listes de biens
 * Raffiner la séparation des mappers pour rapprocher davantage le projet d’une Clean Architecture stricte
 
 ## Contexte
