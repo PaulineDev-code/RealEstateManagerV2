@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.google.android.gms.maps.model.LatLng
 import com.openclassrooms.realestatemanagerv2.domain.model.Agent
 import com.openclassrooms.realestatemanagerv2.domain.model.Media
@@ -16,6 +17,7 @@ import com.openclassrooms.realestatemanagerv2.domain.usecases.GetAllAgentsUseCas
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetLocationUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.GetPropertyByIdUseCase
 import com.openclassrooms.realestatemanagerv2.domain.usecases.UpdatePropertyUseCase
+import com.openclassrooms.realestatemanagerv2.ui.EditProperty
 import com.openclassrooms.realestatemanagerv2.ui.models.FormField
 import com.openclassrooms.realestatemanagerv2.ui.states.PropertyFormUiState
 import com.openclassrooms.realestatemanagerv2.utils.convertFromLocalCurrency
@@ -54,6 +56,8 @@ class EditPropertyViewModel @Inject constructor
     private val savedState: SavedStateHandle
 ) : ViewModel() {
 
+    private val route = savedState.toRoute<EditProperty>()
+    private val propertyId = route.propertyId
     /**
      * Cache used to restore user input when returning from an Error state.
      */

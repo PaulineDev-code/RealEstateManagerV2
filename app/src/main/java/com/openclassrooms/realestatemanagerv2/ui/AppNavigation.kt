@@ -1,7 +1,10 @@
 package com.openclassrooms.realestatemanagerv2.ui
 
-import android.net.Uri
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
@@ -13,42 +16,69 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldLayout
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.openclassrooms.realestatemanagerv2.ui.states.PropertyUiState
 import com.openclassrooms.realestatemanagerv2.viewmodels.EditPropertyViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewModel
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
+import com.openclassrooms.realestatemanagerv2.R
 
+// Define your primary navigation destinations
+private val primaryDestinations = listOf(
+    TopLevelDestination(
+        route = Home,
+        labelRes = R.string.list,
+        icon = Icons.AutoMirrored.Filled.List
+    ),
+    TopLevelDestination(
+        route = Search,
+        labelRes = R.string.search,
+        icon = Icons.Filled.Search
+    ),
+    TopLevelDestination(
+        route = Map,
+        labelRes = R.string.map,
+        icon = Icons.Filled.LocationOn
+    )
+)
 
-
+private fun NavHostController.navigateToTopLevel(
+    route: TopLevelRoute
+) {
+    navigate(route) {
+        popUpTo(graph.findStartDestination().id) {
+            saveState = true
+        }
+        launchSingleTop = true
+        restoreState = true
+    }
+}
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun AppNavigation(windowAdaptiveInfo: WindowAdaptiveInfo) {
 
-    // Define your primary navigation destinations
-    val primaryDestinations = listOf(BottomNavItem.List, BottomNavItem.Search, BottomNavItem.Map)
-
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route?.substringBefore("?")
+    val currentDestination = navBackStackEntry?.destination
 
     // This determines if we should show the full NavSuite (BottomNav, Rail, Drawer)
     // or if we are in a different flow (e.g., AddScreen, EditScreen, DetailsScreen on compact)
     val showNavSuite =
-        primaryDestinations.any { it.route == currentRoute } || currentRoute == null // Show on start
+    currentDestination == null || // Show on start
+        primaryDestinations.any {
+            currentDestination.hasRoute(it.route::class)
+        }
 
     // Determine the type of navigation suite based on window size
     val navigationSuiteType =
@@ -62,23 +92,17 @@ fun AppNavigation(windowAdaptiveInfo: WindowAdaptiveInfo) {
                         Spacer(Modifier.weight(1f))
                         primaryDestinations.forEach { screen ->
                             NavigationRailItem(
-                                selected = currentRoute == screen.route,
+                                selected = currentDestination?.hasRoute(screen.route::class) == true,
                                 onClick = {
-                                    navController.navigate(screen.route) {
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
+                                    navController.navigateToTopLevel(screen.route)
                                 },
                                 icon = {
                                     Icon(
                                         screen.icon,
-                                        contentDescription = screen.title
+                                        contentDescription = stringResource(screen.labelRes)
                                     )
                                 },
-                                label = { Text(screen.title) }
+                                label = { Text(stringResource(screen.labelRes)) }
                             )
                         }
                         Spacer(Modifier.weight(1f))
@@ -87,23 +111,17 @@ fun AppNavigation(windowAdaptiveInfo: WindowAdaptiveInfo) {
                     NavigationSuite {
                         primaryDestinations.forEach { screen ->
                             item(
-                                selected = currentRoute == screen.route,
+                                selected = currentDestination?.hasRoute(screen.route::class) == true,
                                 onClick = {
-                                    navController.navigate(screen.route) {
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
+                                    navController.navigateToTopLevel(screen.route)
                                 },
                                 icon = {
                                     Icon(
                                         screen.icon,
-                                        contentDescription = screen.title
+                                        contentDescription = stringResource(screen.labelRes)
                                     )
                                 },
-                                label = { Text(screen.title) }
+                                label = { Text(stringResource(screen.labelRes)) }
                             )
                         }
                     }
@@ -130,76 +148,59 @@ fun AppNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = BottomNavItem.List.fullRoute,
+        startDestination = Home,
         modifier = modifier
     ) {
 
-        composable(
-            route = BottomNavItem.List.fullRoute,
-            arguments = listOf(
-                navArgument(BottomNavItem.List.ARG_NEW_ID) {
-                    type = NavType.StringType
-                    nullable = true
-                    defaultValue = null
-                }
-            )
-        ) { backStackEntry ->
+        composable<Home> { backStackEntry ->
             val sharedViewModel = hiltViewModel<PropertySharedViewModel>(backStackEntry)
             val detailsViewModel = hiltViewModel<PropertyDetailsViewModel>()
-            val newId: String? =
-                backStackEntry.arguments?.getString(BottomNavItem.List.ARG_NEW_ID)?.let(Uri::decode)
-            val uiState by sharedViewModel.uiState.collectAsState()
-            LaunchedEffect(newId, uiState) {
-                if (newId != null && uiState is PropertyUiState.Success) {
-                    sharedViewModel.updateAddedProperty(newId)
-                    backStackEntry.arguments?.remove(BottomNavItem.List.ARG_NEW_ID)
-                }
-            }
 
             HomeScreen(
                 windowAdaptiveInfo = windowAdaptiveInfo,
                 navController = navController,
                 listViewModel = sharedViewModel,
                 detailsViewModel = detailsViewModel,
-                onNavigateToAdd = { navController.navigate("add_screen") },
+                onNavigateToAdd = { navController.navigate(AddProperty) },
                 onNavigateToEdit = { propertyId ->
-                    navController.navigate("edit_estate/$propertyId")
+                    navController.navigate(EditProperty(propertyId))
                 }
             )
         }
-        composable(BottomNavItem.Map.route) { backStackEntry ->
+        composable<Map> { backStackEntry ->
 
-            val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry(BottomNavItem.List.fullRoute)
+            val homeEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(Home)
             }
-            val sharedViewModel = hiltViewModel<PropertySharedViewModel>(parentEntry)
+            val sharedViewModel = hiltViewModel<PropertySharedViewModel>(homeEntry)
             val detailsViewModel = hiltViewModel<PropertyDetailsViewModel>()
+
             MapScreen(
                 windowAdaptiveInfo = windowAdaptiveInfo,
                 navController = navController,
-                onNavigateToAdd = { navController.navigate("add_screen") },
+                onNavigateToAdd = { navController.navigate(AddProperty) },
                 onNavigateToEdit = { propertyId ->
-                    navController.navigate("edit_estate/$propertyId")
+                    navController.navigate(EditProperty(propertyId))
                 },
                 propertiesViewModel = sharedViewModel,
                 detailsViewModel = detailsViewModel
             )
         }
-        composable(BottomNavItem.Search.route) {
+        composable<Search> {
             SearchScreen(
                 windowAdaptiveInfo = windowAdaptiveInfo,
                 navController = navController,
-                onNavigateToAdd = { navController.navigate("add_screen") }
+                onNavigateToAdd = { navController.navigate(AddProperty) }
             )
         }
-        composable("add_screen") {
+        composable<AddProperty> {
             AddScreen(
                 navController = navController,
                 windowAdaptiveInfo = windowAdaptiveInfo,
                 onUpClicked = { navController.popBackStack() }
             )
         }
-        composable("edit_estate/{propertyId}") { backStackEntry ->
+        composable<EditProperty> { backStackEntry ->
 
             val editViewModel = hiltViewModel<EditPropertyViewModel>(backStackEntry)
 
