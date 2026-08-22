@@ -58,6 +58,7 @@ class EditPropertyViewModel @Inject constructor
 
     private val route = savedState.toRoute<EditProperty>()
     private val propertyId = route.propertyId
+
     /**
      * Cache used to restore user input when returning from an Error state.
      */
@@ -74,38 +75,35 @@ class EditPropertyViewModel @Inject constructor
     val allPointOfInterestList: List<PointOfInterest> = PointOfInterest.entries
 
     init {
-        val propertyId = savedState.get<String>("propertyId")
         viewModelScope.launch {
             try {
-                if (propertyId != null) {
-                    val property = getPropertyByIdUseCase(propertyId)
+                val property = getPropertyByIdUseCase(propertyId)
 
-                    val agents = getAllAgentsUseCase()
-                    Log.d("EditViewModel", "Collected agents: $agents")
-                    val newState = PropertyFormUiState.Editing(
-                        id = property.id,
-                        description = FormField(value = property.description),
-                        type = FormField(value = property.type),
-                        price = FormField(
-                            value = property.price.convertToLocalCurrency().toString()
-                        ),
-                        area = FormField(value = property.area.toString()),
-                        numberOfRooms = FormField(value = property.numberOfRooms.toString()),
-                        mediaLists = property.media,
-                        videoUri = property.media.find { it is Video }?.mediaUrl ?: "",
-                        address = FormField(value = property.address),
-                        nearbyPointSet = property.nearbyPointsOfInterest.toSet(),
-                        entryDate = property.entryDate,
-                        saleDate = property.saleDate,
-                        agent = property.agent,
-                        agentList = agents,
-                        isFormValid = false,
-                    )
-                    _uiState.value = newState.copy(isFormValid = isFormValid(newState))
+                val agents = getAllAgentsUseCase()
+                Log.d("EditViewModel", "Collected agents: $agents")
+                val newState = PropertyFormUiState.Editing(
+                    id = property.id,
+                    description = FormField(value = property.description),
+                    type = FormField(value = property.type),
+                    price = FormField(
+                        value = property.price.convertToLocalCurrency().toString()
+                    ),
+                    area = FormField(value = property.area.toString()),
+                    numberOfRooms = FormField(value = property.numberOfRooms.toString()),
+                    mediaLists = property.media,
+                    videoUri = property.media.find { it is Video }?.mediaUrl ?: "",
+                    address = FormField(value = property.address),
+                    nearbyPointSet = property.nearbyPointsOfInterest.toSet(),
+                    entryDate = property.entryDate,
+                    saleDate = property.saleDate,
+                    agent = property.agent,
+                    agentList = agents,
+                    isFormValid = false,
+                )
+                _uiState.value = newState.copy(isFormValid = isFormValid(newState))
 
-                    savedState.remove<String>("propertyId")
-                    initialProperty = property
-                }
+                savedState.remove<String>("propertyId")
+                initialProperty = property
 
             } catch (exception: Exception) {
                 Log.e("ViewModel", "Error collecting agents", exception)
@@ -143,7 +141,8 @@ class EditPropertyViewModel @Inject constructor
                 }
 
                 val newProperty = Property(
-                    id = currentState.id ?: initialProperty?.id ?: throw IllegalStateException("Property ID is missing"),
+                    id = currentState.id ?: initialProperty?.id
+                    ?: throw IllegalStateException("Property ID is missing"),
                     type = currentState.type.value,
                     price = currentState.price.value.toDouble().convertFromLocalCurrency(),
                     area = currentState.area.value.toDouble(),

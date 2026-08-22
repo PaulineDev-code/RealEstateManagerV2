@@ -16,11 +16,13 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldLayout
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -33,6 +35,8 @@ import com.openclassrooms.realestatemanagerv2.viewmodels.PropertyDetailsViewMode
 import com.openclassrooms.realestatemanagerv2.viewmodels.PropertySharedViewModel
 import com.openclassrooms.realestatemanagerv2.R
 
+private const val EDITED_PROPERTY_ID = "editedPropertyId"
+private const val ADDED_PROPERTY_ID = "addedPropertyId"
 // Define your primary navigation destinations
 private val primaryDestinations = listOf(
     TopLevelDestination(
@@ -155,6 +159,34 @@ fun AppNavHost(
         composable<Home> { backStackEntry ->
             val sharedViewModel = hiltViewModel<PropertySharedViewModel>(backStackEntry)
             val detailsViewModel = hiltViewModel<PropertyDetailsViewModel>()
+            val addedPropertyId by backStackEntry.savedStateHandle
+                .getStateFlow<String?>(
+                    ADDED_PROPERTY_ID,
+                    null
+                )
+                .collectAsStateWithLifecycle()
+            val editedPropertyId by backStackEntry.savedStateHandle
+                .getStateFlow<String?>(
+                    EDITED_PROPERTY_ID,
+                    null
+                )
+                .collectAsStateWithLifecycle()
+
+            LaunchedEffect(addedPropertyId) {
+                addedPropertyId?.let { propertyId ->
+                    sharedViewModel.updateAddedProperty(propertyId)
+
+                    backStackEntry.savedStateHandle[ADDED_PROPERTY_ID] = null
+                }
+            }
+
+            LaunchedEffect(editedPropertyId) {
+                editedPropertyId?.let { propertyId ->
+                    sharedViewModel.updateAddedProperty(propertyId)
+
+                    backStackEntry.savedStateHandle[EDITED_PROPERTY_ID] = null
+                }
+            }
 
             HomeScreen(
                 windowAdaptiveInfo = windowAdaptiveInfo,
@@ -197,7 +229,15 @@ fun AppNavHost(
             AddScreen(
                 navController = navController,
                 windowAdaptiveInfo = windowAdaptiveInfo,
-                onUpClicked = { navController.popBackStack() }
+                onUpClicked = { navController.popBackStack() },
+                onAddedSuccess = { propertyId ->
+                    val homeEntry = navController.getBackStackEntry(Home)
+
+                    homeEntry.savedStateHandle[ADDED_PROPERTY_ID] = propertyId
+
+                    navController.popBackStack()
+                    navController.navigateToTopLevel(Home)
+                }
             )
         }
         composable<EditProperty> { backStackEntry ->
@@ -208,6 +248,14 @@ fun AppNavHost(
                 navController = navController,
                 windowAdaptiveInfo = windowAdaptiveInfo,
                 onUpClicked = { navController.popBackStack() },
+                onEditSuccess = { propertyId ->
+                    val homeEntry = navController.getBackStackEntry(Home)
+
+                    homeEntry.savedStateHandle[EDITED_PROPERTY_ID] = propertyId
+
+                    navController.popBackStack()
+                    navController.navigateToTopLevel(Home)
+                                },
                 editViewModel = editViewModel
             )
         }

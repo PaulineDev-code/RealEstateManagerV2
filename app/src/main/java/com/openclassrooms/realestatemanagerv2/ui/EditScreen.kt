@@ -31,6 +31,7 @@ fun EditScreen(
     navController: NavController,
     windowAdaptiveInfo: WindowAdaptiveInfo,
     onUpClicked: () -> Unit,
+    onEditSuccess: (String) -> Unit,
     editViewModel: EditPropertyViewModel
 ) {
     val uiState = editViewModel.uiState.collectAsState().value
@@ -40,9 +41,7 @@ fun EditScreen(
     LaunchedEffect(updatedPropertyId) {
         updatedPropertyId ?: return@LaunchedEffect
         // 1. Navigate and pass the id to home screen
-        navController.navigate(BottomNavItem.List.routeWith(updatedPropertyId)) {
-            popUpTo("edit_screen") { inclusive = true }
-        }
+        onEditSuccess(updatedPropertyId)
         // 2. Clear local state
         editViewModel.returnToEditingState()
         Toast.makeText(context, "Property edited succesfully", Toast.LENGTH_LONG).show()

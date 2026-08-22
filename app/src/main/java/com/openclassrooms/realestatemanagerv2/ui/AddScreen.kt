@@ -38,6 +38,7 @@ fun AddScreen(
     windowAdaptiveInfo: WindowAdaptiveInfo,
     navController: NavController,
     onUpClicked: () -> Unit,
+    onAddedSuccess: (String) -> Unit,
     addViewModel: AddPropertyViewModel = hiltViewModel()
 ) {
     val uiState by addViewModel.uiState.collectAsStateWithLifecycle()
@@ -49,9 +50,7 @@ fun AddScreen(
     LaunchedEffect(addedPropertyId) {
         addedPropertyId ?: return@LaunchedEffect
         // 1. Navigate and pass the id to home screen
-        navController.navigate(BottomNavItem.List.routeWith(addedPropertyId)) {
-            popUpTo("add_screen") { inclusive = true }
-        }
+        onAddedSuccess(addedPropertyId)
         // 2. Clear local state
         addViewModel.returnToEditingState()
         Toast.makeText(context, "Property added successfully", Toast.LENGTH_LONG).show()
