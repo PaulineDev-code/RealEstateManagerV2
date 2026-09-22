@@ -272,9 +272,7 @@ fun HomeScreen(
                         }
                     }
                 }
-            },
-            paneExpansionState = rememberPaneExpansionState(navigator.scaffoldValue),
-            paneExpansionDragHandle = {}
+            }
         )
     }
 }
