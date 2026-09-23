@@ -63,7 +63,10 @@ fun DetailsMediaContent(
         modifier = modifier.padding(8.dp)
     )
     LazyRow(modifier = Modifier.fillMaxWidth()) {
-        itemsIndexed(items = photoList) { index, photo ->
+        itemsIndexed(
+            items = photoList,
+            key = { _, photo -> photo.mediaUrl }
+        ) { index, photo ->
             Box(
                 modifier = Modifier
                     .height(128.dp)
@@ -135,7 +138,10 @@ fun DetailsMediaContent(
 
     if (videoList.isNotEmpty()) {
         LazyRow(modifier = Modifier.fillMaxWidth()) {
-            itemsIndexed(items = videoList) { _, video ->
+            itemsIndexed(
+                items = videoList,
+                key = { _, video -> video.mediaUrl }
+                ) { _, video ->
                 Box(
                     modifier = Modifier
                         .height(128.dp)
