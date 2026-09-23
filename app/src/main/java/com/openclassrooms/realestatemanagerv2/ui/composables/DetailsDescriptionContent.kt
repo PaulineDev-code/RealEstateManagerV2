@@ -30,13 +30,15 @@ fun DetailsDescriptionContent(description: String, modifier: Modifier = Modifier
 @ResponsiveWidths
 @Composable
 fun DetailsDescriptionContentPreview() {
-    DetailsDescriptionContent(
-        description = "Spacious three-bedroom apartment on a quiet tree-lined street, " +
-                "with a south-facing living room, an open kitchen renovated in 2023, " +
-                "oak parquet floors throughout and a private cellar. Two blocks from " +
-                "the subway station and a five-minute walk from the park.",
-        modifier = Modifier
-            .padding(4.dp)
-            .widthIn(max = 480.dp)
-    )
+    Column(modifier = Modifier.padding(8.dp)) {
+        DetailsDescriptionContent(
+            description = "Spacious three-bedroom apartment on a quiet tree-lined street, " +
+                    "with a south-facing living room, an open kitchen renovated in 2023, " +
+                    "oak parquet floors throughout and a private cellar. Two blocks from " +
+                    "the subway station and a five-minute walk from the park.",
+            modifier = Modifier
+                .padding(4.dp)
+                .widthIn(max = 480.dp)
+        )
+    }
 }
