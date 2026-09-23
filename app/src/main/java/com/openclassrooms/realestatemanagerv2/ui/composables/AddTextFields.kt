@@ -2,6 +2,7 @@ package com.openclassrooms.realestatemanagerv2.ui.composables
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.padding
@@ -61,6 +62,7 @@ fun AddTextFields(
         )
     }, modifier = Modifier
         .widthIn(max = 480.dp)
+        .fillMaxWidth()
         .heightIn(min = 128.dp)
         .padding(8.dp),
         text = description,
